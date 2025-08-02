@@ -1,0 +1,45 @@
+{
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "cart": "Cart",
+    "profile": "Profile",
+    "signin": "Sign In",
+    "signup": "Sign Up",
+    "admin": "Admin"
+  },
+  "home": {
+    "title": "Premium E-Commerce",
+    "subtitle": "Discover luxury products crafted for modern living",
+    "featured": "Featured Products",
+    "categories": "Categories"
+  },
+  "products": {
+    "title": "Products",
+    "filter": "Filter",
+    "sort": "Sort by",
+    "price": "Price",
+    "brand": "Brand",
+    "category": "Category",
+    "tags": "Tags",
+    "addToCart": "Add to Cart",
+    "outOfStock": "Out of Stock"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "total": "Total",
+    "checkout": "Checkout",
+    "quantity": "Quantity"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "categories": "Categories",
+    "brands": "Brands",
+    "tags": "Tags",
+    "banners": "Banners",
+    "orders": "Orders",
+    "users": "Users"
+  }
+}
