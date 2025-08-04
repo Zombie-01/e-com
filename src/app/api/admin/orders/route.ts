@@ -28,7 +28,9 @@ export async function GET(request: NextRequest) {
       take: perPage,
       orderBy: { createdAt: "desc" },
       include: {
-        user: { select: { id: true, name: true, email: true } },
+        user: {
+          select: { id: true, name: true, email: true, addresses: true },
+        },
         delivery: true,
         items: {
           include: {

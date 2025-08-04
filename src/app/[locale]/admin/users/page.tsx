@@ -28,9 +28,11 @@ import {
   DialogFooter,
 } from "@/src/components/ui/dialog";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export default function AdminUsersPage() {
   const { data: session, status } = useSession();
+  const t = useTranslations("AdminUsers");
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -85,8 +87,6 @@ export default function AdminUsersPage() {
     }
   };
 
-  // Client-side filter for search
-
   const handleFormChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -116,14 +116,13 @@ export default function AdminUsersPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this user?")) return;
+    if (!confirm(t("deleteConfirmation"))) return;
 
     try {
       const res = await fetch(`/api/admin/users?id=${id}`, {
         method: "DELETE",
       });
       if (res.ok) {
-        // If last item on page deleted, go back a page if possible
         if (users.length === 1 && page > 1) {
           setPage(page - 1);
         } else {
@@ -139,36 +138,42 @@ export default function AdminUsersPage() {
   };
 
   if (status === "loading" || loading) {
-    return (
-      <div className="p-8 text-center text-gray-500">Loading users...</div>
-    );
+    return <div className="p-8 text-center text-gray-500">{t("loading")}</div>;
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Users</h1>
-          <p className="text-gray-600">Manage your users</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            {t("pageTitle")}
+          </h1>
+          <p className="text-gray-600">{t("pageDescription")}</p>
         </div>
         <Button
           className="flex items-center space-x-2"
-          onClick={() => setShowModal(true)}>
+          onClick={() => {
+            setForm({ id: "", name: "", email: "", role: "USER" });
+            setShowModal(true);
+          }}>
           <Plus className="h-4 w-4" />
-          <span>Add User</span>
+          <span>{t("addUserButton")}</span>
         </Button>
       </div>
 
-      {/* Add/Edit User Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{form.id ? "Edit User" : "Add User"}</DialogTitle>
+            <DialogTitle>
+              {form.id
+                ? t("modal.title", { type: "edit" })
+                : t("modal.title", { type: "add" })}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               name="name"
-              placeholder="Name"
+              placeholder={t("modal.namePlaceholder")}
               value={form.name}
               onChange={handleFormChange}
               required
@@ -176,31 +181,31 @@ export default function AdminUsersPage() {
             <Input
               name="email"
               type="email"
-              placeholder="Email"
+              placeholder={t("modal.emailPlaceholder")}
               value={form.email}
               onChange={handleFormChange}
               required
             />
             <label className="block text-sm font-medium text-gray-700">
-              Role
+              {t("modal.roleLabel")}
             </label>
             <select
               name="role"
               value={form.role}
               onChange={handleFormChange}
               className="w-full rounded border border-gray-300 p-2">
-              <option value="USER">User</option>
-              <option value="ADMIN">Admin</option>
+              <option value="USER">{t("modal.userRole")}</option>
+              <option value="ADMIN">{t("modal.adminRole")}</option>
             </select>
             <DialogFooter>
               <Button type="submit" disabled={submitting}>
                 {submitting
                   ? form.id
-                    ? "Updating..."
-                    : "Creating..."
+                    ? t("modal.buttons.updating")
+                    : t("modal.buttons.creating")
                   : form.id
-                  ? "Update User"
-                  : "Create User"}
+                  ? t("modal.buttons.update")
+                  : t("modal.buttons.create")}
               </Button>
             </DialogFooter>
           </form>
@@ -211,12 +216,16 @@ export default function AdminUsersPage() {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle>
-              All Users ({users.length}) - Page {page} of {totalPages}
+              {t("cardTitle", {
+                userCount: users.length,
+                page,
+                totalPages,
+              })}
             </CardTitle>
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search users..."
+                placeholder={t("searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -228,10 +237,10 @@ export default function AdminUsersPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("tableHeaders.name")}</TableHead>
+                <TableHead>{t("tableHeaders.email")}</TableHead>
+                <TableHead>{t("tableHeaders.role")}</TableHead>
+                <TableHead>{t("tableHeaders.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -270,17 +279,16 @@ export default function AdminUsersPage() {
             </TableBody>
           </Table>
 
-          {/* Pagination controls */}
           <div className="flex justify-center mt-4 space-x-4">
             <Button
               onClick={() => setPage((p) => Math.max(p - 1, 1))}
               disabled={page === 1}>
-              Previous
+              {t("previousButton")}
             </Button>
             <Button
               onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
               disabled={page === totalPages}>
-              Next
+              {t("nextButton")}
             </Button>
           </div>
         </CardContent>

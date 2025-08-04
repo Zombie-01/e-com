@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/src/components/ui/table";
-import { Plus, Edit, Trash2, Search } from "lucide-react";
+import { Plus, Edit, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -28,15 +28,16 @@ import {
   DialogFooter,
 } from "@/src/components/ui/dialog";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export default function SiteSettingsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const t = useTranslations("SiteSettings");
 
   const [banners, setBanners] = useState([]);
   const [colors, setColors] = useState([]);
   const [sizes, setSizes] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [modalType, setModalType] = useState<
     "banner" | "color" | "size" | null
@@ -90,7 +91,7 @@ export default function SiteSettingsPage() {
         formData.append("mnTitle", form.mnTitle || "");
         formData.append("enTitle", form.enTitle || "");
         formData.append("url", form.url || "");
-        formData.append("active", "true"); // Or handle checkbox later
+        formData.append("active", "true");
 
         res = await fetch(`/api/admin/banners`, {
           method: form.id ? "PUT" : "POST",
@@ -118,7 +119,7 @@ export default function SiteSettingsPage() {
   };
 
   const handleDelete = async (type: string, id: string) => {
-    if (!confirm("Are you sure you want to delete this?")) return;
+    if (!confirm(t("deleteConfirmation"))) return;
     try {
       const res = await fetch(`/api/admin/${type}s?id=${id}`, {
         method: "DELETE",
@@ -133,37 +134,42 @@ export default function SiteSettingsPage() {
   };
 
   if (status === "loading" || loading) {
-    return <div className="p-8 text-center text-gray-500">Loading...</div>;
+    return <div className="p-8 text-center text-gray-500">{t("loading")}</div>;
   }
 
-  const renderTable = (title: string, type: string, data: any[]) => (
+  const renderTable = (
+    titleKey: string,
+    type: "banner" | "color" | "size",
+    data: any[],
+    keys: string[]
+  ) => (
     <Card className="mb-8">
       <CardHeader className="flex justify-between items-center">
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>{t(titleKey)}</CardTitle>
         <Button
           onClick={() => {
-            setModalType(type as any);
+            setModalType(type);
             setForm({});
             setShowModal(true);
           }}>
-          <Plus className="w-4 h-4 mr-2" /> Add {type}
+          <Plus className="w-4 h-4 mr-2" /> {t("add")}
         </Button>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              {Object.keys(data[0] || {}).map((key) => (
-                <TableHead key={key}>{key}</TableHead>
+              {keys.map((key) => (
+                <TableHead key={key}>{t(`tableHeaders.${key}`)}</TableHead>
               ))}
-              <TableHead>Actions</TableHead>
+              <TableHead>{t("tableHeaders.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.map((item) => (
               <TableRow key={item.id}>
-                {Object.values(item).map((val: any, i: number) => (
-                  <TableCell key={i}>{val}</TableCell>
+                {keys.map((key) => (
+                  <TableCell key={key}>{String(item[key])}</TableCell>
                 ))}
                 <TableCell>
                   <div className="flex gap-2">
@@ -171,7 +177,7 @@ export default function SiteSettingsPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        setModalType(type as any);
+                        setModalType(type);
                         setForm(item);
                         setShowModal(true);
                       }}>
@@ -194,18 +200,24 @@ export default function SiteSettingsPage() {
     </Card>
   );
 
+  const bannerKeys = ["id", "mnTitle", "enTitle", "url", "active"];
+  const colorKeys = ["id", "name", "hex"];
+  const sizeKeys = ["id", "name"];
+
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-4xl font-bold mb-6">Site Settings</h1>
-      {renderTable("Banners", "banner", banners)}
-      {renderTable("Colors", "color", colors)}
-      {renderTable("Sizes", "size", sizes)}
+      <h1 className="text-4xl font-bold mb-6">{t("pageTitle")}</h1>
+      {renderTable("bannersTitle", "banner", banners, bannerKeys)}
+      {renderTable("colorsTitle", "color", colors, colorKeys)}
+      {renderTable("sizesTitle", "size", sizes, sizeKeys)}
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {form.id ? "Edit" : "Create"} {modalType}
+              {form.id
+                ? t("modal.editTitle", { type: t(modalType as any) })
+                : t("modal.createTitle", { type: t(modalType as any) })}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -213,7 +225,7 @@ export default function SiteSettingsPage() {
               <>
                 <Input
                   name="mnTitle"
-                  placeholder="Mongolian Title"
+                  placeholder={t("modal.placeholders.mnTitle")}
                   value={form.mnTitle || ""}
                   onChange={(e) =>
                     setForm({ ...form, mnTitle: e.target.value })
@@ -222,7 +234,7 @@ export default function SiteSettingsPage() {
                 />
                 <Input
                   name="enTitle"
-                  placeholder="English Title"
+                  placeholder={t("modal.placeholders.enTitle")}
                   value={form.enTitle || ""}
                   onChange={(e) =>
                     setForm({ ...form, enTitle: e.target.value })
@@ -235,12 +247,11 @@ export default function SiteSettingsPage() {
                   onChange={(e) =>
                     setForm({ ...form, file: e.target.files?.[0] })
                   }
-                  required={!form.id} // Required only when creating
+                  required={!form.id}
                 />
-
                 <Input
                   name="url"
-                  placeholder="Link URL"
+                  placeholder={t("modal.placeholders.url")}
                   value={form.url || ""}
                   onChange={(e) => setForm({ ...form, url: e.target.value })}
                 />
@@ -250,7 +261,7 @@ export default function SiteSettingsPage() {
               <>
                 <Input
                   name="name"
-                  placeholder="Color Name"
+                  placeholder={t("modal.placeholders.colorName")}
                   value={form.name || ""}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   required
@@ -258,7 +269,7 @@ export default function SiteSettingsPage() {
                 <Input
                   name="hex"
                   type="color"
-                  placeholder="Hex (#FFFFFF)"
+                  placeholder={t("modal.placeholders.hex")}
                   value={form.hex || ""}
                   onChange={(e) => setForm({ ...form, hex: e.target.value })}
                   required
@@ -268,7 +279,7 @@ export default function SiteSettingsPage() {
             {modalType === "size" && (
               <Input
                 name="name"
-                placeholder="Size Name"
+                placeholder={t("modal.placeholders.sizeName")}
                 value={form.name || ""}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 required
@@ -278,11 +289,11 @@ export default function SiteSettingsPage() {
               <Button type="submit" disabled={submitting}>
                 {submitting
                   ? form.id
-                    ? "Updating..."
-                    : "Creating..."
+                    ? t("modal.buttons.updating")
+                    : t("modal.buttons.creating")
                   : form.id
-                  ? "Update"
-                  : "Create"}
+                  ? t("modal.buttons.update")
+                  : t("modal.buttons.create")}
               </Button>
             </DialogFooter>
           </form>

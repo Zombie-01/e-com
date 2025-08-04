@@ -28,9 +28,11 @@ import {
   DialogFooter,
 } from "@/src/components/ui/dialog";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export default function AdminCategoriesPage() {
   const { data: session, status } = useSession();
+  const t = useTranslations("AdminCategories");
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -48,11 +50,8 @@ export default function AdminCategoriesPage() {
     setLoading(true);
     try {
       const res = await fetch("/api/admin/categories");
-
       if (res.ok) {
         const data = await res.json();
-
-        console.log(data);
         setCategories(data);
       }
     } catch (error) {
@@ -61,6 +60,7 @@ export default function AdminCategoriesPage() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     if (
       status === "unauthenticated" ||
@@ -110,7 +110,7 @@ export default function AdminCategoriesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this category?")) return;
+    if (!confirm(t("deleteConfirmation"))) return;
 
     try {
       const res = await fetch(`/api/admin/categories?id=${id}`, {
@@ -128,60 +128,64 @@ export default function AdminCategoriesPage() {
   };
 
   if (status === "loading" || loading) {
-    return (
-      <div className="p-8 text-center text-gray-500">Loading categories...</div>
-    );
+    return <div className="p-8 text-center text-gray-500">{t("loading")}</div>;
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Categories</h1>
-          <p className="text-gray-600">Manage your product categories</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            {t("pageTitle")}
+          </h1>
+          <p className="text-gray-600">{t("pageDescription")}</p>
         </div>
         <Button
           className="flex items-center space-x-2"
-          onClick={() => setShowModal(true)}>
+          onClick={() => {
+            setForm({ mnName: "", enName: "", id: "", parentId: "" });
+            setShowModal(true);
+          }}>
           <Plus className="h-4 w-4" />
-          <span>Add Category</span>
+          <span>{t("addCategoryButton")}</span>
         </Button>
       </div>
 
-      {/* Add/Edit Category Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {form.id ? "Edit Category" : "Add Category"}
+              {form.id
+                ? t("modal.title", { type: "edit" })
+                : t("modal.title", { type: "add" })}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               name="enName"
-              placeholder="English Name"
+              placeholder={t("modal.enNamePlaceholder")}
               value={form.enName}
               onChange={handleFormChange}
               required
             />
             <Input
               name="mnName"
-              placeholder="Mongolian Name"
+              placeholder={t("modal.mnNamePlaceholder")}
               value={form.mnName}
               onChange={handleFormChange}
               required
             />
             <label className="block text-sm font-medium text-gray-700">
-              Parent Category
+              {t("modal.parentLabel")}
             </label>
             <select
               name="parentId"
               value={form.parentId || ""}
               onChange={handleFormChange}
               className="w-full rounded border border-gray-300 p-2">
-              <option value="">No Parent</option>
+              <option value="">{t("modal.noParentOption")}</option>
               {categories
-                ?.filter((cat) => cat.id !== form.id) // prevent selecting self as parent
+                ?.filter((cat) => cat.id !== form.id)
                 ?.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.enName} / {cat.mnName}
@@ -192,11 +196,11 @@ export default function AdminCategoriesPage() {
               <Button type="submit" disabled={submitting}>
                 {submitting
                   ? form.id
-                    ? "Updating..."
-                    : "Creating..."
+                    ? t("modal.buttons.updating")
+                    : t("modal.buttons.creating")
                   : form.id
-                  ? "Update Category"
-                  : "Create Category"}
+                  ? t("modal.buttons.update")
+                  : t("modal.buttons.create")}
               </Button>
             </DialogFooter>
           </form>
@@ -206,11 +210,13 @@ export default function AdminCategoriesPage() {
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>All Categories ({categories?.length})</CardTitle>
+            <CardTitle>
+              {t("cardTitle", { count: categories?.length || 0 })}
+            </CardTitle>
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search categories..."
+                placeholder={t("searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -222,10 +228,10 @@ export default function AdminCategoriesPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>English Name</TableHead>
-                <TableHead>Mongolian Name</TableHead>
-                <TableHead>Parent Category</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("tableHeaders.enName")}</TableHead>
+                <TableHead>{t("tableHeaders.mnName")}</TableHead>
+                <TableHead>{t("tableHeaders.parentCategory")}</TableHead>
+                <TableHead>{t("tableHeaders.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -234,10 +240,10 @@ export default function AdminCategoriesPage() {
                   <TableCell>{category.enName}</TableCell>
                   <TableCell>{category.mnName}</TableCell>
                   <TableCell>
-                    {categories.find((cat) => cat.id === category.parentId)
+                    {category.parentId
                       ? categories.find((cat) => cat.id === category.parentId)
-                          .enName
-                      : "-"}
+                          ?.enName || "-"
+                      : t("noParentDisplay")}
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">

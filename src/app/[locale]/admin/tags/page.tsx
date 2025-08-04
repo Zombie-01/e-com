@@ -28,9 +28,11 @@ import {
   DialogFooter,
 } from "@/src/components/ui/dialog";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export default function AdminTagsPage() {
   const { data: session, status } = useSession();
+  const t = useTranslations("AdminTags");
   const [tags, setTags] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -100,7 +102,7 @@ export default function AdminTagsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this tag?")) return;
+    if (!confirm(t("deleteConfirmation"))) return;
 
     try {
       const res = await fetch(`/api/admin/tags?id=${id}`, {
@@ -118,43 +120,49 @@ export default function AdminTagsPage() {
   };
 
   if (status === "loading" || loading) {
-    return (
-      <div className="p-8 text-center text-gray-500">Loading tags?...</div>
-    );
+    return <div className="p-8 text-center text-gray-500">{t("loading")}</div>;
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Tags</h1>
-          <p className="text-gray-600">Manage your product tags</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            {t("pageTitle")}
+          </h1>
+          <p className="text-gray-600">{t("pageDescription")}</p>
         </div>
         <Button
           className="flex items-center space-x-2"
-          onClick={() => setShowModal(true)}>
+          onClick={() => {
+            setForm({ mnName: "", enName: "", id: "" });
+            setShowModal(true);
+          }}>
           <Plus className="h-4 w-4" />
-          <span>Add Tag</span>
+          <span>{t("addTagButton")}</span>
         </Button>
       </div>
 
-      {/* Add/Edit Tag Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{form.id ? "Edit Tag" : "Add Tag"}</DialogTitle>
+            <DialogTitle>
+              {form.id
+                ? t("modal.title", { type: "edit" })
+                : t("modal.title", { type: "add" })}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               name="enName"
-              placeholder="English Name"
+              placeholder={t("modal.enNamePlaceholder")}
               value={form.enName}
               onChange={handleFormChange}
               required
             />
             <Input
               name="mnName"
-              placeholder="Mongolian Name"
+              placeholder={t("modal.mnNamePlaceholder")}
               value={form.mnName}
               onChange={handleFormChange}
               required
@@ -163,11 +171,11 @@ export default function AdminTagsPage() {
               <Button type="submit" disabled={submitting}>
                 {submitting
                   ? form.id
-                    ? "Updating..."
-                    : "Creating..."
+                    ? t("modal.buttons.updating")
+                    : t("modal.buttons.creating")
                   : form.id
-                  ? "Update Tag"
-                  : "Create Tag"}
+                  ? t("modal.buttons.update")
+                  : t("modal.buttons.create")}
               </Button>
             </DialogFooter>
           </form>
@@ -177,11 +185,13 @@ export default function AdminTagsPage() {
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>All Tags ({tags?.length})</CardTitle>
+            <CardTitle>
+              {t("cardTitle", { count: tags?.length || 0 })}
+            </CardTitle>
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search tags?..."
+                placeholder={t("searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -193,9 +203,9 @@ export default function AdminTagsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>English Name</TableHead>
-                <TableHead>Mongolian Name</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("tableHeaders.enName")}</TableHead>
+                <TableHead>{t("tableHeaders.mnName")}</TableHead>
+                <TableHead>{t("tableHeaders.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

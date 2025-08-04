@@ -37,6 +37,7 @@ import {
   DialogFooter,
 } from "@/src/components/ui/dialog";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export default function AdminProductsPage() {
   const { data: session, status } = useSession();
@@ -48,7 +49,7 @@ export default function AdminProductsPage() {
   const [sizes, setSizes] = useState<any[]>([]);
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
-
+  const t = useTranslations("AdminProductsPage");
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -281,11 +282,11 @@ export default function AdminProductsPage() {
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Products</h1>
-          <p className="text-gray-600">Manage your product catalog</p>
+          <h1 className="text-3xl font-bold">{t("title")}</h1>
+          <p className="text-gray-600">{t("subtitle")}</p>
         </div>
         <Button onClick={() => setShowModal(true)}>
-          <Plus className="w-4 h-4 mr-2" /> Add Product
+          <Plus className="w-4 h-4 mr-2" /> {t("addProduct")}
         </Button>
       </div>
 
@@ -293,7 +294,11 @@ export default function AdminProductsPage() {
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create Product</DialogTitle>
+            <DialogTitle>
+              {editingProduct
+                ? t("dialog.editProductTitle")
+                : t("dialog.createProductTitle")}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -301,30 +306,29 @@ export default function AdminProductsPage() {
                 name="enName"
                 value={form.enName}
                 onChange={handleFormChange}
-                placeholder="English Name"
+                placeholder={t("dialog.englishName")}
                 required
               />
               <Input
                 name="mnName"
                 value={form.mnName}
                 onChange={handleFormChange}
-                placeholder="Mongolian Name"
+                placeholder={t("dialog.mongolianName")}
                 required
               />
               <Input
                 name="sku"
                 value={form.sku}
                 onChange={handleFormChange}
-                placeholder="SKU"
+                placeholder={t("dialog.sku")}
                 required
               />
-
               <Input
                 name="price"
                 type="number"
                 value={form.price}
                 onChange={handleFormChange}
-                placeholder="Price"
+                placeholder={t("dialog.price")}
                 required
               />
               <select
@@ -333,7 +337,7 @@ export default function AdminProductsPage() {
                 onChange={handleFormChange}
                 className="border p-2 rounded"
                 required>
-                <option value="">Select Brand</option>
+                <option value="">{t("dialog.selectBrand")}</option>
                 {brands.map((b) => (
                   <option key={b.id} value={b.id}>
                     {b.enName}
@@ -346,7 +350,7 @@ export default function AdminProductsPage() {
                 onChange={handleFormChange}
                 className="border p-2 rounded"
                 required>
-                <option value="">Select Category</option>
+                <option value="">{t("dialog.selectCategory")}</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.enName}
@@ -357,7 +361,7 @@ export default function AdminProductsPage() {
                 name="enDesc"
                 value={form.enDesc}
                 onChange={handleFormChange}
-                placeholder="English Description"
+                placeholder={t("dialog.englishDescription")}
                 className="border p-2 col-span-2"
                 required
               />
@@ -365,7 +369,7 @@ export default function AdminProductsPage() {
                 name="mnDesc"
                 value={form.mnDesc}
                 onChange={handleFormChange}
-                placeholder="Mongolian Description"
+                placeholder={t("dialog.mongolianDescription")}
                 className="border p-2 col-span-2"
                 required
               />
@@ -382,13 +386,11 @@ export default function AdminProductsPage() {
                     checked={form.tagIds.includes(tag.id)}
                     onChange={(e) => {
                       if (e.target.checked) {
-                        // Add tag id
                         setForm((prev) => ({
                           ...prev,
                           tagIds: [...prev.tagIds, tag.id],
                         }));
                       } else {
-                        // Remove tag id
                         setForm((prev) => ({
                           ...prev,
                           tagIds: prev.tagIds.filter((id) => id !== tag.id),
@@ -411,7 +413,7 @@ export default function AdminProductsPage() {
               ) : (
                 <ChevronDown className="w-4 h-4" />
               )}{" "}
-              Variants
+              {t("dialog.variants")}
             </Button>
 
             {expandVariants && (
@@ -427,7 +429,7 @@ export default function AdminProductsPage() {
                       }
                       className="border p-2"
                       required>
-                      <option value="">Color</option>
+                      <option value="">{t("dialog.color")}</option>
                       {colors.map((c) => (
                         <option
                           key={c.id}
@@ -443,7 +445,7 @@ export default function AdminProductsPage() {
                         handleVariantChange(idx, "sizeId", e.target.value)
                       }
                       className="border p-2">
-                      <option value="">Size</option>
+                      <option value="">{t("dialog.size")}</option>
                       {sizes.map((s) => (
                         <option key={s.id} value={s.id}>
                           {s.name}
@@ -460,10 +462,9 @@ export default function AdminProductsPage() {
                           parseInt(e.target.value)
                         )
                       }
-                      placeholder="Stock"
+                      placeholder={t("dialog.stock")}
                       min={0}
                     />
-                    {/* File input for variant image */}
                     <input
                       type="file"
                       accept="image/*"
@@ -473,7 +474,6 @@ export default function AdminProductsPage() {
                       }}
                       className="border p-2"
                     />
-                    {/* Image preview */}
                     {variantImages[idx] && (
                       <img
                         src={URL.createObjectURL(variantImages[idx]!)}
@@ -494,14 +494,18 @@ export default function AdminProductsPage() {
                       ],
                     })
                   }>
-                  Add Variant
+                  {t("dialog.addVariant")}
                 </Button>
               </div>
             )}
 
             <DialogFooter>
               <Button type="submit" disabled={submitting}>
-                {submitting ? "Creating..." : "Create Product"}
+                {submitting
+                  ? "..."
+                  : editingProduct
+                  ? t("dialog.updateButton")
+                  : t("dialog.createButton")}
               </Button>
             </DialogFooter>
           </form>
@@ -511,11 +515,13 @@ export default function AdminProductsPage() {
       {/* Products Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Products ({products.length})</CardTitle>
+          <CardTitle>
+            {t("title")} ({products.length})
+          </CardTitle>
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Search..."
+              placeholder={t("searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -527,14 +533,14 @@ export default function AdminProductsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead>SKU</TableHead>
-                  <TableHead>Brand</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Stock</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>{t("table.product")}</TableHead>
+                  <TableHead>{t("table.sku")}</TableHead>
+                  <TableHead>{t("table.brand")}</TableHead>
+                  <TableHead>{t("table.category")}</TableHead>
+                  <TableHead>{t("table.price")}</TableHead>
+                  <TableHead>{t("table.stock")}</TableHead>
+                  <TableHead>{t("table.status")}</TableHead>
+                  <TableHead>{t("table.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -556,7 +562,9 @@ export default function AdminProductsPage() {
                       </TableCell>
                       <TableCell>
                         <Badge variant={stock > 0 ? "default" : "secondary"}>
-                          {stock > 0 ? "In Stock" : "Out of Stock"}
+                          {stock > 0
+                            ? t("stockStatus.inStock")
+                            : t("stockStatus.outOfStock")}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -564,7 +572,7 @@ export default function AdminProductsPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            title="View"
+                            title={t("dialog.viewButton")}
                             onClick={() => handlePreview(product)}>
                             <Eye className="w-4 h-4" />
                           </Button>
@@ -575,7 +583,6 @@ export default function AdminProductsPage() {
                             onClick={() => handleEdit(product)}>
                             <Edit className="w-4 h-4" />
                           </Button>
-
                           <Button
                             variant="ghost"
                             size="sm"
@@ -599,28 +606,29 @@ export default function AdminProductsPage() {
         onOpenChange={() => setPreviewProduct(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Product Preview</DialogTitle>
+            <DialogTitle>{t("preview.title")}</DialogTitle>
           </DialogHeader>
           {previewProduct && (
             <div className="space-y-4">
               <p>
-                <strong>Name:</strong> {previewProduct.enName}
+                <strong>{t("preview.name")}:</strong> {previewProduct.enName}
               </p>
               <p>
-                <strong>SKU:</strong> {previewProduct.sku}
+                <strong>{t("preview.sku")}:</strong> {previewProduct.sku}
               </p>
               <p>
-                <strong>Description:</strong> {previewProduct.enDesc}
+                <strong>{t("preview.description")}:</strong>{" "}
+                {previewProduct.enDesc}
               </p>
               <p>
-                <strong>Price:</strong> ₮{previewProduct.price}
+                <strong>{t("preview.price")}:</strong> ₮{previewProduct.price}
               </p>
               <p>
-                <strong>Tags:</strong>{" "}
+                <strong>{t("preview.tags")}:</strong>{" "}
                 {previewProduct.tags.map((t: any) => t.enName).join(", ")}
               </p>
               <p>
-                <strong>Variants:</strong>
+                <strong>{t("preview.variants")}:</strong>
               </p>
               <ul className="list-disc list-inside">
                 {previewProduct.variants.map((v: any, i: number) => (

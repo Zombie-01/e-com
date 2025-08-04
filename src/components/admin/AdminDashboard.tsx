@@ -6,15 +6,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/src/components/ui/card";
-import {
-  ShoppingBag,
-  Users,
-  Package,
-  DollarSign,
-  TrendingUp,
-  Eye,
-} from "lucide-react";
+import { ShoppingBag, Users, Package, DollarSign, Eye } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 interface DashboardStats {
   totalProducts: number;
@@ -23,188 +17,147 @@ interface DashboardStats {
   totalRevenue: number;
 }
 
+interface StatCardProps {
+  title: string;
+  value: string;
+  Icon: React.ElementType;
+  color: string;
+  bgColor: string;
+}
+
+const StatCard = ({ title, value, Icon, color, bgColor }: StatCardProps) => (
+  <Card className="hover:shadow-md transition-shadow">
+    <CardContent className="p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
+          <p className="text-2xl font-bold text-gray-900">{value}</p>
+        </div>
+        <div className={`p-3 rounded-full ${bgColor}`}>
+          <Icon className={`h-6 w-6 ${color}`} />
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+);
+
 export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
+  const t = useTranslations("admin");
+
   const statCards = [
     {
-      title: "Total Revenue",
+      title: t("revenue"),
       value: `$${stats.totalRevenue.toLocaleString()}`,
-      icon: DollarSign,
+      Icon: DollarSign,
       color: "text-green-600",
-      bgColor: "bg-green-50",
+      bgColor: "bg-green-100",
     },
     {
-      title: "Total Orders",
+      title: t("orders"),
       value: stats.totalOrders.toLocaleString(),
-      icon: ShoppingBag,
+      Icon: ShoppingBag,
       color: "text-blue-600",
-      bgColor: "bg-blue-50",
+      bgColor: "bg-blue-100",
     },
     {
-      title: "Total Products",
+      title: t("products"),
       value: stats.totalProducts.toLocaleString(),
-      icon: Package,
+      Icon: Package,
       color: "text-purple-600",
-      bgColor: "bg-purple-50",
+      bgColor: "bg-purple-100",
     },
     {
-      title: "Total Users",
+      title: t("users"),
       value: stats.totalUsers.toLocaleString(),
-      icon: Users,
+      Icon: Users,
       color: "text-orange-600",
-      bgColor: "bg-orange-50",
+      bgColor: "bg-orange-100",
+    },
+  ];
+
+  const quickLinks = [
+    {
+      href: "/admin/products",
+      icon: Package,
+      label: t("products"),
+      desc: t("productsDesc"),
+    },
+    {
+      href: "/admin/brands",
+      icon: Package,
+      label: t("brands"),
+      desc: t("brandsDesc"),
+    },
+    {
+      href: "/admin/tags",
+      icon: Package,
+      label: t("tags"),
+      desc: t("tagsDesc"),
+    },
+    {
+      href: "/admin/categories",
+      icon: Package,
+      label: t("categories"),
+      desc: t("categoriesDesc"),
+    },
+    {
+      href: "/admin/orders",
+      icon: ShoppingBag,
+      label: t("orders"),
+      desc: t("ordersDesc"),
+    },
+    {
+      href: "/admin/users",
+      icon: Users,
+      label: t("users"),
+      desc: t("usersDesc"),
+    },
+    {
+      href: "/admin/settings",
+      icon: Eye,
+      label: t("settings"),
+      desc: t("settingsDesc"),
     },
   ];
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-gray-600 mt-2">
-          Manage your e-commerce platform from here
-        </p>
-      </div>
+      <header>
+        <h1 className="text-3xl font-bold text-gray-900">{t("title")}</h1>
+        <p className="text-gray-600 mt-2">{t("subtitle")}</p>
+      </header>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <Card
-              key={stat.title}
-              className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 mb-1">
-                      {stat.title}
-                    </p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {stat.value}
-                    </p>
-                  </div>
-                  <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                    <Icon className={`h-6 w-6 ${stat.color}`} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+        {statCards.map(({ title, value, Icon, color, bgColor }) => (
+          <StatCard
+            key={title}
+            title={title}
+            value={value}
+            Icon={Icon}
+            color={color}
+            bgColor={bgColor}
+          />
+        ))}
       </div>
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Link href="/admin/products">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center space-x-2">
-                <Package className="h-5 w-5 text-blue-600" />
-                <span>Manage Products</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 text-sm">
-                Add, edit, and organize your product catalog
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/admin/brands">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center space-x-2">
-                <Package className="h-5 w-5 text-blue-600" />
-                <span>Manage Brands</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 text-sm">
-                Add, edit, and organize your product catalog
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/admin/tags">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center space-x-2">
-                <Package className="h-5 w-5 text-blue-600" />
-                <span>Manage tags</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 text-sm">
-                Add, edit, and organize your product catalog
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/admin/categories">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center space-x-2">
-                <Package className="h-5 w-5 text-blue-600" />
-                <span>Manage Categories</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 text-sm">
-                Add, edit, and organize your product catalog
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/admin/orders">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center space-x-2">
-                <ShoppingBag className="h-5 w-5 text-green-600" />
-                <span>View Orders</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 text-sm">
-                Process and track customer orders
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/admin/users">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center space-x-2">
-                <Users className="h-5 w-5 text-purple-600" />
-                <span>Manage Users</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 text-sm">
-                View and manage customer accounts
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/admin/settings">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center space-x-2">
-                <Eye className="h-5 w-5 text-indigo-600" />
-                <span>Site Settings</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 text-sm">
-                Configure banners, delivery options, and more
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
+        {quickLinks.map(({ href, icon: Icon, label, desc }) => (
+          <Link href={href} key={href}>
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center space-x-2">
+                  <Icon className="h-5 w-5 text-blue-600" />
+                  <span>{label}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-sm">{desc}</p>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
       </div>
     </div>
   );

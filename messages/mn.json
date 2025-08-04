@@ -86,7 +86,8 @@
     "settings": "Засвар",
     "settingsDesc": "Засвар хэсэг",
     "users": "Хэрэглэгч",
-    "usersDesc": "Хэрэглэгчийн хэсэг"
+    "usersDesc": "Хэрэглэгчийн хэсэг",
+    "revenue": "Ашиг"
   },
   "auth": {
     "welcome_back": "Тавтай морил",
@@ -179,6 +180,210 @@
   },
   "common": {
     "administration": "Администратор",
-    "account": "Данс"
+    "account": "Данс",
+    "admin": "Удирдлага"
+  },
+  "orders": {
+    "orders": "Захиалгууд",
+    "manageOrdersDescription": "Хэрэглэгчийн захиалгыг удирдах",
+    "loading": "Захиалгуудыг татаж байна...",
+    "allOrders": "Нийт захиалгууд - {{page}} / {{totalPages}}",
+    "noOrdersFound": "Захиалга олдсонгүй.",
+    "clickToExpand": "Захиалгын дэлгэрэнгүйг харах бол дарна уу",
+    "previous": "Өмнөх",
+    "next": "Дараагийн",
+    "deliveryDetails": "Хүргэлтийн дэлгэрэнгүй",
+    "customerDetails": "Хэрэглэгчийн мэдээлэл",
+    "orderItems": "Захиалгын бараанууд",
+    "option": "Сонголт",
+    "price": "Үнэ",
+    "eta": "Хүргэх хугацаа",
+    "etaDays": "{{days}} хоног",
+    "address": "Хаяг",
+    "email": "И-мэйл",
+    "phone": "Утас",
+    "quantity": "Тоо ширхэг",
+    "subtotal": "Дүн",
+    "table": {
+      "orderId": "Захиалгын дугаар",
+      "userEmail": "Хэрэглэгчийн и-мэйл",
+      "userName": "Хэрэглэгчийн нэр",
+      "phone": "Утас",
+      "total": "Нийт дүн",
+      "status": "Төлөв",
+      "createdAt": "Үүссэн огноо"
+    }
+  },
+  "AdminUsers": {
+    "pageTitle": "Хэрэглэгчид",
+    "pageDescription": "Хэрэглэгчдийг удирдах",
+    "loading": "Хэрэглэгчдийг татаж байна...",
+    "addUserButton": "Хэрэглэгч нэмэх",
+    "deleteConfirmation": "Энэ хэрэглэгчийг устгахдаа итгэлтэй байна уу?",
+    "cardTitle": "Нийт хэрэглэгчид ({userCount}) - {page} / {totalPages} хуудас",
+    "searchPlaceholder": "Хэрэглэгч хайх...",
+    "previousButton": "Өмнөх",
+    "nextButton": "Дараагийн",
+    "modal": {
+      "title": "{type, select, add {Хэрэглэгч нэмэх} edit {Хэрэглэгч засах}}",
+      "namePlaceholder": "Нэр",
+      "emailPlaceholder": "И-мэйл",
+      "roleLabel": "Эрх",
+      "userRole": "Хэрэглэгч",
+      "adminRole": "Админ",
+      "buttons": {
+        "create": "Үүсгэх",
+        "update": "Шинэчлэх",
+        "creating": "Үүсгэж байна...",
+        "updating": "Шинэчилж байна..."
+      }
+    },
+    "tableHeaders": {
+      "name": "Нэр",
+      "email": "И-мэйл",
+      "role": "Эрх",
+      "actions": "Үйлдэл"
+    }
+  },
+  "AdminCategories": {
+    "pageTitle": "Ангилал",
+    "pageDescription": "Бүтээгдэхүүний ангиллыг удирдах",
+    "loading": "Ангиллуудыг татаж байна...",
+    "addCategoryButton": "Ангилал нэмэх",
+    "deleteConfirmation": "Энэ ангиллыг устгахдаа итгэлтэй байна уу?",
+    "cardTitle": "Нийт ангилал ({count})",
+    "searchPlaceholder": "Ангилал хайх...",
+    "noParentDisplay": "—",
+    "tableHeaders": {
+      "enName": "Англи нэр",
+      "mnName": "Монгол нэр",
+      "parentCategory": "Эцэг ангилал",
+      "actions": "Үйлдэл"
+    },
+    "modal": {
+      "title": "{type, select, add {Ангилал нэмэх} edit {Ангилал засах}}",
+      "enNamePlaceholder": "Англи нэр",
+      "mnNamePlaceholder": "Монгол нэр",
+      "parentLabel": "Эцэг ангилал",
+      "noParentOption": "Эцэг ангилалгүй",
+      "buttons": {
+        "create": "Ангилал үүсгэх",
+        "update": "Ангилал шинэчлэх",
+        "creating": "Үүсгэж байна...",
+        "updating": "Шинэчилж байна..."
+      }
+    }
+  },
+  "AdminTags": {
+    "pageTitle": "Тагууд",
+    "pageDescription": "Бүтээгдэхүүний тагуудыг удирдах",
+    "loading": "Тагууд татаж байна...",
+    "addTagButton": "Таг нэмэх",
+    "deleteConfirmation": "Энэ тагийг устгахдаа итгэлтэй байна уу?",
+    "cardTitle": "Нийт тагууд ({count})",
+    "searchPlaceholder": "Таг хайх...",
+    "tableHeaders": {
+      "enName": "Англи нэр",
+      "mnName": "Монгол нэр",
+      "actions": "Үйлдэл"
+    },
+    "modal": {
+      "title": "{type, select, add {Таг нэмэх} edit {Таг засах}}",
+      "enNamePlaceholder": "Англи нэр",
+      "mnNamePlaceholder": "Монгол нэр",
+      "buttons": {
+        "create": "Таг үүсгэх",
+        "update": "Таг шинэчлэх",
+        "creating": "Үүсгэж байна...",
+        "updating": "Шинэчилж байна..."
+      }
+    }
+  },
+  "SiteSettings": {
+    "pageTitle": "Сайтын тохиргоо",
+    "loading": "Уншиж байна...",
+    "add": "Нэмэх",
+    "bannersTitle": "Баннерууд",
+    "colorsTitle": "Өнгөнүүд",
+    "sizesTitle": "Хэмжээнүүд",
+    "deleteConfirmation": "Устгахдаа итгэлтэй байна уу?",
+    "tableHeaders": {
+      "id": "ID",
+      "mnTitle": "Монгол гарчиг",
+      "enTitle": "Англи гарчиг",
+      "url": "Линк",
+      "active": "Идэвхтэй",
+      "name": "Нэр",
+      "hex": "HEX код",
+      "actions": "Үйлдэл"
+    },
+    "modal": {
+      "createTitle": "{type, select, banner {Баннер} color {Өнгө} size {Хэмжээ}} үүсгэх",
+      "editTitle": "{type, select, banner {Баннер} color {Өнгө} size {Хэмжээ}} засах",
+      "placeholders": {
+        "mnTitle": "Монгол гарчиг",
+        "enTitle": "Англи гарчиг",
+        "url": "Линк",
+        "colorName": "Өнгөний нэр",
+        "hex": "HEX код (#FFFFFF)",
+        "sizeName": "Хэмжээний нэр"
+      },
+      "buttons": {
+        "create": "Үүсгэх",
+        "update": "Шинэчлэх",
+        "creating": "Үүсгэж байна...",
+        "updating": "Шинэчилж байна..."
+      }
+    }
+  },
+  "AdminProductsPage": {
+    "title": "Бүтээгдэхүүнүүд",
+    "subtitle": "Бүтээгдэхүүний каталогийг удирдах",
+    "addProduct": "Бүтээгдэхүүн нэмэх",
+    "searchPlaceholder": "Хайх...",
+    "table": {
+      "product": "Бүтээгдэхүүн",
+      "sku": "SKU",
+      "brand": "Брэнд",
+      "category": "Ангилал",
+      "price": "Үнэ",
+      "stock": "Нөөц",
+      "status": "Төлөв",
+      "actions": "Үйлдэл"
+    },
+    "stockStatus": {
+      "inStock": "Нөөцөд байгаа",
+      "outOfStock": "Нөөц дууссан"
+    },
+    "dialog": {
+      "createProductTitle": "Бүтээгдэхүүн үүсгэх",
+      "editProductTitle": "Бүтээгдэхүүн засах",
+      "englishName": "Англи нэр",
+      "mongolianName": "Монгол нэр",
+      "sku": "SKU",
+      "price": "Үнэ",
+      "selectBrand": "Брэнд сонгох",
+      "selectCategory": "Ангилал сонгох",
+      "englishDescription": "Англи тайлбар",
+      "mongolianDescription": "Монгол тайлбар",
+      "variants": "Сонголтууд",
+      "color": "Өнгө",
+      "size": "Хэмжээ",
+      "stock": "Нөөц",
+      "addVariant": "Сонголт нэмэх",
+      "createButton": "Бүтээгдэхүүн үүсгэх",
+      "updateButton": "Бүтээгдэхүүн шинэчлэх",
+      "viewButton": "Харах"
+    },
+    "preview": {
+      "title": "Бүтээгдэхүүний урьдчилан харах",
+      "name": "Нэр",
+      "sku": "SKU",
+      "description": "Тайлбар",
+      "price": "Үнэ",
+      "tags": "Шошго",
+      "variants": "Сонголтууд"
+    },
+    "confirmDelete": "Та энэ бүтээгдэхүүнийг устгахдаа итгэлтэй байна уу?"
   }
 }
