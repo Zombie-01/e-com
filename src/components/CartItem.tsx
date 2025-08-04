@@ -34,8 +34,8 @@ export default function CartItem({ item }: { item: CartItemProps }) {
   return (
     <Card>
       <CardContent className="p-4">
-        <div className="flex items-center space-x-4">
-          <div className="relative w-20 h-20 rounded-lg overflow-hidden">
+        <div className="flex flex-col w-full sm:flex-row items-center space-x-4">
+          <div className="relative w-full md:w-20 h-40 md:h-20 rounded-lg overflow-hidden">
             <Image
               src={item.image}
               alt={item.name}
@@ -44,7 +44,7 @@ export default function CartItem({ item }: { item: CartItemProps }) {
             />
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1 w-full">
             <h3 className="font-semibold text-gray-900">{item.name}</h3>
             <p className="text-sm text-gray-500">
               Color:{" "}
@@ -54,7 +54,7 @@ export default function CartItem({ item }: { item: CartItemProps }) {
               {item.size && ` • Size: ${item.size.name}`}
             </p>
             <p className="font-semibold text-blue-600 mt-1">
-              ${item.price.toFixed(2)}
+              ₮{item.price.toFixed(2)}
             </p>
           </div>
 
@@ -78,7 +78,7 @@ export default function CartItem({ item }: { item: CartItemProps }) {
 
           <div className="text-right">
             <p className="font-semibold text-gray-900">
-              ${(item.price * item.quantity).toFixed(2)}
+              ₮{(item.price * item.quantity).toFixed(2)}
             </p>
             <Button
               variant="ghost"

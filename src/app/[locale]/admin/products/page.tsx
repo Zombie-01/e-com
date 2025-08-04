@@ -46,6 +46,9 @@ export default function AdminProductsPage() {
   const [tags, setTags] = useState<any[]>([]);
   const [colors, setColors] = useState<any[]>([]);
   const [sizes, setSizes] = useState<any[]>([]);
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
+  const [previewProduct, setPreviewProduct] = useState<any | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -68,6 +71,37 @@ export default function AdminProductsPage() {
   const router = useRouter();
 
   // Redirect if not admin
+  const handleEdit = (product: any) => {
+    setShowModal(true); // open modal
+    setEditingProduct(product); // track product to update
+
+    // Populate form with selected product
+    setForm({
+      mnName: product.mnName,
+      enName: product.enName,
+      mnDesc: product.mnDesc,
+      enDesc: product.enDesc,
+      price: product.price,
+      sku: product.sku,
+      brandId: product.brandId,
+      categoryId: product.categoryId,
+      tagIds: product.tags.map((tag: any) => tag.id),
+      variants: product.variants.map((v: any) => ({
+        colorId: v.colorId,
+        sizeId: v.sizeId,
+        stock: v.stock,
+        image: v.image || "",
+      })),
+    });
+
+    // Reset images since we don't have File objects
+    setVariantImages(product.variants.map(() => null));
+  };
+
+  const handlePreview = (product: any) => {
+    setPreviewProduct(product);
+  };
+
   useEffect(() => {
     if (
       status === "unauthenticated" ||
@@ -157,8 +191,6 @@ export default function AdminProductsPage() {
 
     try {
       const formData = new FormData();
-
-      // Append main fields
       formData.append("mnName", form.mnName);
       formData.append("enName", form.enName);
       formData.append("mnDesc", form.mnDesc);
@@ -167,28 +199,30 @@ export default function AdminProductsPage() {
       formData.append("sku", form.sku);
       formData.append("brandId", form.brandId);
       formData.append("categoryId", form.categoryId);
-
-      // Append tags array as JSON string
       formData.append("tagIds", JSON.stringify(form.tagIds));
 
-      // Prepare variants without image field (files will be uploaded separately)
       const variantsWithoutImage = form.variants.map(({ image, ...v }) => v);
       formData.append("variants", JSON.stringify(variantsWithoutImage));
 
-      // Append variant images with keys like variantImage_0, variantImage_1, ...
       variantImages.forEach((file, idx) => {
         if (file) {
           formData.append(`variantImage_${idx}`, file);
         }
       });
 
-      const res = await fetch("/api/admin/products", {
-        method: "POST",
-        body: formData, // Content-Type will be set automatically to multipart/form-data
-      });
+      const res = await fetch(
+        editingProduct
+          ? `/api/admin/products?id=${editingProduct.id}`
+          : "/api/admin/products",
+        {
+          method: editingProduct ? "PUT" : "POST",
+          body: formData,
+        }
+      );
 
       if (res.ok) {
         setShowModal(false);
+        setEditingProduct(null);
         setForm({
           mnName: "",
           enName: "",
@@ -205,22 +239,30 @@ export default function AdminProductsPage() {
         fetchInitialData();
         router.refresh();
       } else {
-        console.error("Failed to create product:", await res.text());
+        console.error("Failed to submit product:", await res.text());
       }
     } catch (error) {
-      console.error("Error creating product:", error);
+      console.error("Error submitting product:", error);
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this product?"
+    );
+    if (!confirmed) return;
+
     try {
       const res = await fetch(`/api/admin/products?id=${id}`, {
         method: "DELETE",
       });
+
       if (res.ok) {
-        fetchInitialData();
+        fetchInitialData(); // Refresh the list after deletion
+      } else {
+        console.error("Failed to delete product:", await res.text());
       }
     } catch (error) {
       console.error("Failed to delete product:", error);
@@ -276,7 +318,6 @@ export default function AdminProductsPage() {
                 placeholder="SKU"
                 required
               />
-       
 
               <Input
                 name="price"
@@ -388,8 +429,11 @@ export default function AdminProductsPage() {
                       required>
                       <option value="">Color</option>
                       {colors.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.enName}
+                        <option
+                          key={c.id}
+                          value={c.id}
+                          style={{ background: c.hex }}>
+                          {c.name}
                         </option>
                       ))}
                     </select>
@@ -402,7 +446,7 @@ export default function AdminProductsPage() {
                       <option value="">Size</option>
                       {sizes.map((s) => (
                         <option key={s.id} value={s.id}>
-                          {s.enName}
+                          {s.name}
                         </option>
                       ))}
                     </select>
@@ -506,7 +550,7 @@ export default function AdminProductsPage() {
                       <TableCell>{product.sku}</TableCell>
                       <TableCell>{product.brand?.enName}</TableCell>
                       <TableCell>{product.category?.enName}</TableCell>
-                      <TableCell>${product.price}</TableCell>
+                      <TableCell>₮{product.price}</TableCell>
                       <TableCell>
                         <Badge>{stock}</Badge>
                       </TableCell>
@@ -517,12 +561,21 @@ export default function AdminProductsPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
-                          <Button variant="ghost" size="sm" title="View">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title="View"
+                            onClick={() => handlePreview(product)}>
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" title="Edit">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title="Edit"
+                            onClick={() => handleEdit(product)}>
                             <Edit className="w-4 h-4" />
                           </Button>
+
                           <Button
                             variant="ghost"
                             size="sm"
@@ -541,6 +594,56 @@ export default function AdminProductsPage() {
           </div>
         </CardContent>
       </Card>
+      <Dialog
+        open={!!previewProduct}
+        onOpenChange={() => setPreviewProduct(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Product Preview</DialogTitle>
+          </DialogHeader>
+          {previewProduct && (
+            <div className="space-y-4">
+              <p>
+                <strong>Name:</strong> {previewProduct.enName}
+              </p>
+              <p>
+                <strong>SKU:</strong> {previewProduct.sku}
+              </p>
+              <p>
+                <strong>Description:</strong> {previewProduct.enDesc}
+              </p>
+              <p>
+                <strong>Price:</strong> ₮{previewProduct.price}
+              </p>
+              <p>
+                <strong>Tags:</strong>{" "}
+                {previewProduct.tags.map((t: any) => t.enName).join(", ")}
+              </p>
+              <p>
+                <strong>Variants:</strong>
+              </p>
+              <ul className="list-disc list-inside">
+                {previewProduct.variants.map((v: any, i: number) => (
+                  <li key={i}>
+                    Color: {colors.find((c) => c.id === v.colorId)?.enName} |
+                    Size: {sizes.find((s) => s.id === v.sizeId)?.enName || "-"}{" "}
+                    | Stock: {v.stock}
+                    {v.image && (
+                      <div className="mt-1">
+                        <img
+                          src={v.image}
+                          alt="Variant"
+                          className="w-16 h-16 rounded object-cover"
+                        />
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -150,28 +150,30 @@ export default function Navigation({ locale }: { locale: string }) {
           </div>
 
           {/* Right Side */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center md:space-x-4">
             {/* Language Switcher */}
             <div className="flex items-center space-x-1 bg-gray-50 rounded-lg p-1">
-              <Globe className="h-4 w-4 text-gray-500 ml-2" />
-              <Link
-                href={`/en${pathWithoutLocale}`}
-                className={`px-3 py-1.5 text-sm rounded-md font-medium transition-all duration-200 ${
-                  locale === "en"
-                    ? "bg-white text-blue-600 shadow-sm"
-                    : "text-gray-600 hover:text-blue-600 hover:bg-white/50"
-                }`}>
-                EN
-              </Link>
-              <Link
-                href={`/mn${pathWithoutLocale}`}
-                className={`px-3 py-1.5 text-sm rounded-md font-medium transition-all duration-200 mr-1 ${
-                  locale === "mn"
-                    ? "bg-white text-blue-600 shadow-sm"
-                    : "text-gray-600 hover:text-blue-600 hover:bg-white/50"
-                }`}>
-                МН
-              </Link>
+              {locale === "en" ? (
+                <Link
+                  href={`/en${pathWithoutLocale}`}
+                  className={`px-3 py-1.5 text-sm rounded-md font-medium transition-all duration-200 ${
+                    locale === "en"
+                      ? "bg-white text-blue-600 shadow-sm"
+                      : "text-gray-600 hover:text-blue-600 hover:bg-white/50"
+                  }`}>
+                  EN
+                </Link>
+              ) : (
+                <Link
+                  href={`/mn${pathWithoutLocale}`}
+                  className={`px-3 py-1.5 text-sm rounded-md font-medium transition-all duration-200 mr-1 ${
+                    locale === "mn"
+                      ? "bg-white text-blue-600 shadow-sm"
+                      : "text-gray-600 hover:text-blue-600 hover:bg-white/50"
+                  }`}>
+                  МН
+                </Link>
+              )}
             </div>
 
             {/* Cart */}
@@ -244,12 +246,15 @@ export default function Navigation({ locale }: { locale: string }) {
                       <DropdownMenuSeparator className="my-2" />
 
                       {/* Admin Section */}
-                      {session.user?.role === "ADMIN" && (
+                      {
                         <>
                           <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2">
                             {t("common.administration")}
                           </DropdownMenuLabel>
-                          {adminMenuItems.map((item) => (
+                          {(session.user?.role === "ADMIN"
+                            ? adminMenuItems
+                            : navItems
+                          ).map((item: any) => (
                             <DropdownMenuItem
                               key={item.href}
                               asChild
@@ -257,23 +262,27 @@ export default function Navigation({ locale }: { locale: string }) {
                               <Link
                                 href={item.href}
                                 className="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-purple-50 transition-colors group">
-                                <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                                  <item.icon className="h-4 w-4 text-purple-600" />
-                                </div>
+                                {item?.icon && (
+                                  <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+                                    <item.icon className="h-4 w-4 text-purple-600" />
+                                  </div>
+                                )}
                                 <div className="flex-1">
                                   <p className="text-sm font-medium text-gray-900">
                                     {item.label}
                                   </p>
-                                  <p className="text-xs text-gray-500">
-                                    {item.description}
-                                  </p>
+                                  {item?.description && (
+                                    <p className="text-xs text-gray-500">
+                                      {item.description}
+                                    </p>
+                                  )}
                                 </div>
                               </Link>
                             </DropdownMenuItem>
                           ))}
                           <DropdownMenuSeparator className="my-2" />
                         </>
-                      )}
+                      }
 
                       {/* User Section */}
                       <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2">
@@ -384,107 +393,12 @@ export default function Navigation({ locale }: { locale: string }) {
                   size="sm"
                   className="hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-all duration-200">
                   <User className="h-4 w-4 mr-2" />
-                  {t("auth.sign_in")}
+                  <span className="hidden sm:block">{t("auth.sign_in")}</span>
                 </Button>
               </Link>
             )}
-
-            {/* Mobile Menu Toggle */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="md:hidden hover:bg-gray-100 transition-colors"
-              onClick={() => setIsOpen(!isOpen)}>
-              {isOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </Button>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        {isOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200 bg-white/95 backdrop-blur-md">
-            <div className="flex flex-col space-y-1">
-              {/* Regular Navigation */}
-              {session?.user?.role === "USER" &&
-                navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 py-3 px-4 rounded-lg font-medium"
-                    onClick={() => setIsOpen(false)}>
-                    {item.label}
-                  </Link>
-                ))}
-
-              {/* Admin Section for Mobile */}
-              {session?.user?.role === "ADMIN" && (
-                <>
-                  <div className="pt-4 pb-2">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-4">
-                      {t("common.administration")}
-                    </p>
-                  </div>
-                  {adminMenuItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="flex items-center space-x-3 text-gray-700 hover:text-purple-600 hover:bg-purple-50 transition-all duration-200 py-3 px-4 rounded-lg"
-                      onClick={() => setIsOpen(false)}>
-                      <item.icon className="h-4 w-4" />
-                      <span className="font-medium">{item.label}</span>
-                    </Link>
-                  ))}
-                </>
-              )}
-
-              {/* User Section for Mobile */}
-              {session && (
-                <>
-                  <div className="pt-4 pb-2">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-4">
-                      {t("common.account")}
-                    </p>
-                  </div>
-                  {userMenuItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 py-3 px-4 rounded-lg"
-                      onClick={() => setIsOpen(false)}>
-                      <item.icon className="h-4 w-4" />
-                      <span className="font-medium">{item.label}</span>
-                    </Link>
-                  ))}
-
-                  <button
-                    className="flex items-center space-x-3 text-red-600 hover:text-red-700 hover:bg-red-50 py-3 px-4 text-left w-full rounded-lg transition-all duration-200"
-                    onClick={() => {
-                      setIsOpen(false);
-                      signOut();
-                    }}>
-                    <LogOut className="h-4 w-4" />
-                    <span className="font-medium">{t("auth.signOut")}</span>
-                  </button>
-                </>
-              )}
-
-              {/* Sign In for Mobile */}
-              {!session && (
-                <Link
-                  href={`/${locale}/auth/signin`}
-                  className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 py-3 px-4 rounded-lg font-medium"
-                  onClick={() => setIsOpen(false)}>
-                  <User className="h-4 w-4" />
-                  <span>{t("auth.signIn")}</span>
-                </Link>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </nav>
   );

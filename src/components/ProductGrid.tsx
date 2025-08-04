@@ -76,7 +76,7 @@ export default function ProductGrid({
                     {locale === "mn" ? product.mnName : product.enName}
                   </h3>
                   <p className="text-lg font-bold text-blue-600">
-                    ${product.price.toFixed(2)}
+                    ₮{product.price.toFixed(2)}
                   </p>
                 </div>
               </CardContent>

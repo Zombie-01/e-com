@@ -67,39 +67,35 @@ export async function POST(request: NextRequest) {
     // Example variant: { colorId: "colorId1", sizeId: "sizeId1", imageFileName: "file1.jpg", stock: 5 }
     // But for images in variants, usually you upload separately; here simplified as a JSON string with no files.
     const variantsStr = formData.get("variants") as string;
-    const variantsData = variantsStr ? JSON.parse(variantsStr) : [];
+    const variantsData: any[] = variantsStr ? JSON.parse(variantsStr) : [];
 
-    // Collect all variant images files by naming convention: variantImage_0, variantImage_1, ...
-    const variantImagesMap: Record<string, File> = {};
-    for (const key of formData.keys() as any) {
-      if (key.startsWith("variantImage_")) {
-        const file = formData.get(key) as File;
-        if (file && file.name) {
-          variantImagesMap[key] = file;
-        }
-      }
-    }
+    // Collect variant image files first
+    const variantImageUploads: Promise<string>[] = [];
 
-    // Now upload each variant image and assign url to variant
     for (let i = 0; i < variantsData.length; i++) {
-      const variant = variantsData[i];
+      console.log(i);
       const fileKey = `variantImage_${i}`;
-      if (variantImagesMap[fileKey]) {
-        const uploadResult = await uploadFileToPublicUploads(
-          variantImagesMap[fileKey]
+      const file = formData.get(fileKey) as File;
+
+      if (file && file.name) {
+        // Upload file immediately and store the promise
+        const uploadPromise = uploadFileToPublicUploads(file).then(
+          (res) => res.urlPath
         );
-        variant.image = uploadResult.urlPath; // assign uploaded url to variant.image
+        variantImageUploads.push(uploadPromise as any);
       } else {
-        // No new image uploaded, keep existing or empty string
-        variant.image = variant.image || "";
+        variantImageUploads.push(Promise.resolve("")); // No file, empty string
       }
     }
 
-    // Then prepare variantsCreate with updated image URLs:
-    const variantsCreate = variantsData.map((v: any) => ({
+    // Await all uploads
+    const uploadedImageUrls = await Promise.all(variantImageUploads);
+
+    // Assign uploaded image URLs back to variants
+    const variantsCreate = variantsData.map((v, i) => ({
       colorId: v.colorId,
       sizeId: v.sizeId || null,
-      image: v.image,
+      image: uploadedImageUrls[i],
       stock: v.stock,
     }));
 

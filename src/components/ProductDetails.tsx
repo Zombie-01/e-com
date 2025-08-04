@@ -146,7 +146,7 @@ export default function ProductDetails({
             {locale === "mn" ? product.mnName : product.enName}
           </h1>
           <p className="text-2xl font-bold text-blue-600">
-            ${product.price.toFixed(2)}
+            ₮{product.price.toFixed(2)}
           </p>
         </div>
 

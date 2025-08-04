@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Badge } from "@/src/components/ui/badge";
+import { useTranslations } from "next-intl";
 
 interface Product {
   id: string;
@@ -24,6 +25,7 @@ export default function FeaturedProducts({
   products: Product[];
   locale: string;
 }) {
+  const t = useTranslations();
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {products.map((product) => (
@@ -41,7 +43,7 @@ export default function FeaturedProducts({
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <Badge className="absolute top-3 left-3 bg-black/80 text-white">
-                  New
+                  {t("products.new")}
                 </Badge>
               </div>
 
@@ -55,7 +57,7 @@ export default function FeaturedProducts({
                   {locale === "mn" ? product.mnName : product.enName}
                 </h3>
                 <p className="text-lg font-bold text-blue-600">
-                  ${product.price.toFixed(2)}
+                  ₮{product.price.toFixed(2)}
                 </p>
               </div>
             </CardContent>
