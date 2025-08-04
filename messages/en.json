@@ -19,13 +19,13 @@
     "clear_filters": "Clear Filters"
   },
   "home": {
-    "title": "Tansag Commerce",
-    "subtitle": "Discover luxury products for modern living",
+    "title": "Luxury Commerce",
+    "subtitle": "Discover exquisite products for the modern lifestyle",
     "featured": "Featured Products",
     "categories": "Categories",
     "shop_now": "Shop Now",
     "subcategories": "Subcategories",
-    "description": "Showcasing our curated selection of premium products"
+    "description": "Showcasing our carefully curated collection of premium products"
   },
   "profile": {
     "settings": "Profile Settings",
@@ -62,8 +62,8 @@
     "checkout": "Checkout",
     "quantity": "Quantity",
     "empty": "Your cart is empty.",
-    "continue": "Continue Shopping",
-    "clear": "Clear Cart",
+    "continue": "Continue",
+    "clear": "Clear cart",
     "subtotal": "Subtotal",
     "shipping": "Shipping",
     "summary": "Order Summary"
@@ -86,7 +86,8 @@
     "settings": "Settings",
     "settingsDesc": "Settings section",
     "users": "Users",
-    "usersDesc": "Users section"
+    "usersDesc": "Users section",
+    "revenue": "Revenue"
   },
   "auth": {
     "welcome_back": "Welcome back",
@@ -94,7 +95,7 @@
     "invalid_credentials": "Invalid email or password",
     "generic_error": "An error occurred. Please try again.",
     "email_address": "Email address",
-    "enter_email": "Enter your email",
+    "enter_email": "Enter your email address",
     "password": "Password",
     "enter_password": "Enter your password",
     "show_password": "Show password",
@@ -109,17 +110,17 @@
     "account_created_successfully": "Account created successfully",
     "full_name": "Full name",
     "enter_full_name": "Enter your full name",
-    "create_password": "Create password",
+    "create_password": "Create a password",
     "confirm_password": "Confirm password",
     "confirm_your_password": "Confirm your password",
-    "signOut": "Sign Out",
-    "signOutDesc": "finish",
+    "signOut": "Sign out",
+    "signOutDesc": "end session",
     "creating_account": "Creating account...",
     "already_have_account": "Already have an account?"
   },
   "footer": {
     "logoText": "ORCHID",
-    "tagline": "Comfort.",
+    "tagline": "Comfort in a touch.",
     "copyright": "© 2025 ORCHID. All rights reserved."
   },
   "ProfilePage": {
@@ -131,20 +132,20 @@
     },
     "profileInfo": {
       "title": "Profile Information",
-      "description": "Manage your personal information and preferences",
+      "description": "Manage your personal details and settings",
       "edit": "Edit",
-      "cancelEdit": "Cancel",
-      "fullName": "Full Name",
-      "email": "Email Address",
+      "cancelEdit": "Cancel Edit",
+      "fullName": "Full name",
+      "email": "Email address",
       "cancel": "Cancel",
-      "saveChanges": "Save Changes"
+      "saveChanges": "Save changes"
     },
     "orderHistory": {
       "title": "Order History",
       "description": "Track your orders and view purchase history",
       "orderNumber": "Order #{orderId}",
       "via": "via {deliveryName}",
-      "viewDetails": "View Details"
+      "viewDetails": "View details"
     },
     "orderStatuses": {
       "delivered": "Delivered",
@@ -159,26 +160,230 @@
       "title": "Order Details",
       "orderNumber": "Order #{orderId}",
       "status": "Status",
-      "total": "Total",
+      "total": "Total amount",
       "delivery": "Delivery"
     },
     "addresses": {
       "title": "Saved Addresses",
-      "description": "Manage your delivery addresses",
-      "addAddress": "Add Address"
+      "description": "Manage your shipping addresses",
+      "addAddress": "Add a new address"
     },
     "addressForm": {
-      "addTitle": "Add New Address",
-      "editTitle": "Edit Address",
-      "description": "Enter your delivery address details",
-      "fullName": "Full Name",
-      "phoneNumber": "Phone Number",
+      "addTitle": "Add new address",
+      "editTitle": "Edit address",
+      "description": "Enter your shipping address details",
+      "fullName": "Full name",
+      "phoneNumber": "Phone number",
       "cancel": "Cancel",
-      "saveAddress": "Save Address"
+      "saveAddress": "Save address"
     }
   },
   "common": {
     "administration": "Administration",
-    "account": "Account"
+    "account": "Account",
+    "admin": "Admin"
+  },
+  "orders": {
+    "orders": "Orders",
+    "manageOrdersDescription": "Manage user orders",
+    "loading": "Fetching orders...",
+    "allOrders": "All Orders - {{page}} / {{totalPages}}",
+    "noOrdersFound": "No orders found.",
+    "clickToExpand": "Click to expand order details",
+    "previous": "Previous",
+    "next": "Next",
+    "deliveryDetails": "Delivery Details",
+    "customerDetails": "Customer Details",
+    "orderItems": "Order Items",
+    "option": "Option",
+    "price": "Price",
+    "eta": "ETA",
+    "etaDays": "{{days}} days",
+    "address": "Address",
+    "email": "Email",
+    "phone": "Phone",
+    "quantity": "Quantity",
+    "subtotal": "Subtotal",
+    "table": {
+      "orderId": "Order ID",
+      "userEmail": "User Email",
+      "userName": "User Name",
+      "phone": "Phone",
+      "total": "Total Amount",
+      "status": "Status",
+      "createdAt": "Created At"
+    }
+  },
+  "AdminUsers": {
+    "pageTitle": "Users",
+    "pageDescription": "Manage users",
+    "loading": "Fetching users...",
+    "addUserButton": "Add User",
+    "deleteConfirmation": "Are you sure you want to delete this user?",
+    "cardTitle": "Total Users ({userCount}) - Page {page} / {totalPages}",
+    "searchPlaceholder": "Search users...",
+    "previousButton": "Previous",
+    "nextButton": "Next",
+    "modal": {
+      "title": "{type, select, add {Add user} edit {Edit user}}",
+      "namePlaceholder": "Name",
+      "emailPlaceholder": "Email",
+      "roleLabel": "Role",
+      "userRole": "User",
+      "adminRole": "Admin",
+      "buttons": {
+        "create": "Create",
+        "update": "Update",
+        "creating": "Creating...",
+        "updating": "Updating..."
+      }
+    },
+    "tableHeaders": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "actions": "Actions"
+    }
+  },
+  "AdminCategories": {
+    "pageTitle": "Categories",
+    "pageDescription": "Manage product categories",
+    "loading": "Fetching categories...",
+    "addCategoryButton": "Add Category",
+    "deleteConfirmation": "Are you sure you want to delete this category?",
+    "cardTitle": "Total Categories ({count})",
+    "searchPlaceholder": "Search categories...",
+    "noParentDisplay": "—",
+    "tableHeaders": {
+      "enName": "English name",
+      "mnName": "Mongolian name",
+      "parentCategory": "Parent category",
+      "actions": "Actions"
+    },
+    "modal": {
+      "title": "{type, select, add {Add Category} edit {Edit Category}}",
+      "enNamePlaceholder": "English name",
+      "mnNamePlaceholder": "Mongolian name",
+      "parentLabel": "Parent category",
+      "noParentOption": "No parent category",
+      "buttons": {
+        "create": "Create Category",
+        "update": "Update Category",
+        "creating": "Creating...",
+        "updating": "Updating..."
+      }
+    }
+  },
+  "AdminTags": {
+    "pageTitle": "Tags",
+    "pageDescription": "Manage product tags",
+    "loading": "Fetching tags...",
+    "addTagButton": "Add Tag",
+    "deleteConfirmation": "Are you sure you want to delete this tag?",
+    "cardTitle": "Total Tags ({count})",
+    "searchPlaceholder": "Search tags...",
+    "tableHeaders": {
+      "enName": "English name",
+      "mnName": "Mongolian name",
+      "actions": "Actions"
+    },
+    "modal": {
+      "title": "{type, select, add {Add Tag} edit {Edit Tag}}",
+      "enNamePlaceholder": "English name",
+      "mnNamePlaceholder": "Mongolian name",
+      "buttons": {
+        "create": "Create Tag",
+        "update": "Update Tag",
+        "creating": "Creating...",
+        "updating": "Updating..."
+      }
+    }
+  },
+  "SiteSettings": {
+    "pageTitle": "Site Settings",
+    "loading": "Loading...",
+    "add": "Add",
+    "bannersTitle": "Banners",
+    "colorsTitle": "Colors",
+    "sizesTitle": "Sizes",
+    "deleteConfirmation": "Are you sure you want to delete?",
+    "tableHeaders": {
+      "id": "ID",
+      "mnTitle": "Mongolian title",
+      "enTitle": "English title",
+      "url": "URL",
+      "active": "Active",
+      "name": "Name",
+      "hex": "HEX Code",
+      "actions": "Actions"
+    },
+    "modal": {
+      "createTitle": "Create {type, select, banner {Banner} color {Color} size {Size}}",
+      "editTitle": "Edit {type, select, banner {Banner} color {Color} size {Size}}",
+      "placeholders": {
+        "mnTitle": "Mongolian title",
+        "enTitle": "English title",
+        "url": "URL",
+        "colorName": "Color name",
+        "hex": "HEX Code (#FFFFFF)",
+        "sizeName": "Size name"
+      },
+      "buttons": {
+        "create": "Create",
+        "update": "Update",
+        "creating": "Creating...",
+        "updating": "Updating..."
+      }
+    }
+  },
+  "AdminProductsPage": {
+    "title": "Products",
+    "subtitle": "Manage the product catalog",
+    "addProduct": "Add Product",
+    "searchPlaceholder": "Search...",
+    "table": {
+      "product": "Product",
+      "sku": "SKU",
+      "brand": "Brand",
+      "category": "Category",
+      "price": "Price",
+      "stock": "Stock",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "stockStatus": {
+      "inStock": "In Stock",
+      "outOfStock": "Out of Stock"
+    },
+    "dialog": {
+      "createProductTitle": "Create Product",
+      "editProductTitle": "Edit Product",
+      "englishName": "English Name",
+      "mongolianName": "Mongolian Name",
+      "sku": "SKU",
+      "price": "Price",
+      "selectBrand": "Select Brand",
+      "selectCategory": "Select Category",
+      "englishDescription": "English Description",
+      "mongolianDescription": "Mongolian Description",
+      "variants": "Variants",
+      "color": "Color",
+      "size": "Size",
+      "stock": "Stock",
+      "addVariant": "Add Variant",
+      "createButton": "Create Product",
+      "updateButton": "Update Product",
+      "viewButton": "View"
+    },
+    "preview": {
+      "title": "Product Preview",
+      "name": "Name",
+      "sku": "SKU",
+      "description": "Description",
+      "price": "Price",
+      "tags": "Tags",
+      "variants": "Variants"
+    },
+    "confirmDelete": "Are you sure you want to delete this product?"
   }
 }
