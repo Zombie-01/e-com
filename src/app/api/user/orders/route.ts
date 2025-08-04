@@ -93,3 +93,35 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function GET() {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.email) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
+    const orders = await prisma.order.findMany({
+      where: {
+        userId: user.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return NextResponse.json(orders, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    return NextResponse.json({ message: "Server error" }, { status: 500 });
+  }
+}

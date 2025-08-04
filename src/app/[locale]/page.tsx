@@ -59,7 +59,7 @@ export default async function HomePage({
             {t("featured")}
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Discover our carefully curated selection of premium products
+            {t("description")}
           </p>
         </div>
         <FeaturedProducts products={products} locale={locale} />
@@ -72,7 +72,7 @@ export default async function HomePage({
               {t("categories")}
             </h2>
           </div>
-          <CategoryGrid categories={categories} locale={locale} />
+          <CategoryGrid categories={categories as any} locale={locale} />
         </div>
       </section>
     </div>

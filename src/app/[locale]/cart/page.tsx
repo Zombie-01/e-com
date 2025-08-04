@@ -92,7 +92,7 @@ export default function CartPage() {
           </h1>
           <p className="text-xl text-gray-600 mb-8">{t("empty")}</p>
           <Link href="/products">
-            <Button size="lg">Continue Shopping</Button>
+            <Button size="lg">{t("continue")}</Button>
           </Link>
         </div>
       </div>
@@ -112,15 +112,15 @@ export default function CartPage() {
           </div>
 
           <div className="bg-white rounded-2xl p-6 shadow-lg h-fit">
-            <h3 className="text-xl font-semibold mb-4">Order Summary</h3>
+            <h3 className="text-xl font-semibold mb-4">{t("summary")}</h3>
 
             <div className="space-y-2 mb-4">
               <div className="flex justify-between">
-                <span>Subtotal</span>
+                <span>{t("subtotal")}</span>
                 <span>${getTotalPrice().toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Shipping</span>
+                <span>{t("shipping")}</span>
                 <span>Free</span>
               </div>
               <hr />
@@ -135,7 +135,7 @@ export default function CartPage() {
             </Button>
 
             <Button variant="outline" className="w-full" onClick={clearCart}>
-              Clear Cart
+              {t("clear")}
             </Button>
           </div>
         </div>
@@ -146,6 +146,7 @@ export default function CartPage() {
         isOpen={modalOpen}
         onClose={() => {
           setModalOpen(false);
+          handlePaymentSuccess();
           setInvoice(null);
         }}
         ammount={getTotalPrice().toFixed(0)}

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useCartStore } from "@/src/lib/store";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
-import { Card, CardContent } from "@/src/components/ui/card";
+import { useTranslations } from "next-intl";
 
 interface Color {
   id: string;
@@ -73,12 +73,11 @@ export default function ProductDetails({
   product,
   locale,
 }: ProductDetailsProps) {
+  const t = useTranslations("products"); // namespace "product"
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
   const [selectedSize, setSelectedSize] = useState(product.variants[0]?.size);
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCartStore();
-
-  console.log(JSON.stringify(product));
 
   const handleAddToCart = () => {
     if (!selectedVariant || selectedVariant.stock < quantity) return;
@@ -114,7 +113,7 @@ export default function ProductDetails({
 
         {product.variants.length > 1 && (
           <div className="grid grid-cols-4 gap-2">
-            {product.variants.map((variant: any) => (
+            {product.variants.map((variant: Variant) => (
               <button
                 key={variant.id}
                 onClick={() => setSelectedVariant(variant)}
@@ -125,7 +124,9 @@ export default function ProductDetails({
                 }`}>
                 <Image
                   src={variant.image}
-                  alt={variant.name}
+                  alt={`${
+                    locale === "mn" ? product.mnName : product.enName
+                  } variant`}
                   fill
                   className="object-cover"
                 />
@@ -158,14 +159,16 @@ export default function ProductDetails({
         {/* Color Selection */}
         {product.variants.length > 1 && (
           <div>
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Color</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-3">
+              {t("color")}
+            </h3>
             <div className="flex space-x-2">
               {product.variants.map((variant: Variant) => (
                 <button
                   key={variant.id}
                   onClick={() => setSelectedVariant(variant)}
                   className={`w-8 h-8 rounded-full border-2 ${
-                    variant?.id === variant.id
+                    selectedVariant?.id === variant.id
                       ? "border-gray-900"
                       : "border-gray-300"
                   }`}
@@ -180,14 +183,16 @@ export default function ProductDetails({
         {/* Size Selection */}
         {product.variants.length > 0 && (
           <div>
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Size</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-3">
+              {t("size")}
+            </h3>
             <div className="flex space-x-2">
               {[
                 ...new Map(
                   product.variants.map((variant: Variant) => [
                     variant.size.id,
                     variant,
-                  ] )
+                  ])
                 ).values(),
               ].map((variant: Variant) => (
                 <button
@@ -209,7 +214,7 @@ export default function ProductDetails({
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium text-gray-900 mb-2 block">
-              Quantity
+              {t("quantity")}
             </label>
             <select
               value={quantity}
@@ -230,14 +235,16 @@ export default function ProductDetails({
             disabled={!selectedVariant || selectedVariant.stock < quantity}
             size="lg"
             className="w-full">
-            {selectedVariant?.stock > 0 ? "Add to Cart" : "Out of Stock"}
+            {selectedVariant?.stock > 0 ? t("add_to_cart") : t("out_of_stock")}
           </Button>
         </div>
 
         {/* Product Tags */}
         {product.tags.length > 0 && (
           <div>
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Tags</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-3">
+              {t("tags")}
+            </h3>
             <div className="flex flex-wrap gap-2">
               {product.tags.map((tag: Tag) => (
                 <Badge key={tag.id} variant="secondary">

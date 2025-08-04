@@ -51,7 +51,7 @@ export default function CartItem({ item }: { item: CartItemProps }) {
               <span
                 className={`w-8 h-8 rounded-full border-2 q`}
                 style={{ backgroundColor: item.color.hex }}></span>
-              {item.size && ` • Size: ${item.size}`}
+              {item.size && ` • Size: ${item.size.name}`}
             </p>
             <p className="font-semibold text-blue-600 mt-1">
               ${item.price.toFixed(2)}

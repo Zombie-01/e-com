@@ -38,10 +38,11 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
     const interval = setInterval(async () => {
       try {
         const res = await fetch(
-          `/api/check-invoice?invoice_id=${invoice.invoice_id}`
+          `/api/user/check-invoice?invoice_id=${invoice.invoice_id}`
         );
         const data = await res.json();
         if (data.status === "CLOSED") {
+          onClose();
           clearInterval(interval);
           setIsPaid(true);
         }
@@ -71,10 +72,11 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
     if (!invoice) return;
     try {
       const res = await fetch(
-        `/api/check-invoice?invoice_id=${invoice.invoice_id}`
+        `/api/user/check-invoice?invoice_id=${invoice.invoice_id}`
       );
       const data = await res.json();
       if (data.status === "CLOSED") {
+        onClose();
         setIsPaid(true);
       } else {
         alert("Төлбөр хийгдээгүй байна.");

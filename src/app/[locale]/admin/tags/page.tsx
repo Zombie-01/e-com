@@ -37,9 +37,6 @@ export default function AdminTagsPage() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ mnName: "", enName: "", id: "" });
   const [submitting, setSubmitting] = useState(false);
-  const [page, setPage] = useState(1);
-  const [perPage] = useState(10); // fixed perPage, change if you want dynamic
-  const [totalPages, setTotalPages] = useState(1);
   const router = useRouter();
 
   useEffect(() => {
@@ -51,20 +48,17 @@ export default function AdminTagsPage() {
     }
 
     if (session?.user?.role === "ADMIN") {
-      fetchTags(page);
+      fetchTags();
     }
-  }, [session, status, page]);
+  }, [session, status]);
 
-  const fetchTags = async (pageNumber: number) => {
+  const fetchTags = async () => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `/api/admin/tags?page=${pageNumber}&perPage=${perPage}`
-      );
+      const res = await fetch(`/api/admin/tags`);
       if (res.ok) {
-        const { data, pagination } = await res.json();
+        const data = await res.json();
         setTags(data);
-        setTotalPages(pagination.totalPages);
       }
     } catch (error) {
       console.error("Error fetching tags:", error);
@@ -73,7 +67,7 @@ export default function AdminTagsPage() {
     }
   };
 
-  const filteredTags = tags.filter(
+  const filteredTags = tags?.filter(
     (tag: any) =>
       tag.enName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       tag.mnName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -95,7 +89,7 @@ export default function AdminTagsPage() {
       if (res.ok) {
         setShowModal(false);
         setForm({ mnName: "", enName: "", id: "" });
-        fetchTags(page);
+        fetchTags();
         router.refresh();
       }
     } catch (err) {
@@ -113,7 +107,7 @@ export default function AdminTagsPage() {
         method: "DELETE",
       });
       if (res.ok) {
-        fetchTags(page);
+        fetchTags();
         router.refresh();
       } else {
         console.error("Failed to delete tag");
@@ -124,7 +118,9 @@ export default function AdminTagsPage() {
   };
 
   if (status === "loading" || loading) {
-    return <div className="p-8 text-center text-gray-500">Loading tags...</div>;
+    return (
+      <div className="p-8 text-center text-gray-500">Loading tags?...</div>
+    );
   }
 
   return (
@@ -181,13 +177,11 @@ export default function AdminTagsPage() {
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>
-              All Tags ({tags.length}) - Page {page} of {totalPages}
-            </CardTitle>
+            <CardTitle>All Tags ({tags?.length})</CardTitle>
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search tags..."
+                placeholder="Search tags?..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -205,7 +199,7 @@ export default function AdminTagsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredTags.map((tag: any) => (
+              {filteredTags?.map((tag: any) => (
                 <TableRow key={tag.id}>
                   <TableCell>{tag.enName}</TableCell>
                   <TableCell>{tag.mnName}</TableCell>
@@ -237,20 +231,6 @@ export default function AdminTagsPage() {
               ))}
             </TableBody>
           </Table>
-
-          {/* Pagination controls */}
-          <div className="flex justify-center mt-4 space-x-4">
-            <Button
-              onClick={() => setPage((p) => Math.max(p - 1, 1))}
-              disabled={page === 1}>
-              Previous
-            </Button>
-            <Button
-              onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-              disabled={page === totalPages}>
-              Next
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </div>

@@ -257,6 +257,7 @@ export default function SiteSettingsPage() {
                 />
                 <Input
                   name="hex"
+                  type="color"
                   placeholder="Hex (#FFFFFF)"
                   value={form.hex || ""}
                   onChange={(e) => setForm({ ...form, hex: e.target.value })}

@@ -8,11 +8,36 @@
     "signup": "Бүртгүүлэх",
     "admin": "Удирдлага"
   },
+  "filters": {
+    "filters": "Шүүлтүүрүүд",
+    "price_range": "Үнэний муж",
+    "min": "Доод хязгаар",
+    "max": "Дээд хязгаар",
+    "brand": "Брэнд",
+    "category": "Ангилал",
+    "apply_filters": "Шүүлтүүр хэрэглэх",
+    "clear_filters": "Шүүлтүүр цэвэрлэх"
+  },
   "home": {
     "title": "Тансаг Худалдаа",
     "subtitle": "Орчин үеийн амьдралд зориулсан тансаг бүтээгдэхүүнийг олоорой",
     "featured": "Онцлох бүтээгдэхүүнүүд",
-    "categories": "Ангиллууд"
+    "categories": "Ангиллууд",
+    "shop_now": "Худалдаж авах",
+    "subcategories": "дэд ангилалууд",
+    "description": "Манай нарийн сонгосон дээд зэрэглэлийн бүтээгдэхүүнүүдийг танилцуулж байна"
+  },
+  "profile": {
+    "settings": "Профайл тохиргоо",
+    "settingsDesc": "Дансаа удирдах",
+    "orders": "Захиалгын түүх",
+    "ordersDesc": "Захиалгаа хянах",
+    "transactions": "Гүйлгээ",
+    "transactionsDesc": "Төлбөрийн түүх",
+    "addresses": "Хаяг",
+    "addressesDesc": "Хүргэлтийн хаяг",
+    "wishlist": "Хүслийн жагсаалт",
+    "wishlistDesc": "Хадгалсан зүйлс"
   },
   "products": {
     "title": "Бүтээгдэхүүн",
@@ -23,14 +48,24 @@
     "category": "Ангилал",
     "tags": "Шошго",
     "addToCart": "Сагсанд Нэмэх",
-    "outOfStock": "Дууссан"
+    "outOfStock": "Дууссан",
+    "color": "Өнгө",
+    "size": "Хэмжээ",
+    "quantity": "Тоо хэмжээ",
+    "add_to_cart": "Сагсанд нэмэх",
+    "out_of_stock": "Хадгалагдаагүй"
   },
   "cart": {
     "title": "Худалдан Авах Сагс",
-    "empty": "Таны сагс хоосон байна",
     "total": "Нийт",
     "checkout": "Төлбөр Төлөх",
-    "quantity": "Тоо Хэмжээ"
+    "quantity": "Тоо Хэмжээ",
+    "empty": "Таны сагс хоосон байна.",
+    "continue": "Үргэлжлүүлэх",
+    "clear": "Сагсыг цэвэрлэх",
+    "subtotal": "Дүн",
+    "shipping": "Хүргэлт",
+    "summary": "Захиалгын хураангуй"
   },
   "admin": {
     "dashboard": "Хяналтын Самбар",
@@ -41,5 +76,34 @@
     "banners": "Баннер",
     "orders": "Захиалга",
     "users": "Хэрэглэгч"
+  },
+  "auth": {
+    "welcome_back": "Тавтай морил",
+    "sign_in_to_continue": "Үргэлжлүүлэхийн тулд нэвтрэнэ үү",
+    "invalid_credentials": "Имэйл эсвэл нууц үг буруу байна",
+    "generic_error": "Алдаа гарлаа. Дахин оролдоно уу.",
+    "email_address": "Имэйл хаяг",
+    "enter_email": "Имэйлээ оруулна уу",
+    "password": "Нууц үг",
+    "enter_password": "Нууц үгээ оруулна уу",
+    "show_password": "Нууц үгийг харуулах",
+    "hide_password": "Нууц үгийг нуух",
+    "sign_in": "Нэвтрэх",
+    "signing_in": "Нэвтрэж байна...",
+    "no_account": "Бүртгэлгүй юу?",
+    "sign_up": "Бүртгүүлэх",
+    "create_account": "Бүртгэл үүсгэх",
+    "join_us_and_start_shopping": "Манайтай нэгдэж, худалдаа хийхийг эхлүүлээрэй",
+    "passwords_do_not_match": "Нууц үг тохирохгүй байна",
+    "account_created_successfully": "Бүртгэл амжилттай үүслээ",
+    "full_name": "Бүтэн нэр",
+    "enter_full_name": "Таны бүтэн нэрийг оруулна уу",
+    "create_password": "Нууц үг үүсгээрэй",
+    "confirm_password": "Нууц үг баталгаажуулах",
+    "confirm_your_password": "Нууц үгээ баталгаажуулна уу",
+    "signOut": "Гарах",
+    "signOutDesc": "дуусгах",
+    "creating_account": "Бүртгэл үүсгэж байна...",
+    "already_have_account": "Бүртгэлтэй юу?"
   }
 }

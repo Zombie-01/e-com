@@ -47,6 +47,8 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData();
 
+    console.log(formData);
+
     // Basic fields
     const mnName = formData.get("mnName") as string;
     const enName = formData.get("enName") as string;

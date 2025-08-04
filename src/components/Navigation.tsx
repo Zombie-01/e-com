@@ -8,9 +8,15 @@ import { useCartStore } from "@/src/lib/store";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/src/components/ui/avatar";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
@@ -20,81 +26,149 @@ import {
   Menu,
   X,
   Globe,
-  Search,
   LogOut,
   Settings,
   Package,
+  CreditCard,
+  MapPin,
+  Shield,
+  Users,
+  BarChart3,
+  Tag,
+  FolderTree,
+  ShoppingBag,
+  Cog,
+  Bell,
+  Heart,
+  History,
+  HelpCircle,
 } from "lucide-react";
 import { usePathname } from "../i18n/navigation";
 
 export default function Navigation({ locale }: { locale: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session } = useSession();
-  const t = useTranslations("nav");
+  const t = useTranslations("");
   const { getTotalItems } = useCartStore();
   const pathname = usePathname();
   const pathWithoutLocale = pathname.replace(/^\/(en|mn)/, "");
 
   const navItems = [
-    { href: `/${locale}`, label: t("home") },
-    { href: `/${locale}/products`, label: t("products") },
+    { href: `/${locale}`, label: t("nav.home") },
+    { href: `/${locale}/products`, label: t("nav.products") },
   ];
 
-  // Admin menu items shown on desktop only (not mobile)
+  // Admin menu items
   const adminMenuItems = [
-    { href: `/${locale}/admin/products`, label: "Manage Products" },
-    { href: `/${locale}/admin/tags`, label: "Manage Tags" },
-    { href: `/${locale}/admin/categories`, label: "Manage Categories" },
-    { href: `/${locale}/admin/orders`, label: "View Orders" },
-    { href: `/${locale}/admin/users`, label: "Manage Users" },
-    { href: `/${locale}/admin/settings`, label: "Site Settings" },
+    {
+      href: `/${locale}/admin/dashboard`,
+      label: t("admin.dashboard"),
+      icon: BarChart3,
+      description: t("admin.dashboardDesc"),
+    },
+    {
+      href: `/${locale}/admin/products`,
+      label: t("admin.products"),
+      icon: ShoppingBag,
+      description: t("admin.productsDesc"),
+    },
+    {
+      href: `/${locale}/admin/orders`,
+      label: t("admin.orders"),
+      icon: Package,
+      description: t("admin.ordersDesc"),
+    },
+    {
+      href: `/${locale}/admin/users`,
+      label: t("admin.users"),
+      icon: Users,
+      description: t("admin.usersDesc"),
+    },
+    {
+      href: `/${locale}/admin/categories`,
+      label: t("admin.categories"),
+      icon: FolderTree,
+      description: t("admin.categoriesDesc"),
+    },
+    {
+      href: `/${locale}/admin/tags`,
+      label: t("admin.tags"),
+      icon: Tag,
+      description: t("admin.tagsDesc"),
+    },
+    {
+      href: `/${locale}/admin/settings`,
+      label: t("admin.settings"),
+      icon: Cog,
+      description: t("admin.settingsDesc"),
+    },
   ];
+
+  // User profile menu items
+  const userMenuItems = [
+    {
+      href: `/${locale}/profile`,
+      label: t("profile.settings"),
+      icon: Settings,
+      description: t("profile.settingsDesc"),
+    },
+  ];
+
+  const getUserInitials = (name: string | null | undefined) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
-    <nav className="bg-white/95 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+    <nav className="bg-white/95 backdrop-blur-md border-b border-gray-200/80 sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link
             href={`/${locale}`}
-            className="text-2xl font-bold text-gray-900">
-            Luxe
+            className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent hover:from-blue-600 hover:to-purple-600 transition-all duration-300">
+            ORCHID
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {(session?.user?.role == "ADMIN" ? adminMenuItems : navItems).map(
-              (item) => (
+            {session?.user?.role === "USER" &&
+              navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+                  className="text-gray-700 hover:text-blue-600 transition-colors font-medium relative group">
                   {item.label}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
                 </Link>
-              )
-            )}
+              ))}
           </div>
 
           {/* Right Side */}
           <div className="flex items-center space-x-4">
             {/* Language Switcher */}
-            <div className="flex items-center space-x-1">
-              <Globe className="h-4 w-4 text-gray-500" />
+            <div className="flex items-center space-x-1 bg-gray-50 rounded-lg p-1">
+              <Globe className="h-4 w-4 text-gray-500 ml-2" />
               <Link
                 href={`/en${pathWithoutLocale}`}
-                className={`px-2 py-1 text-sm rounded ${
+                className={`px-3 py-1.5 text-sm rounded-md font-medium transition-all duration-200 ${
                   locale === "en"
-                    ? "bg-blue-100 text-blue-600"
-                    : "text-gray-600 hover:text-blue-600"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-gray-600 hover:text-blue-600 hover:bg-white/50"
                 }`}>
                 EN
               </Link>
               <Link
                 href={`/mn${pathWithoutLocale}`}
-                className={`px-2 py-1 text-sm rounded ${
+                className={`px-3 py-1.5 text-sm rounded-md font-medium transition-all duration-200 mr-1 ${
                   locale === "mn"
-                    ? "bg-blue-100 text-blue-600"
-                    : "text-gray-600 hover:text-blue-600"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-gray-600 hover:text-blue-600 hover:bg-white/50"
                 }`}>
                 МН
               </Link>
@@ -102,68 +176,202 @@ export default function Navigation({ locale }: { locale: string }) {
 
             {/* Cart */}
             <Link href={`/${locale}/cart`}>
-              <Button variant="ghost" size="sm" className="relative">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative hover:bg-gray-100 transition-colors">
                 <ShoppingCart className="h-5 w-5" />
                 {getTotalItems() > 0 && (
                   <Badge
                     variant="destructive"
-                    className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                    className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs animate-pulse">
                     {getTotalItems()}
                   </Badge>
                 )}
               </Button>
             </Link>
 
-            {/* User - dropdown only on mobile */}
+            {/* User Profile */}
             {session ? (
               <>
-                <div className="hidden md:flex items-center space-x-4">
-                  {/* On desktop show user name and links inline */}
-                  <span className="text-gray-700 font-medium">
-                    {session.user?.name}
-                  </span>
+                {/* Desktop Profile Dropdown */}
+                <div className="hidden md:block">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="relative h-10 w-10 rounded-full hover:ring-2 hover:ring-blue-200 transition-all duration-200">
+                        <Avatar className="h-9 w-9">
+                          <AvatarImage
+                            src={session.user?.image || undefined}
+                            alt={session.user?.name || "User"}
+                          />
+                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-semibold">
+                            {getUserInitials(session.user?.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-80 p-2 shadow-xl border-0 bg-white/95 backdrop-blur-md">
+                      {/* User Info Header */}
+                      <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg mb-2">
+                        <Avatar className="h-12 w-12 ring-2 ring-white shadow-sm">
+                          <AvatarImage src={session.user?.image || undefined} />
+                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+                            {getUserInitials(session.user?.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 truncate">
+                            {session.user?.name}
+                          </p>
+                          <p className="text-xs text-gray-600 truncate">
+                            {session.user?.email}
+                          </p>
+                          {session.user?.role === "ADMIN" && (
+                            <Badge
+                              variant="secondary"
+                              className="mt-1 text-xs bg-purple-100 text-purple-700 border-purple-200">
+                              <Shield className="w-3 h-3 mr-1" />
+                              {t("common.admin")}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+
+                      <DropdownMenuSeparator className="my-2" />
+
+                      {/* Admin Section */}
+                      {session.user?.role === "ADMIN" && (
+                        <>
+                          <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2">
+                            {t("common.administration")}
+                          </DropdownMenuLabel>
+                          {adminMenuItems.map((item) => (
+                            <DropdownMenuItem
+                              key={item.href}
+                              asChild
+                              className="p-0">
+                              <Link
+                                href={item.href}
+                                className="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-purple-50 transition-colors group">
+                                <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+                                  <item.icon className="h-4 w-4 text-purple-600" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium text-gray-900">
+                                    {item.label}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {item.description}
+                                  </p>
+                                </div>
+                              </Link>
+                            </DropdownMenuItem>
+                          ))}
+                          <DropdownMenuSeparator className="my-2" />
+                        </>
+                      )}
+
+                      {/* User Section */}
+                      <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2">
+                        {t("common.account")}
+                      </DropdownMenuLabel>
+                      {userMenuItems.map((item) => (
+                        <DropdownMenuItem
+                          key={item.href}
+                          asChild
+                          className="p-0">
+                          <Link
+                            href={item.href}
+                            className="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-blue-50 transition-colors group">
+                            <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                              <item.icon className="h-4 w-4 text-blue-600" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-gray-900">
+                                {item.label}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {item.description}
+                              </p>
+                            </div>
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+
+                      <DropdownMenuSeparator className="my-2" />
+
+                      <DropdownMenuSeparator className="my-2" />
+
+                      {/* Sign Out */}
+                      <DropdownMenuItem
+                        onClick={() => signOut()}
+                        className="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-red-50 transition-colors group cursor-pointer">
+                        <div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
+                          <LogOut className="h-4 w-4 text-red-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-red-900">
+                            {t("auth.signOut")}
+                          </p>
+                          <p className="text-xs text-red-600">
+                            {t("auth.signOutDesc")}
+                          </p>
+                        </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
-                {/* Mobile dropdown */}
+                {/* Mobile Profile Dropdown */}
                 <div className="md:hidden">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="sm" className="relative">
-                        <User className="h-5 w-5" />
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage src={session.user?.image || undefined} />
+                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
+                            {getUserInitials(session.user?.name)}
+                          </AvatarFallback>
+                        </Avatar>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <div className="px-2 py-1.5">
-                        <p className="text-sm font-medium">
+                    <DropdownMenuContent align="end" className="w-64 shadow-lg">
+                      <div className="px-3 py-2">
+                        <p className="text-sm font-medium text-gray-900">
                           {session.user?.name}
                         </p>
                         <p className="text-xs text-gray-500">
                           {session.user?.email}
                         </p>
+                        {session.user?.role === "ADMIN" && (
+                          <Badge variant="secondary" className="mt-1 text-xs">
+                            {t("common.admin")}
+                          </Badge>
+                        )}
                       </div>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href={`/${locale}/profile`}
-                          className="flex items-center">
-                          <Settings className="mr-2 h-4 w-4" />
-                          Profile
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href={`/${locale}/profile?tab=orders`}
-                          className="flex items-center">
-                          <Package className="mr-2 h-4 w-4" />
-                          Orders
-                        </Link>
-                      </DropdownMenuItem>
+
+                      {userMenuItems.slice(0, 3).map((item) => (
+                        <DropdownMenuItem key={item.href} asChild>
+                          <Link
+                            href={item.href}
+                            className="flex items-center space-x-2">
+                            <item.icon className="mr-2 h-4 w-4" />
+                            {item.label}
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => signOut()}
                         className="flex items-center text-red-600">
                         <LogOut className="mr-2 h-4 w-4" />
-                        Sign Out
+                        {t("auth.signOut")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -171,8 +379,12 @@ export default function Navigation({ locale }: { locale: string }) {
               </>
             ) : (
               <Link href={`/${locale}/auth/signin`}>
-                <Button variant="ghost" size="sm">
-                  <User className="h-5 w-5" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-all duration-200">
+                  <User className="h-4 w-4 mr-2" />
+                  {t("auth.sign_in")}
                 </Button>
               </Link>
             )}
@@ -181,7 +393,7 @@ export default function Navigation({ locale }: { locale: string }) {
             <Button
               variant="ghost"
               size="sm"
-              className="md:hidden"
+              className="md:hidden hover:bg-gray-100 transition-colors"
               onClick={() => setIsOpen(!isOpen)}>
               {isOpen ? (
                 <X className="h-5 w-5" />
@@ -194,59 +406,80 @@ export default function Navigation({ locale }: { locale: string }) {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
-            <div className="flex flex-col space-y-2">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-gray-700 hover:text-blue-600 transition-colors py-2 px-4 rounded-lg hover:bg-gray-50"
-                  onClick={() => setIsOpen(false)}>
-                  {item.label}
-                </Link>
-              ))}
+          <div className="md:hidden py-4 border-t border-gray-200 bg-white/95 backdrop-blur-md">
+            <div className="flex flex-col space-y-1">
+              {/* Regular Navigation */}
+              {session?.user?.role === "USER" &&
+                navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 py-3 px-4 rounded-lg font-medium"
+                    onClick={() => setIsOpen(false)}>
+                    {item.label}
+                  </Link>
+                ))}
 
-              {/* Admin links on mobile nav */}
-              {adminMenuItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-gray-700 hover:text-blue-600 transition-colors py-2 px-4 rounded-lg hover:bg-gray-50"
-                  onClick={() => setIsOpen(false)}>
-                  {item.label}
-                </Link>
-              ))}
-
-              {/* Auth links */}
-              {session ? (
+              {/* Admin Section for Mobile */}
+              {session?.user?.role === "ADMIN" && (
                 <>
-                  <Link
-                    href={`/${locale}/profile`}
-                    className="text-gray-700 hover:text-blue-600 transition-colors py-2 px-4 rounded-lg hover:bg-gray-50"
-                    onClick={() => setIsOpen(false)}>
-                    Profile
-                  </Link>
-                  <Link
-                    href={`/${locale}/profile?tab=orders`}
-                    className="text-gray-700 hover:text-blue-600 transition-colors py-2 px-4 rounded-lg hover:bg-gray-50"
-                    onClick={() => setIsOpen(false)}>
-                    Orders
-                  </Link>
+                  <div className="pt-4 pb-2">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-4">
+                      {t("common.administration")}
+                    </p>
+                  </div>
+                  {adminMenuItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="flex items-center space-x-3 text-gray-700 hover:text-purple-600 hover:bg-purple-50 transition-all duration-200 py-3 px-4 rounded-lg"
+                      onClick={() => setIsOpen(false)}>
+                      <item.icon className="h-4 w-4" />
+                      <span className="font-medium">{item.label}</span>
+                    </Link>
+                  ))}
+                </>
+              )}
+
+              {/* User Section for Mobile */}
+              {session && (
+                <>
+                  <div className="pt-4 pb-2">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-4">
+                      {t("common.account")}
+                    </p>
+                  </div>
+                  {userMenuItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 py-3 px-4 rounded-lg"
+                      onClick={() => setIsOpen(false)}>
+                      <item.icon className="h-4 w-4" />
+                      <span className="font-medium">{item.label}</span>
+                    </Link>
+                  ))}
+
                   <button
-                    className="text-red-600 hover:text-red-700 py-2 px-4 text-left w-full"
+                    className="flex items-center space-x-3 text-red-600 hover:text-red-700 hover:bg-red-50 py-3 px-4 text-left w-full rounded-lg transition-all duration-200"
                     onClick={() => {
                       setIsOpen(false);
                       signOut();
                     }}>
-                    Sign Out
+                    <LogOut className="h-4 w-4" />
+                    <span className="font-medium">{t("auth.signOut")}</span>
                   </button>
                 </>
-              ) : (
+              )}
+
+              {/* Sign In for Mobile */}
+              {!session && (
                 <Link
                   href={`/${locale}/auth/signin`}
-                  className="text-gray-700 hover:text-blue-600 transition-colors py-2 px-4 rounded-lg hover:bg-gray-50"
+                  className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 py-3 px-4 rounded-lg font-medium"
                   onClick={() => setIsOpen(false)}>
-                  Sign In
+                  <User className="h-4 w-4" />
+                  <span>{t("auth.signIn")}</span>
                 </Link>
               )}
             </div>
