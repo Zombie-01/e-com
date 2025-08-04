@@ -70,15 +70,23 @@
   },
   "admin": {
     "dashboard": "Хяналтын Самбар",
+    "dashboardDesc": "Хяналтын самбар хэсэг",
     "products": "Бүтээгдэхүүн",
+    "productsDesc": "Бүтээгдэхүүний хэсэг",
     "categories": "Ангилал",
+    "categoriesDesc": "Ангиллын хэсэг",
     "brands": "Брэнд",
+    "brandsDesc": "Брэндийн хэсэг",
     "tags": "Шошго",
+    "tagsDesc": "Шошгын хэсэг",
     "banners": "Баннер",
+    "bannersDesc": "Баннер хэсэг",
     "orders": "Захиалга",
+    "ordersDesc": "Захиалгын хэсэг",
     "settings": "Засвар",
     "settingsDesc": "Засвар хэсэг",
-    "users": "Хэрэглэгч"
+    "users": "Хэрэглэгч",
+    "usersDesc": "Хэрэглэгчийн хэсэг"
   },
   "auth": {
     "welcome_back": "Тавтай морил",
@@ -168,5 +176,9 @@
       "cancel": "Болих",
       "saveAddress": "Хаяг хадгалах"
     }
+  },
+  "common": {
+    "administration": "Администратор",
+    "account": "Данс"
   }
 }

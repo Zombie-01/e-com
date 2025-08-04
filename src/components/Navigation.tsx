@@ -153,24 +153,16 @@ export default function Navigation({ locale }: { locale: string }) {
           <div className="flex items-center md:space-x-4">
             {/* Language Switcher */}
             <div className="flex items-center space-x-1 bg-gray-50 rounded-lg p-1">
-              {locale === "en" ? (
+              {locale === "mn" ? (
                 <Link
                   href={`/en${pathWithoutLocale}`}
-                  className={`px-3 py-1.5 text-sm rounded-md font-medium transition-all duration-200 ${
-                    locale === "en"
-                      ? "bg-white text-blue-600 shadow-sm"
-                      : "text-gray-600 hover:text-blue-600 hover:bg-white/50"
-                  }`}>
+                  className={`px-3 py-1.5 text-sm rounded-md font-medium transition-all duration-200 ${"text-gray-600 hover:text-blue-600 hover:bg-white/50"}`}>
                   EN
                 </Link>
               ) : (
                 <Link
                   href={`/mn${pathWithoutLocale}`}
-                  className={`px-3 py-1.5 text-sm rounded-md font-medium transition-all duration-200 mr-1 ${
-                    locale === "mn"
-                      ? "bg-white text-blue-600 shadow-sm"
-                      : "text-gray-600 hover:text-blue-600 hover:bg-white/50"
-                  }`}>
+                  className={`px-3 py-1.5 text-sm rounded-md font-medium transition-all duration-200 mr-1 ${"text-gray-600 hover:text-blue-600 hover:bg-white/50"}`}>
                   МН
                 </Link>
               )}

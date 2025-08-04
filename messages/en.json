@@ -8,38 +8,177 @@
     "signup": "Sign Up",
     "admin": "Admin"
   },
+  "filters": {
+    "filters": "Filters",
+    "price_range": "Price Range",
+    "min": "Min",
+    "max": "Max",
+    "brand": "Brand",
+    "category": "Category",
+    "apply_filters": "Apply Filters",
+    "clear_filters": "Clear Filters"
+  },
   "home": {
-    "title": "Premium E-Commerce",
-    "subtitle": "Discover luxury products crafted for modern living",
+    "title": "Tansag Commerce",
+    "subtitle": "Discover luxury products for modern living",
     "featured": "Featured Products",
-    "categories": "Categories"
+    "categories": "Categories",
+    "shop_now": "Shop Now",
+    "subcategories": "Subcategories",
+    "description": "Showcasing our curated selection of premium products"
+  },
+  "profile": {
+    "settings": "Profile Settings",
+    "settingsDesc": "Manage your account",
+    "orders": "Order History",
+    "ordersDesc": "Track your orders",
+    "transactions": "Transactions",
+    "transactionsDesc": "Payment history",
+    "addresses": "Addresses",
+    "addressesDesc": "Shipping addresses",
+    "wishlist": "Wishlist",
+    "wishlistDesc": "Saved items"
   },
   "products": {
     "title": "Products",
     "filter": "Filter",
-    "sort": "Sort by",
+    "sort": "Sort",
     "price": "Price",
     "brand": "Brand",
+    "new": "New",
     "category": "Category",
     "tags": "Tags",
     "addToCart": "Add to Cart",
-    "outOfStock": "Out of Stock"
+    "outOfStock": "Out of Stock",
+    "color": "Color",
+    "size": "Size",
+    "quantity": "Quantity",
+    "add_to_cart": "Add to Cart",
+    "out_of_stock": "Out of stock"
   },
   "cart": {
     "title": "Shopping Cart",
-    "empty": "Your cart is empty",
     "total": "Total",
     "checkout": "Checkout",
-    "quantity": "Quantity"
+    "quantity": "Quantity",
+    "empty": "Your cart is empty.",
+    "continue": "Continue Shopping",
+    "clear": "Clear Cart",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "summary": "Order Summary"
   },
   "admin": {
     "dashboard": "Dashboard",
+    "dashboardDesc": "Dashboard section",
     "products": "Products",
+    "productsDesc": "Products section",
     "categories": "Categories",
+    "categoriesDesc": "Categories section",
     "brands": "Brands",
+    "brandsDesc": "Brands section",
     "tags": "Tags",
+    "tagsDesc": "Tags section",
     "banners": "Banners",
+    "bannersDesc": "Banners section",
     "orders": "Orders",
-    "users": "Users"
+    "ordersDesc": "Orders section",
+    "settings": "Settings",
+    "settingsDesc": "Settings section",
+    "users": "Users",
+    "usersDesc": "Users section"
+  },
+  "auth": {
+    "welcome_back": "Welcome back",
+    "sign_in_to_continue": "Sign in to continue",
+    "invalid_credentials": "Invalid email or password",
+    "generic_error": "An error occurred. Please try again.",
+    "email_address": "Email address",
+    "enter_email": "Enter your email",
+    "password": "Password",
+    "enter_password": "Enter your password",
+    "show_password": "Show password",
+    "hide_password": "Hide password",
+    "sign_in": "Sign In",
+    "signing_in": "Signing in...",
+    "no_account": "Don't have an account?",
+    "sign_up": "Sign Up",
+    "create_account": "Create an account",
+    "join_us_and_start_shopping": "Join us and start shopping",
+    "passwords_do_not_match": "Passwords do not match",
+    "account_created_successfully": "Account created successfully",
+    "full_name": "Full name",
+    "enter_full_name": "Enter your full name",
+    "create_password": "Create password",
+    "confirm_password": "Confirm password",
+    "confirm_your_password": "Confirm your password",
+    "signOut": "Sign Out",
+    "signOutDesc": "finish",
+    "creating_account": "Creating account...",
+    "already_have_account": "Already have an account?"
+  },
+  "footer": {
+    "logoText": "ORCHID",
+    "tagline": "Comfort.",
+    "copyright": "© 2025 ORCHID. All rights reserved."
+  },
+  "ProfilePage": {
+    "tabs": {
+      "profile": "Profile",
+      "orders": "Orders",
+      "transactions": "Transactions",
+      "addresses": "Addresses"
+    },
+    "profileInfo": {
+      "title": "Profile Information",
+      "description": "Manage your personal information and preferences",
+      "edit": "Edit",
+      "cancelEdit": "Cancel",
+      "fullName": "Full Name",
+      "email": "Email Address",
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes"
+    },
+    "orderHistory": {
+      "title": "Order History",
+      "description": "Track your orders and view purchase history",
+      "orderNumber": "Order #{orderId}",
+      "via": "via {deliveryName}",
+      "viewDetails": "View Details"
+    },
+    "orderStatuses": {
+      "delivered": "Delivered",
+      "completed": "Completed",
+      "shipped": "Shipped",
+      "processing": "Processing",
+      "pending": "Pending",
+      "cancelled": "Cancelled",
+      "failed": "Failed"
+    },
+    "orderDetails": {
+      "title": "Order Details",
+      "orderNumber": "Order #{orderId}",
+      "status": "Status",
+      "total": "Total",
+      "delivery": "Delivery"
+    },
+    "addresses": {
+      "title": "Saved Addresses",
+      "description": "Manage your delivery addresses",
+      "addAddress": "Add Address"
+    },
+    "addressForm": {
+      "addTitle": "Add New Address",
+      "editTitle": "Edit Address",
+      "description": "Enter your delivery address details",
+      "fullName": "Full Name",
+      "phoneNumber": "Phone Number",
+      "cancel": "Cancel",
+      "saveAddress": "Save Address"
+    }
+  },
+  "common": {
+    "administration": "Administration",
+    "account": "Account"
   }
 }
