@@ -63,7 +63,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Missing ID" }, { status: 400 });
     }
 
-    let asd = await prisma.color.delete({
+    await prisma.color.delete({
       where: { id },
     });
 

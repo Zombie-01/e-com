@@ -138,12 +138,12 @@ export default function Navigation({ locale }: { locale: string }) {
           <Link
             href={`/${locale}`}
             className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent hover:from-blue-600 hover:to-purple-600 transition-all duration-300">
-            ORCHID
+            {locale === "en" ? "ORCHID" : "ОРЧИД"}
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {session?.user?.role === "USER" &&
+            {session?.user?.role !== "ADMIN" &&
               navItems.map((item) => (
                 <Link
                   key={item.href}

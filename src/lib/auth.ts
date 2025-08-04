@@ -1,8 +1,8 @@
-import { NextAuthOptions } from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { prisma } from "@/src/lib/prisma"
-import bcrypt from "bcryptjs"
+import { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { prisma } from "@/src/lib/prisma";
+import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -11,28 +11,28 @@ export const authOptions: NextAuthOptions = {
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null
+          return null;
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
-        })
+          where: { email: credentials.email },
+        });
 
         if (!user || !user.password) {
-          return null
+          return null;
         }
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
           user.password
-        )
+        );
 
         if (!isPasswordValid) {
-          return null
+          return null;
         }
 
         return {
@@ -40,28 +40,38 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
-        }
-      }
-    })
+        };
+      },
+    }),
   ],
   session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role
+        token.role = user.role;
       }
-      return token
+      return token;
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.sub!
-        session.user.role = token.role as string
+        if (session.user) {
+          session.user.id = token.sub!;
+          session.user.role = token.role as string;
+        } else {
+          // If needed, you can create it:
+          session.user = {
+            id: token.sub!,
+            role: token.role as string,
+            name: token.name as string,
+            email: token.email as string,
+          };
+        }
       }
-      return session
-    }
+      return session;
+    },
   },
   pages: {
     signIn: "/auth/signin",
     signUp: "/auth/signup",
-  }
-}
+  },
+};
