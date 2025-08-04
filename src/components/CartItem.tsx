@@ -1,17 +1,35 @@
-'use client'
+"use client";
 
-import Image from 'next/image'
-import { useCartStore } from '@/src/lib/store'
-import { Button } from '@/src/components/ui/button'
-import { Card, CardContent } from '@/src/components/ui/card'
-import { Minus, Plus, Trash2 } from 'lucide-react'
-
-interface CartItemProps {
-  item: any
+import Image from "next/image";
+import { useCartStore } from "@/src/lib/store";
+import { Button } from "@/src/components/ui/button";
+import { Card, CardContent } from "@/src/components/ui/card";
+import { Minus, Plus, Trash2 } from "lucide-react";
+interface Color {
+  id: string;
+  name: string;
+  hex: string;
 }
 
-export default function CartItem({ item }: CartItemProps) {
-  const { updateQuantity, removeItem } = useCartStore()
+interface Size {
+  id: string;
+  name: string;
+}
+
+interface CartItemProps {
+  id: string;
+  productId: string;
+  variantId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  color: Color;
+  size?: Size;
+}
+
+export default function CartItem({ item }: { item: CartItemProps }) {
+  const { updateQuantity, removeItem } = useCartStore();
 
   return (
     <Card>
@@ -29,7 +47,10 @@ export default function CartItem({ item }: CartItemProps) {
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900">{item.name}</h3>
             <p className="text-sm text-gray-500">
-              Color: {item.color}
+              Color:{" "}
+              <span
+                className={`w-8 h-8 rounded-full border-2 q`}
+                style={{ backgroundColor: item.color.hex }}></span>
               {item.size && ` • Size: ${item.size}`}
             </p>
             <p className="font-semibold text-blue-600 mt-1">
@@ -41,16 +62,16 @@ export default function CartItem({ item }: CartItemProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => updateQuantity(item.variantId, Math.max(1, item.quantity - 1))}
-            >
+              onClick={() =>
+                updateQuantity(item.variantId, Math.max(1, item.quantity - 1))
+              }>
               <Minus className="h-4 w-4" />
             </Button>
             <span className="w-8 text-center">{item.quantity}</span>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
-            >
+              onClick={() => updateQuantity(item.variantId, item.quantity + 1)}>
               <Plus className="h-4 w-4" />
             </Button>
           </div>
@@ -63,13 +84,12 @@ export default function CartItem({ item }: CartItemProps) {
               variant="ghost"
               size="sm"
               onClick={() => removeItem(item.variantId)}
-              className="text-red-500 hover:text-red-700 mt-1"
-            >
+              className="text-red-500 hover:text-red-700 mt-1">
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

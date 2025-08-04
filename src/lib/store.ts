@@ -1,26 +1,36 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+interface Color {
+  id: string;
+  name: string;
+  hex: string;
+}
+
+interface Size {
+  id: string;
+  name: string;
+}
 
 interface CartItem {
-  id: string
-  productId: string
-  variantId: string
-  name: string
-  price: number
-  quantity: number
-  image: string
-  color: string
-  size?: string
+  id: string;
+  productId: string;
+  variantId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  color: Color;
+  size?: Size;
 }
 
 interface CartStore {
-  items: CartItem[]
-  addItem: (item: CartItem) => void
-  removeItem: (variantId: string) => void
-  updateQuantity: (variantId: string, quantity: number) => void
-  clearCart: () => void
-  getTotalItems: () => number
-  getTotalPrice: () => number
+  items: CartItem[];
+  addItem: (item: CartItem) => void;
+  removeItem: (variantId: string) => void;
+  updateQuantity: (variantId: string, quantity: number) => void;
+  clearCart: () => void;
+  getTotalItems: () => number;
+  getTotalPrice: () => number;
 }
 
 export const useCartStore = create<CartStore>()(
@@ -31,7 +41,7 @@ export const useCartStore = create<CartStore>()(
         set((state) => {
           const existingItem = state.items.find(
             (i) => i.variantId === item.variantId
-          )
+          );
           if (existingItem) {
             return {
               items: state.items.map((i) =>
@@ -39,9 +49,9 @@ export const useCartStore = create<CartStore>()(
                   ? { ...i, quantity: i.quantity + item.quantity }
                   : i
               ),
-            }
+            };
           }
-          return { items: [...state.items, item] }
+          return { items: [...state.items, item] };
         }),
       removeItem: (variantId) =>
         set((state) => ({
@@ -55,16 +65,19 @@ export const useCartStore = create<CartStore>()(
         })),
       clearCart: () => set({ items: [] }),
       getTotalItems: () => {
-        const { items } = get()
-        return items.reduce((total, item) => total + item.quantity, 0)
+        const { items } = get();
+        return items.reduce((total, item) => total + item.quantity, 0);
       },
       getTotalPrice: () => {
-        const { items } = get()
-        return items.reduce((total, item) => total + item.price * item.quantity, 0)
+        const { items } = get();
+        return items.reduce(
+          (total, item) => total + item.price * item.quantity,
+          0
+        );
       },
     }),
     {
-      name: 'cart-storage',
+      name: "cart-storage",
     }
   )
-)
+);

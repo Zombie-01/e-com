@@ -24,33 +24,8 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get("page") || "1", 10);
-    const perPage = parseInt(url.searchParams.get("perPage") || "10", 10);
-
-    if (page < 1 || perPage < 1) {
-      return NextResponse.json(
-        { message: "Invalid pagination parameters" },
-        { status: 400 }
-      );
-    }
-
-    const total = await prisma.tag.count();
-
-    const tags = await prisma.tag.findMany({
-      skip: (page - 1) * perPage,
-      take: perPage,
-    });
-
-    return NextResponse.json({
-      data: tags,
-      pagination: {
-        total,
-        page,
-        perPage,
-        totalPages: Math.ceil(total / perPage),
-      },
-    });
+    const tags = await prisma.tag.findMany({});
+    return NextResponse.json(tags);
   } catch (error) {
     console.error("Error fetching tags:", error);
     return NextResponse.json(

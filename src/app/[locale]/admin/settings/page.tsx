@@ -80,12 +80,30 @@ export default function SiteSettingsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+
     try {
-      const res = await fetch(`/api/admin/${modalType}s`, {
-        method: form.id ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+      let res;
+      if (modalType === "banner") {
+        const formData = new FormData();
+        if (form.file) formData.append("file", form.file);
+        if (form.id) formData.append("id", form.id);
+        formData.append("mnTitle", form.mnTitle || "");
+        formData.append("enTitle", form.enTitle || "");
+        formData.append("url", form.url || "");
+        formData.append("active", "true"); // Or handle checkbox later
+
+        res = await fetch(`/api/admin/banners`, {
+          method: form.id ? "PUT" : "POST",
+          body: formData,
+        });
+      } else {
+        res = await fetch(`/api/admin/${modalType}s`, {
+          method: form.id ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+      }
+
       if (res.ok) {
         setShowModal(false);
         setForm({});
@@ -212,12 +230,14 @@ export default function SiteSettingsPage() {
                   required
                 />
                 <Input
-                  name="image"
-                  placeholder="Image URL"
-                  value={form.image || ""}
-                  onChange={(e) => setForm({ ...form, image: e.target.value })}
-                  required
+                  name="file"
+                  type="file"
+                  onChange={(e) =>
+                    setForm({ ...form, file: e.target.files?.[0] })
+                  }
+                  required={!form.id} // Required only when creating
                 />
+
                 <Input
                   name="url"
                   placeholder="Link URL"

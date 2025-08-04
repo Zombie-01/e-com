@@ -110,6 +110,22 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
           </Card>
         </Link>
 
+        <Link href="/admin/brands">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center space-x-2">
+                <Package className="h-5 w-5 text-blue-600" />
+                <span>Manage Brands</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 text-sm">
+                Add, edit, and organize your product catalog
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+
         <Link href="/admin/tags">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer">
             <CardHeader className="pb-3">

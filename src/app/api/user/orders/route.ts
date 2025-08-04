@@ -5,61 +5,61 @@ import { prisma } from "@/src/lib/prisma";
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session) {
+
+  if (!session?.user?.id) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   try {
     const userId = session.user.id;
     const body = await request.json();
-
     const { deliveryId, items } = body;
 
+    // ✅ Basic validation
     if (!deliveryId || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
-        { message: "Invalid order data: deliveryId and items are required." },
+        {
+          message:
+            "Invalid data: 'deliveryId' and at least one 'item' are required.",
+        },
         { status: 400 }
       );
     }
 
-    // Validate items & calculate total
-    let total = 0;
+    // ✅ Fetch all variants in one query
+    const variantIds = items.map((item) => item.productVariantId);
+    const variants = await prisma.productVariant.findMany({
+      where: { id: { in: variantIds } },
+      include: { product: true },
+    });
 
-    for (const item of items) {
-      if (
-        !item.productVariantId ||
-        typeof item.quantity !== "number" ||
-        item.quantity < 1
-      ) {
-        return NextResponse.json(
-          {
-            message:
-              "Invalid order items: productVariantId and positive quantity required.",
-          },
-          { status: 400 }
-        );
-      }
-
-      // Fetch product variant with product (to get price)
-      const variant = await prisma.productVariant.findUnique({
-        where: { id: item.productVariantId },
-        include: { product: true },
-      });
-
-      if (!variant) {
-        return NextResponse.json(
-          { message: `Product variant not found: ${item.productVariantId}` },
-          { status: 400 }
-        );
-      }
-
-      // Use product.price for price calculation
-      const price = variant.product.price;
-      total += price * item.quantity;
+    if (variants.length !== items.length) {
+      const foundIds = new Set(variants.map((v) => v.id));
+      const missing = variantIds.filter((id) => !foundIds.has(id));
+      return NextResponse.json(
+        {
+          message: `Missing or invalid product variants: ${missing.join(", ")}`,
+        },
+        { status: 400 }
+      );
     }
 
-    // Create order + order items transactionally
-    const createdOrder = await prisma.$transaction(async (tx: any) => {
+    // ✅ Calculate total
+    let total = 0;
+    const variantMap = new Map(variants.map((v) => [v.id, v]));
+    for (const item of items) {
+      const variant = variantMap.get(item.productVariantId);
+      if (!variant || typeof item.quantity !== "number" || item.quantity < 1) {
+        return NextResponse.json(
+          { message: `Invalid quantity or variant: ${item.productVariantId}` },
+          { status: 400 }
+        );
+      }
+      total += variant.product.price * item.quantity;
+    }
+
+    // ✅ Transactional creation of order + items
+    const createdOrder = await prisma.$transaction(async (tx) => {
       const order = await tx.order.create({
         data: {
           userId,
@@ -69,31 +69,26 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      for (const item of items) {
-        // Get price again per item for unitPrice field
-        const variant = await tx.productVariant.findUnique({
-          where: { id: item.productVariantId },
-          include: { product: true },
-        });
-
-        await tx.orderItem.create({
-          data: {
+      await tx.orderItem.createMany({
+        data: items.map((item) => {
+          const variant = variantMap.get(item.productVariantId)!;
+          return {
             orderId: order.id,
             productVariantId: item.productVariantId,
             quantity: item.quantity,
-            unitPrice: variant!.product.price,
-          },
-        });
-      }
+            unitPrice: variant.product.price,
+          };
+        }),
+      });
 
       return order;
     });
 
     return NextResponse.json({ order: createdOrder }, { status: 201 });
-  } catch (error) {
-    console.error("Error creating order:", error);
+  } catch (error: any) {
+    console.error("❌ Error creating order:", error);
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: "Internal server error", error: error.message },
       { status: 500 }
     );
   }

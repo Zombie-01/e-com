@@ -1,31 +1,30 @@
-import Link from 'next/link'
-import Image from 'next/image'
-import { Card, CardContent } from '@/src/components/ui/card'
-import { Badge } from '@/src/components/ui/badge'
+import Link from "next/link";
+import Image from "next/image";
+import { Card, CardContent } from "@/src/components/ui/card";
+import { Badge } from "@/src/components/ui/badge";
 
 interface Product {
-  id: string
-  mnName: string
-  enName: string
-  price: number
+  id: string;
+  mnName: string;
+  enName: string;
+  price: number;
   brand: {
-    mnName: string
-    enName: string
-  }
+    mnName: string;
+    enName: string;
+  };
   variants: Array<{
-    color: {
-      image: string
-    }
-  }>
+    image: string;
+  }>;
 }
 
-export default function FeaturedProducts({ 
-  products, 
-  locale 
-}: { 
-  products: Product[]
-  locale: string 
+export default function FeaturedProducts({
+  products,
+  locale,
+}: {
+  products: Product[];
+  locale: string;
 }) {
+  console.log(products[0].variants[1]);
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {products.map((product) => (
@@ -34,8 +33,11 @@ export default function FeaturedProducts({
             <CardContent className="p-0">
               <div className="relative aspect-square overflow-hidden">
                 <Image
-                  src={product.variants[0]?.color?.image || 'https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg'}
-                  alt={locale === 'mn' ? product.mnName : product.enName}
+                  src={
+                    product.variants[0]?.image ||
+                    "https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg"
+                  }
+                  alt={locale === "mn" ? product.mnName : product.enName}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
@@ -43,13 +45,15 @@ export default function FeaturedProducts({
                   New
                 </Badge>
               </div>
-              
+
               <div className="p-4">
                 <p className="text-sm text-gray-500 mb-1">
-                  {locale === 'mn' ? product.brand.mnName : product.brand.enName}
+                  {locale === "mn"
+                    ? product.brand.mnName
+                    : product.brand.enName}
                 </p>
                 <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
-                  {locale === 'mn' ? product.mnName : product.enName}
+                  {locale === "mn" ? product.mnName : product.enName}
                 </h3>
                 <p className="text-lg font-bold text-blue-600">
                   ${product.price.toFixed(2)}
@@ -60,5 +64,5 @@ export default function FeaturedProducts({
         </Link>
       ))}
     </div>
-  )
+  );
 }
