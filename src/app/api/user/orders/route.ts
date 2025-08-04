@@ -13,10 +13,10 @@ export async function POST(request: NextRequest) {
   try {
     const userId = session.user.id;
     const body = await request.json();
-    const { deliveryId, items } = body;
+    const { items } = body;
 
     // ✅ Basic validation
-    if (!deliveryId || !Array.isArray(items) || items.length === 0) {
+    if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
         {
           message:
@@ -27,7 +27,8 @@ export async function POST(request: NextRequest) {
     }
 
     // ✅ Fetch all variants in one query
-    const variantIds = items.map((item) => item.productVariantId);
+    const variantIds = items.map((item) => item.variantId);
+
     const variants = await prisma.productVariant.findMany({
       where: { id: { in: variantIds } },
       include: { product: true },
@@ -48,10 +49,10 @@ export async function POST(request: NextRequest) {
     let total = 0;
     const variantMap = new Map(variants.map((v) => [v.id, v]));
     for (const item of items) {
-      const variant = variantMap.get(item.productVariantId);
+      const variant = variantMap.get(item.variantId);
       if (!variant || typeof item.quantity !== "number" || item.quantity < 1) {
         return NextResponse.json(
-          { message: `Invalid quantity or variant: ${item.productVariantId}` },
+          { message: `Invalid quantity or variant: ${item.variantId}` },
           { status: 400 }
         );
       }
@@ -60,10 +61,21 @@ export async function POST(request: NextRequest) {
 
     // ✅ Transactional creation of order + items
     const createdOrder = await prisma.$transaction(async (tx) => {
+      // ✅ Create delivery
+      const newDelivery = await tx.delivery.create({
+        data: {
+          mnName: "Хүргэлт 1",
+          enName: "Delivery Option 1",
+          price: total,
+          etaDays: 3,
+        },
+      });
+
+      // ✅ Create order using new delivery
       const order = await tx.order.create({
         data: {
           userId,
-          deliveryId,
+          deliveryId: newDelivery.id,
           total,
           status: "PENDING",
         },
@@ -71,10 +83,10 @@ export async function POST(request: NextRequest) {
 
       await tx.orderItem.createMany({
         data: items.map((item) => {
-          const variant = variantMap.get(item.productVariantId)!;
+          const variant = variantMap.get(item.variantId)!;
           return {
             orderId: order.id,
-            productVariantId: item.productVariantId,
+            productVariantId: item.variantId,
             quantity: item.quantity,
             unitPrice: variant.product.price,
           };
@@ -116,6 +128,18 @@ export async function GET() {
       },
       orderBy: {
         createdAt: "desc",
+      },
+      include: {
+        items: {
+          include: {
+            productVariant: {
+              include: {
+                product: true,
+              },
+            },
+          },
+        },
+        delivery: true, // Optional: if you want delivery info in the same response
       },
     });
 

@@ -12,6 +12,7 @@ import { InvoiceModal } from "@/src/components/InvoiceModal"; // Adjust path
 export default function CartPage() {
   const t = useTranslations("cart");
   const { items, getTotalPrice, clearCart } = useCartStore();
+
   const { data: session } = useSession();
 
   const [invoice, setInvoice] = useState<null | {
@@ -25,7 +26,7 @@ export default function CartPage() {
 
   // Called when modal detects payment success
   async function handlePaymentSuccess() {
-    if (!session?.user || !invoice) return;
+    if (!session?.user) return;
 
     try {
       // Call orders API with transactionId === invoice.invoice_id (or transaction.id)
@@ -35,8 +36,7 @@ export default function CartPage() {
         body: JSON.stringify({
           items,
           userId: session.user.id,
-          transactionId: invoice.invoice_id,
-          deliveryId: "your-default-delivery-id",
+          transactionId: "0",
           total: getTotalPrice(),
         }),
       });
@@ -46,7 +46,7 @@ export default function CartPage() {
       setOrderCreated(true);
       clearCart();
       alert("Order placed successfully!");
-      window.location.href = "/orders";
+      window.location.href = "/profile";
     } catch (error) {
       console.error(error);
       alert("Failed to create order after payment.");

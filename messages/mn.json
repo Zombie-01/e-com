@@ -76,6 +76,8 @@
     "tags": "Шошго",
     "banners": "Баннер",
     "orders": "Захиалга",
+    "settings": "Засвар",
+    "settingsDesc": "Засвар хэсэг",
     "users": "Хэрэглэгч"
   },
   "auth": {
@@ -106,5 +108,65 @@
     "signOutDesc": "дуусгах",
     "creating_account": "Бүртгэл үүсгэж байна...",
     "already_have_account": "Бүртгэлтэй юу?"
+  },
+  "footer": {
+    "logoText": "ОРЧИД",
+    "tagline": "Тав тух.",
+    "copyright": "© 2025 ОРЧИД. Бүх эрх хуулиар хамгаалагдсан."
+  },
+  "ProfilePage": {
+    "tabs": {
+      "profile": "Профайл",
+      "orders": "Захиалгууд",
+      "transactions": "Гүйлгээ",
+      "addresses": "Хаягууд"
+    },
+    "profileInfo": {
+      "title": "Профайлын мэдээлэл",
+      "description": "Хувийн мэдээлэл, тохиргоогоо удирдах",
+      "edit": "Засах",
+      "cancelEdit": "Болих",
+      "fullName": "Бүтэн нэр",
+      "email": "И-мэйл хаяг",
+      "cancel": "Болих",
+      "saveChanges": "Өөрчлөлт хадгалах"
+    },
+    "orderHistory": {
+      "title": "Захиалгын түүх",
+      "description": "Захиалгуудыг хянах, худалдан авалтын түүх харах",
+      "orderNumber": "Захиалга №{orderId}",
+      "via": "{deliveryName}-ээр дамжуулан",
+      "viewDetails": "Дэлгэрэнгүй харах"
+    },
+    "orderStatuses": {
+      "delivered": "Хүргэгдсэн",
+      "completed": "Дууссан",
+      "shipped": "Илгээсэн",
+      "processing": "Боловсруулж байна",
+      "pending": "Хүлээгдэж байгаа",
+      "cancelled": "Цуцлагдсан",
+      "failed": "Амжилтгүй"
+    },
+    "orderDetails": {
+      "title": "Захиалгын дэлгэрэнгүй",
+      "orderNumber": "Захиалга №{orderId}",
+      "status": "Төлөв",
+      "total": "Нийт дүн",
+      "delivery": "Хүргэлт"
+    },
+    "addresses": {
+      "title": "Хадгалагдсан хаягууд",
+      "description": "Хүргэлтийн хаягуудыг удирдах",
+      "addAddress": "Хаяг нэмэх"
+    },
+    "addressForm": {
+      "addTitle": "Шинэ хаяг нэмэх",
+      "editTitle": "Хаяг засах",
+      "description": "Хүргэлтийн хаягийн дэлгэрэнгүйг оруулах",
+      "fullName": "Бүтэн нэр",
+      "phoneNumber": "Утасны дугаар",
+      "cancel": "Болих",
+      "saveAddress": "Хаяг хадгалах"
+    }
   }
 }

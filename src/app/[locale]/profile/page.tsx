@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Tabs,
   TabsContent,
@@ -54,7 +55,9 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "@/src/i18n/navigation";
 
 export default function ProfilePage() {
+  const t = useTranslations("ProfilePage"); // "ProfilePage" is the namespace in your JSON
   const [activeTab, setActiveTab] = useState("profile");
+  const locale = useLocale();
 
   const [orders, setOrders] = useState<any[]>([]);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -170,30 +173,25 @@ export default function ProfilePage() {
           value={activeTab}
           onValueChange={setActiveTab}
           className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:grid-cols-4 bg-white border border-slate-200 shadow-sm">
+          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:grid-cols-3 bg-white border border-slate-200 shadow-sm">
             <TabsTrigger
               value="profile"
               className="flex items-center space-x-2 data-[state=active]:bg-slate-900 data-[state=active]:text-white">
               <User className="w-4 h-4" />
-              <span className="hidden sm:inline">Profile</span>
+              <span className="hidden sm:inline">{t("tabs.profile")}</span>
             </TabsTrigger>
             <TabsTrigger
               value="orders"
               className="flex items-center space-x-2 data-[state=active]:bg-slate-900 data-[state=active]:text-white">
               <Package className="w-4 h-4" />
-              <span className="hidden sm:inline">Orders</span>
+              <span className="hidden sm:inline">{t("tabs.orders")}</span>
             </TabsTrigger>
-            <TabsTrigger
-              value="transactions"
-              className="flex items-center space-x-2 data-[state=active]:bg-slate-900 data-[state=active]:text-white">
-              <CreditCard className="w-4 h-4" />
-              <span className="hidden sm:inline">Transactions</span>
-            </TabsTrigger>
+
             <TabsTrigger
               value="addresses"
               className="flex items-center space-x-2 data-[state=active]:bg-slate-900 data-[state=active]:text-white">
               <MapPin className="w-4 h-4" />
-              <span className="hidden sm:inline">Addresses</span>
+              <span className="hidden sm:inline">{t("tabs.addresses")}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -204,10 +202,10 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-xl text-slate-900">
-                      Profile Information
+                      {t("profileInfo.title")}
                     </CardTitle>
                     <CardDescription>
-                      Manage your personal information and preferences
+                      {t("profileInfo.description")}
                     </CardDescription>
                   </div>
                   <Button
@@ -215,7 +213,11 @@ export default function ProfilePage() {
                     onClick={() => setIsEditingProfile(!isEditingProfile)}
                     className="flex items-center space-x-2">
                     <Edit3 className="w-4 h-4" />
-                    <span>{isEditingProfile ? "Cancel" : "Edit"}</span>
+                    <span>
+                      {isEditingProfile
+                        ? t("profileInfo.cancelEdit")
+                        : t("profileInfo.edit")}
+                    </span>
                   </Button>
                 </div>
               </CardHeader>
@@ -245,7 +247,7 @@ export default function ProfilePage() {
                         <Label
                           htmlFor="name"
                           className="text-sm font-medium text-slate-700">
-                          Full Name
+                          {t("profileInfo.fullName")}
                         </Label>
                         <Input
                           id="name"
@@ -265,7 +267,7 @@ export default function ProfilePage() {
                         <Label
                           htmlFor="email"
                           className="text-sm font-medium text-slate-700">
-                          Email Address
+                          {t("profileInfo.email")}
                         </Label>
                         <Input
                           id="email"
@@ -291,12 +293,12 @@ export default function ProfilePage() {
                     <Button
                       variant="outline"
                       onClick={() => setIsEditingProfile(false)}>
-                      Cancel
+                      {t("profileInfo.cancel")}
                     </Button>
                     <Button
                       className="bg-slate-900 hover:bg-slate-800"
                       onClick={() => setIsEditingProfile(false)}>
-                      Save Changes
+                      {t("profileInfo.saveChanges")}
                     </Button>
                   </div>
                 )}
@@ -309,10 +311,10 @@ export default function ProfilePage() {
             <Card className="shadow-sm border-0 bg-white/80 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="text-xl text-slate-900">
-                  Order History
+                  {t("orderHistory.title")}
                 </CardTitle>
                 <CardDescription>
-                  Track your orders and view purchase history
+                  {t("orderHistory.description")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -330,11 +332,15 @@ export default function ProfilePage() {
                               )} flex items-center space-x-1 px-3 py-1`}>
                               {getStatusIcon(order.status)}
                               <span className="font-medium">
-                                {order.status.toLowerCase()}
+                                {t(
+                                  `orderStatuses.${order.status.toLowerCase()}`
+                                )}
                               </span>
                             </Badge>
                             <span className="text-sm text-slate-600">
-                              Order #{order.id}
+                              {t("orderHistory.orderNumber", {
+                                orderId: order.id,
+                              })}
                             </span>
                           </div>
                           <div className="text-right">
@@ -342,7 +348,7 @@ export default function ProfilePage() {
                               ${order.total.toFixed(2)}
                             </p>
                             <p className="text-sm text-slate-600">
-                              {order.createdAt.toLocaleDateString()}
+                              {new Date(order.createdAt).toLocaleDateString()}
                             </p>
                           </div>
                         </div>
@@ -352,8 +358,10 @@ export default function ProfilePage() {
                               key={item.id}
                               className="flex justify-between text-sm">
                               <span className="text-slate-700">
-                                {item.productVariant.product.enName} ×{" "}
-                                {item.quantity}
+                                {locale === "en"
+                                  ? item.productVariant.product.enName
+                                  : item.productVariant.product.mnName}{" "}
+                                × {item.quantity}
                               </span>
                               <span className="text-slate-600">
                                 ${item.unitPrice.toFixed(2)}
@@ -363,7 +371,12 @@ export default function ProfilePage() {
                         </div>
                         <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
                           <span className="text-sm text-slate-600">
-                            via {order.delivery.enName}
+                            {t("orderHistory.via", {
+                              deliveryName:
+                                locale === "en"
+                                  ? order.delivery.enName
+                                  : order.delivery.mnName,
+                            })}
                           </span>
                           <Dialog>
                             <DialogTrigger asChild>
@@ -372,33 +385,43 @@ export default function ProfilePage() {
                                 size="sm"
                                 className="flex items-center space-x-2">
                                 <Eye className="w-4 h-4" />
-                                <span>View Details</span>
+                                <span>{t("orderHistory.viewDetails")}</span>
                               </Button>
                             </DialogTrigger>
                             <DialogContent>
                               <DialogHeader>
-                                <DialogTitle>Order Details</DialogTitle>
+                                <DialogTitle>
+                                  {t("orderDetails.title")}
+                                </DialogTitle>
                                 <DialogDescription>
-                                  Order #{order.id}
+                                  {t("orderDetails.orderNumber", {
+                                    orderId: order.id,
+                                  })}
                                 </DialogDescription>
                               </DialogHeader>
                               <div className="space-y-4">
                                 <div className="flex justify-between">
-                                  <span>Status:</span>
+                                  <span>{t("orderDetails.status")}:</span>
                                   <Badge
                                     className={getStatusColor(order.status)}>
-                                    {order.status.toLowerCase()}
+                                    {t(
+                                      `orderStatuses.${order.status.toLowerCase()}`
+                                    )}
                                   </Badge>
                                 </div>
                                 <div className="flex justify-between">
-                                  <span>Total:</span>
+                                  <span>{t("orderDetails.total")}:</span>
                                   <span className="font-semibold">
                                     ${order.total.toFixed(2)}
                                   </span>
                                 </div>
                                 <div className="flex justify-between">
-                                  <span>Delivery:</span>
-                                  <span>{order.delivery.enName}</span>
+                                  <span>{t("orderDetails.delivery")}:</span>
+                                  <span>
+                                    {locale === "en"
+                                      ? order.delivery.enName
+                                      : order.delivery.mnName}
+                                  </span>
                                 </div>
                               </div>
                             </DialogContent>
@@ -419,10 +442,10 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-xl text-slate-900">
-                      Saved Addresses
+                      {t("addresses.title")}
                     </CardTitle>
                     <CardDescription>
-                      Manage your delivery addresses
+                      {t("addresses.description")}
                     </CardDescription>
                   </div>
                   <Dialog
@@ -431,17 +454,18 @@ export default function ProfilePage() {
                     <DialogTrigger asChild>
                       <Button className="bg-slate-900 hover:bg-slate-800 flex items-center space-x-2">
                         <Plus className="w-4 h-4" />
-                        <span>Add Address</span>
+                        <span>{t("addresses.addAddress")}</span>
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-md">
                       <DialogHeader>
-                        <DialogTitle>Add New Address</DialogTitle>
+                        <DialogTitle>{t("addressForm.addTitle")}</DialogTitle>
                         <DialogDescription>
-                          Enter your delivery address details
+                          {t("addressForm.description")}
                         </DialogDescription>
                       </DialogHeader>
                       <AddressForm
+                        t={t}
                         onClose={() => setIsAddingAddress(false)}
                         onSave={async (address) => {
                           const res = await fetch("/api/user/address", {
@@ -489,12 +513,15 @@ export default function ProfilePage() {
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-md">
                               <DialogHeader>
-                                <DialogTitle>Edit Address</DialogTitle>
+                                <DialogTitle>
+                                  {t("addressForm.editTitle")}
+                                </DialogTitle>
                                 <DialogDescription>
-                                  Update your delivery address
+                                  {t("addressForm.description")}
                                 </DialogDescription>
                               </DialogHeader>
                               <AddressForm
+                                t={t}
                                 address={address}
                                 onClose={() => setEditingAddress(null)}
                                 onSave={async (newAddress) => {
@@ -579,10 +606,12 @@ function AddressForm({
   address,
   onClose,
   onSave,
+  t,
 }: {
   address?: any;
   onClose: () => void;
   onSave: (address: any) => void;
+  t: (key: string, values?: any) => string;
 }) {
   const [formData, setFormData] = useState({
     fullName: address?.fullName || "",
@@ -598,7 +627,7 @@ function AddressForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="fullName">Full Name</Label>
+        <Label htmlFor="fullName">{t("addressForm.fullName")}</Label>
         <Input
           id="fullName"
           value={formData.fullName}
@@ -609,7 +638,7 @@ function AddressForm({
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="phone">Phone Number</Label>
+        <Label htmlFor="phone">{t("addressForm.phoneNumber")}</Label>
         <Input
           id="phone"
           value={formData.phone}
@@ -620,10 +649,10 @@ function AddressForm({
 
       <div className="flex justify-end space-x-3 pt-4">
         <Button type="button" variant="outline" onClick={onClose}>
-          Cancel
+          {t("addressForm.cancel")}
         </Button>
         <Button type="submit" className="bg-slate-900 hover:bg-slate-800">
-          Save Address
+          {t("addressForm.saveAddress")}
         </Button>
       </div>
     </form>
