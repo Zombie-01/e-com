@@ -12,6 +12,9 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
+# Generate Prisma client before building
+RUN npx prisma generate
+
 RUN npm run build
 
 # 3. Production image
