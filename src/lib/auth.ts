@@ -1,6 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+// NOT from "@auth/prisma-adapter"
 import { prisma } from "@/src/lib/prisma";
 import bcrypt from "bcryptjs";
 
@@ -72,6 +73,6 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/auth/signin",
-    signUp: "/auth/signup",
+    newUser: "/auth/signup",
   },
 };

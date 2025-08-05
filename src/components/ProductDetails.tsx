@@ -123,7 +123,7 @@ export default function ProductDetails({
                     : "border-gray-200"
                 }`}>
                 <Image
-                  src={variant.image}
+                  src={variant.image as string}
                   alt={`${
                     locale === "mn" ? product.mnName : product.enName
                   } variant`}
@@ -187,23 +187,23 @@ export default function ProductDetails({
               {t("size")}
             </h3>
             <div className="flex space-x-2">
-              {[
-                ...new Map(
+              {Array.from(
+                new Map(
                   product.variants.map((variant: Variant) => [
-                    variant.size.id,
+                    variant?.size?.id,
                     variant,
                   ])
-                ).values(),
-              ].map((variant: Variant) => (
+                ).values()
+              ).map((variant: Variant) => (
                 <button
-                  key={variant.size.id}
-                  onClick={() => setSelectedSize(variant.size)}
+                  key={variant?.size?.id}
+                  onClick={() => setSelectedSize(variant?.size)}
                   className={`px-4 py-2 text-sm border rounded-md ${
-                    selectedSize?.id === variant.size.id
+                    selectedSize?.id === variant?.size?.id
                       ? "border-blue-500 bg-blue-50 text-blue-600"
                       : "border-gray-300 hover:border-gray-400"
                   }`}>
-                  {variant.size.name}
+                  {variant?.size?.name}
                 </button>
               ))}
             </div>
