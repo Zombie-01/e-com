@@ -1,0 +1,26 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://orchid_user:orchid_password@103.50.205.95:5432/orchid_db"
+      NEXTAUTH_SECRET: "b4d8e56a2c3f4e8790123456789abcdef1234567890abcdef1234567890abcdef"
+      NEXTAUTH_URL: "http://123.456.78.90:3000" # Change to your domain or server IP in prod
+      QPAY_USERNAME: "ORCHID"
+      QPAY_PASSWORD: "9zhYtl8y"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: orchid_user
+      POSTGRES_PASSWORD: orchid_password
+      POSTGRES_DB: orchid_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

@@ -11,11 +11,10 @@ async function requireAdmin(request: NextRequest) {
   }
   return session;
 }
-
 // CREATE brand
 export async function POST(request: NextRequest) {
-  const session = await requireAdmin(request);
-  if (!session) return;
+  const result = await requireAdmin(request);
+  if (result instanceof NextResponse) return result; // unauthorized response
 
   const data = await request.json();
   const brand = await prisma.brand.create({
@@ -36,8 +35,8 @@ export async function GET() {
 
 // UPDATE brand
 export async function PUT(request: NextRequest) {
-  const session = await requireAdmin(request);
-  if (!session) return;
+  const result = await requireAdmin(request);
+  if (result instanceof NextResponse) return result;
 
   const data = await request.json();
 
@@ -65,8 +64,8 @@ export async function PUT(request: NextRequest) {
 
 // DELETE brand
 export async function DELETE(request: NextRequest) {
-  const session = await requireAdmin(request);
-  if (!session) return;
+  const result = await requireAdmin(request);
+  if (result instanceof NextResponse) return result;
 
   const { id } = await request.json();
 
