@@ -10,9 +10,9 @@ services:
       QPAY_USERNAME: "ORCHID"
       QPAY_PASSWORD: "9zhYtl8y"
     depends_on:
-      - db
+      - e-com-db-1
 
-  db:
+  e-com-db-1:
     image: postgres:15-alpine
     restart: always
     ports:
