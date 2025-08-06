@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
     const mnDesc = formData.get("mnDesc") as string;
     const enDesc = formData.get("enDesc") as string;
     const price = parseFloat(formData.get("price") as string);
+    const costPrice = parseFloat(formData.get("costPrice") as string); // Added costPrice
     const sku = formData.get("sku") as string;
     const brandId = formData.get("brandId") as string;
     const categoryId = formData.get("categoryId") as string;
@@ -69,33 +70,38 @@ export async function POST(request: NextRequest) {
     const variantsStr = formData.get("variants") as string;
     const variantsData: any[] = variantsStr ? JSON.parse(variantsStr) : [];
 
-    // Collect variant image files first
-    const variantImageUploads: Promise<string>[] = [];
-
+    // Collect variant image files for each variant (multiple images per variant)
+    const variantImageUploads: Promise<string[]>[] = [];
     for (let i = 0; i < variantsData.length; i++) {
-      console.log(i);
-      const fileKey = `variantImage_${i}`;
-      const file = formData.get(fileKey) as File;
-
-      if (file && file.name) {
-        // Upload file immediately and store the promise
-        const uploadPromise = uploadFileToPublicUploads(file).then(
-          (res) => res.urlPath
+      const files: File[] = [];
+      let imgIdx = 0;
+      while (true) {
+        const fileKey = `variantImage_${i}_${imgIdx}`;
+        const file = formData.get(fileKey) as File;
+        if (file && file.name) {
+          files.push(file);
+        } else {
+          break;
+        }
+        imgIdx++;
+      }
+      if (files.length > 0) {
+        variantImageUploads.push(
+          Promise.all(files.map((f) => uploadFileToPublicUploads(f).then((res) => res.urlPath as string)))
         );
-        variantImageUploads.push(uploadPromise as any);
       } else {
-        variantImageUploads.push(Promise.resolve("")); // No file, empty string
+        variantImageUploads.push(Promise.resolve([]));
       }
     }
 
     // Await all uploads
-    const uploadedImageUrls = await Promise.all(variantImageUploads);
+    const uploadedImageUrlsArr = await Promise.all(variantImageUploads);
 
-    // Assign uploaded image URLs back to variants
+    // Assign uploaded image URLs array back to variants
     const variantsCreate = variantsData.map((v, i) => ({
       colorId: v.colorId,
       sizeId: v.sizeId || null,
-      image: uploadedImageUrls[i],
+      image: uploadedImageUrlsArr[i], // array of image URLs
       stock: v.stock,
     }));
 
@@ -106,6 +112,7 @@ export async function POST(request: NextRequest) {
         mnDesc,
         enDesc,
         price,
+        costPrice, // Added costPrice
         sku,
         brandId,
         categoryId,
@@ -158,9 +165,7 @@ export async function PUT(request: NextRequest) {
     const mnDesc = formData.get("mnDesc") as string;
     const enDesc = formData.get("enDesc") as string;
     const price = parseFloat(formData.get("price") as string);
-    if (isNaN(price)) {
-      return NextResponse.json({ message: "Invalid price" }, { status: 400 });
-    }
+    const costPrice = parseFloat(formData.get("costPrice") as string); // Added costPrice
     const sku = formData.get("sku") as string;
     const brandId = formData.get("brandId") as string;
     const categoryId = formData.get("categoryId") as string;
@@ -172,7 +177,7 @@ export async function PUT(request: NextRequest) {
     const variantsStr = formData.get("variants") as string;
     const variantsData = variantsStr ? JSON.parse(variantsStr) : [];
 
-    // Collect variant images files
+    // Collect variant images files (multiple per variant)
     const variantImagesMap: Record<string, File> = {};
     for (const key of formData.keys() as any) {
       if (key.startsWith("variantImage_")) {
@@ -183,22 +188,30 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    // Upload variant images and update variant image URLs
+    // For each variant, collect all images
+    const variantsUpdate = [];
     for (let i = 0; i < variantsData.length; i++) {
-      const variant = variantsData[i];
-      const fileKey = `variantImage_${i}`;
-      if (variantImagesMap[fileKey]) {
-        const uploadResult = await uploadFileToPublicUploads(
-          variantImagesMap[fileKey]
-        );
-        variant.image = uploadResult.urlPath;
-      } else {
-        variant.image = variant.image || "";
+      const images: string[] = [];
+      let imgIdx = 0;
+      while (true) {
+        const fileKey = `variantImage_${i}_${imgIdx}`;
+        if (variantImagesMap[fileKey]) {
+          const uploadResult = await uploadFileToPublicUploads(variantImagesMap[fileKey]);
+          images.push(uploadResult.urlPath as string);
+        } else {
+          break;
+        }
+        imgIdx++;
       }
+      // If no new images, fallback to existing image array or empty
+      const existingImages = Array.isArray(variantsData[i].image) ? variantsData[i].image : [];
+      variantsUpdate.push({
+        colorId: variantsData[i].colorId,
+        sizeId: variantsData[i].sizeId || null,
+        image: images.length > 0 ? images : existingImages,
+        stock: variantsData[i].stock,
+      });
     }
-
-    // Delete existing variants and create new ones to simplify update (alternative: implement upsert or update/delete logic)
-    // Also, delete existing tags and connect new tags
 
     // Update product with new fields, tags, and variants
     const updatedProduct = await prisma.product.update({
@@ -209,21 +222,17 @@ export async function PUT(request: NextRequest) {
         mnDesc,
         enDesc,
         price,
+        costPrice, // Added costPrice
         sku,
         brandId,
         categoryId,
         tags: {
-          set: [], // Clear existing tags
+          set: [],
           connect: tagIds.map((tagId: string) => ({ id: tagId })),
         },
         variants: {
-          deleteMany: {}, // Remove existing variants first
-          create: variantsData.map((v: any) => ({
-            colorId: v.colorId,
-            sizeId: v.sizeId || null,
-            image: v.image,
-            stock: v.stock,
-          })),
+          deleteMany: {},
+          create: variantsUpdate,
         },
       },
       include: {

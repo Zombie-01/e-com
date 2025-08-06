@@ -60,29 +60,31 @@ export default function AdminProductsPage() {
     mnDesc: "",
     enDesc: "",
     price: "",
+    costPrice: "", // Added costPrice
     sku: "",
     brandId: "",
     categoryId: "",
     tagIds: [] as string[],
-    variants: [{ colorId: "", sizeId: "", stock: 0, image: "" }],
+    variants: [
+      { colorId: "", sizeId: "", stock: 0, image: [], /* image is now array */ }
+    ],
   });
-  // Holds File objects for variant images (same length as variants array)
-  const [variantImages, setVariantImages] = useState<(File | null)[]>([]);
+  // Holds arrays of File objects for each variant
+  const [variantImages, setVariantImages] = useState<(File[] | null)[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
   // Redirect if not admin
   const handleEdit = (product: any) => {
-    setShowModal(true); // open modal
-    setEditingProduct(product); // track product to update
-
-    // Populate form with selected product
+    setShowModal(true);
+    setEditingProduct(product);
     setForm({
       mnName: product.mnName,
       enName: product.enName,
       mnDesc: product.mnDesc,
       enDesc: product.enDesc,
       price: product.price,
+      costPrice: product.costPrice || "", // Added costPrice
       sku: product.sku,
       brandId: product.brandId,
       categoryId: product.categoryId,
@@ -91,11 +93,9 @@ export default function AdminProductsPage() {
         colorId: v.colorId,
         sizeId: v.sizeId,
         stock: v.stock,
-        image: v.image || "",
+        image: Array.isArray(v.image) ? v.image : v.image ? [v.image] : [],
       })),
     });
-
-    // Reset images since we don't have File objects
     setVariantImages(product.variants.map(() => null));
   };
 
@@ -180,10 +180,20 @@ export default function AdminProductsPage() {
     setForm((prev) => ({ ...prev, variants: updated }));
   };
 
-  const handleVariantImageChange = (index: number, file: File | null) => {
+  // Allow multiple images per variant
+  const handleVariantImageChange = (variantIdx: number, files: FileList | null) => {
     const updatedImages = [...variantImages];
-    updatedImages[index] = file;
+    updatedImages[variantIdx] = files ? Array.from(files) : [];
     setVariantImages(updatedImages);
+  };
+
+  // Remove a specific image from a variant
+  const handleRemoveVariantImage = (variantIdx: number, imgIdx: number) => {
+    const updatedImages = [...variantImages];
+    if (updatedImages[variantIdx]) {
+      updatedImages[variantIdx] = updatedImages[variantIdx]!.filter((_, i) => i !== imgIdx);
+      setVariantImages(updatedImages);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -197,17 +207,22 @@ export default function AdminProductsPage() {
       formData.append("mnDesc", form.mnDesc);
       formData.append("enDesc", form.enDesc);
       formData.append("price", form.price.toString());
+      formData.append("costPrice", form.costPrice.toString()); // Added costPrice
       formData.append("sku", form.sku);
       formData.append("brandId", form.brandId);
       formData.append("categoryId", form.categoryId);
       formData.append("tagIds", JSON.stringify(form.tagIds));
 
+      // Remove image field from variants for backend
       const variantsWithoutImage = form.variants.map(({ image, ...v }) => v);
       formData.append("variants", JSON.stringify(variantsWithoutImage));
 
-      variantImages.forEach((file, idx) => {
-        if (file) {
-          formData.append(`variantImage_${idx}`, file);
+      // Append all images for each variant
+      variantImages.forEach((files, idx) => {
+        if (files && files.length > 0) {
+          files.forEach((file, imgIdx) => {
+            formData.append(`variantImage_${idx}_${imgIdx}`, file);
+          });
         }
       });
 
@@ -230,11 +245,12 @@ export default function AdminProductsPage() {
           mnDesc: "",
           enDesc: "",
           price: "",
+          costPrice: "", // Reset costPrice
           sku: "",
           brandId: "",
           categoryId: "",
           tagIds: [],
-          variants: [{ colorId: "", sizeId: "", stock: 0, image: "" }],
+          variants: [{ colorId: "", sizeId: "", stock: 0, image: [] }],
         });
         setVariantImages([]);
         fetchInitialData();
@@ -329,6 +345,14 @@ export default function AdminProductsPage() {
                 value={form.price}
                 onChange={handleFormChange}
                 placeholder={t("dialog.price")}
+                required
+              />
+              <Input
+                name="costPrice"
+                type="number"
+                value={form.costPrice}
+                onChange={handleFormChange}
+                placeholder={t("dialog.costPrice") || "Cost Price"}
                 required
               />
               <select
@@ -468,19 +492,33 @@ export default function AdminProductsPage() {
                     <input
                       type="file"
                       accept="image/*"
+                      multiple
                       onChange={(e) => {
-                        const file = e.target.files ? e.target.files[0] : null;
-                        handleVariantImageChange(idx, file);
+                        handleVariantImageChange(idx, e.target.files);
                       }}
                       className="border p-2"
                     />
-                    {variantImages[idx] && (
-                      <img
-                        src={URL.createObjectURL(variantImages[idx]!)}
-                        alt="Preview"
-                        className="w-16 h-16 object-cover rounded"
-                      />
-                    )}
+                    {/* Preview and remove images */}
+                    {variantImages[idx] &&
+                      variantImages[idx]!.map((file, imgIdx) => (
+                        <div key={imgIdx} className="inline-block mr-2 relative">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt="Preview"
+                            className="w-16 h-16 object-cover rounded"
+                          />
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="absolute top-0 right-0"
+                            onClick={() => handleRemoveVariantImage(idx, imgIdx)}
+                            title="Remove image"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
+                        </div>
+                      ))}
                   </div>
                 ))}
                 <Button
@@ -490,10 +528,14 @@ export default function AdminProductsPage() {
                       ...form,
                       variants: [
                         ...form.variants,
-                        { colorId: "", sizeId: "", stock: 0, image: "" },
+                        { colorId: "", sizeId: "", stock: 0, image: [] },
                       ],
                     })
-                  }>
+                  }
+                  variant="outline"
+                  className="flex items-center"
+                >
+                  <Plus className="w-4 h-4 mr-2" /> {/* PLUS icon */}
                   {t("dialog.addVariant")}
                 </Button>
               </div>
@@ -624,6 +666,9 @@ export default function AdminProductsPage() {
                 <strong>{t("preview.price")}:</strong> ₮{previewProduct.price}
               </p>
               <p>
+                <strong>{t("preview.costPrice") || "Cost Price"}:</strong> ₮{previewProduct.costPrice}
+              </p>
+              <p>
                 <strong>{t("preview.tags")}:</strong>{" "}
                 {previewProduct.tags.map((t: any) => t.enName).join(", ")}
               </p>
@@ -636,7 +681,20 @@ export default function AdminProductsPage() {
                     Color: {colors.find((c) => c.id === v.colorId)?.enName} |
                     Size: {sizes.find((s) => s.id === v.sizeId)?.enName || "-"}{" "}
                     | Stock: {v.stock}
-                    {v.image && (
+                    {v.image && Array.isArray(v.image) && v.image.length > 0 && (
+                      <div className="mt-1 flex flex-wrap gap-2">
+                        {v.image.map((imgUrl: string, imgIdx: number) => (
+                          <img
+                            key={imgIdx}
+                            src={imgUrl}
+                            alt="Variant"
+                            className="w-16 h-16 rounded object-cover"
+                          />
+                        ))}
+                      </div>
+                    )}
+                    {/* If image is string (legacy), show single image */}
+                    {v.image && typeof v.image === "string" && (
                       <div className="mt-1">
                         <img
                           src={v.image}

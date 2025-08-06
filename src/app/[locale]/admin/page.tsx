@@ -5,7 +5,7 @@ import { prisma } from "@/src/lib/prisma";
 import AdminDashboard from "@/src/components/admin/AdminDashboard";
 
 async function getDashboardStats() {
-  const [totalProducts, totalOrders, totalUsers, totalRevenue, recentOrders] =
+  const [totalProducts, totalOrders, totalUsers, totalRevenue, recentOrders, products] =
     await Promise.all([
       prisma.product.count(),
       prisma.order.count(),
@@ -22,14 +22,64 @@ async function getDashboardStats() {
           delivery: true,
         },
       }),
+      prisma.product.findMany({ select: { costPrice: true } }), // fetch costPrice for all products
     ]);
+
+  // Calculate total cost price for all products
+  const totalCost = products.reduce((sum: any, p: any) => sum + (p.costPrice ?? 0), 0);
+  const margin = (totalRevenue._sum.amount || 0) - totalCost;
+
+  // Revenue trend by month
+  const revenueTrendRaw = await prisma.transaction.groupBy({
+    by: ['createdAt'],
+    _sum: { amount: true },
+    where: { status: "COMPLETED" },
+    orderBy: { createdAt: 'asc' },
+  });
+  // Cost trend by month (sum of costPrice for products sold in each month)
+  const costTrendRaw = await prisma.order.groupBy({
+    by: ['createdAt'],
+    _sum: { total: true },
+    orderBy: { createdAt: 'asc' },
+  });
+  // Margin trend by month
+  const marginTrend = revenueTrendRaw.map((r:any, i:any) => ({
+    month: r.createdAt.toLocaleString('default', { month: 'short', year: '2-digit' }),
+    value: (r._sum.amount || 0) - (costTrendRaw[i]?._sum.total || 0),
+  }));
+  const revenueTrend = revenueTrendRaw.map((r:any) => ({
+    month: r.createdAt.toLocaleString('default', { month: 'short', year: '2-digit' }),
+    value: r._sum.amount || 0,
+  }));
+  const costTrend = costTrendRaw.map((r:any) => ({
+    month: r.createdAt.toLocaleString('default', { month: 'short', year: '2-digit' }),
+    value: r._sum.total || 0,
+  }));
+
+  // Stock distribution by product name
+  const productsWithStock = await prisma.product.findMany({
+    select: {
+      enName: true,
+      variants: { select: { stock: true } }
+    }
+  });
+  const stockDistribution = productsWithStock.map((p:any) => ({
+    name: p.enName,
+    value: p.variants.reduce((sum:any, v:any) => sum + v.stock, 0)
+  }));
 
   return {
     totalProducts,
     totalOrders,
     totalUsers,
     totalRevenue: totalRevenue._sum.amount || 0,
+    totalCost,
+    margin,
     recentOrders,
+    revenueTrend,
+    costTrend,
+    marginTrend,
+    stockDistribution,
   };
 }
 

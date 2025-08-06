@@ -23,7 +23,7 @@ interface Variant {
   productId: string;
   colorId: string;
   sizeId: string;
-  image?: string;
+  image?: string[]; // changed from string to string[]
   stock: number;
   color: Color;
   size: Size;
@@ -80,17 +80,17 @@ export default function ProductDetails({
   const { addItem } = useCartStore();
 
   const handleAddToCart = () => {
-    if (!selectedVariant || selectedVariant.stock < quantity) return;
+    if (!selectedVariant || selectedVariant?.stock < quantity) return;
 
     addItem({
       id: product.id,
       productId: product.id,
-      variantId: selectedVariant.id,
+      variantId: selectedVariant?.id,
       name: locale === "mn" ? product.mnName : product.enName,
       price: product.price,
       quantity,
-      image: selectedVariant.image as string,
-      color: selectedVariant.color,
+      image: selectedVariant?.image?.[0] || "", // use first image for cart
+      color: selectedVariant?.color,
       size: selectedVariant?.size,
     });
   };
@@ -102,7 +102,7 @@ export default function ProductDetails({
         <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-100">
           <Image
             src={
-              selectedVariant?.image ||
+              selectedVariant?.image?.[0] ||
               "https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg"
             }
             alt={locale === "mn" ? product.mnName : product.enName}
@@ -115,21 +115,41 @@ export default function ProductDetails({
           <div className="grid grid-cols-4 gap-2">
             {product.variants.map((variant: Variant) => (
               <button
-                key={variant.id}
+                key={variant?.id}
                 onClick={() => setSelectedVariant(variant)}
                 className={`relative aspect-square rounded-lg overflow-hidden border-2 ${
-                  selectedVariant?.id === variant.id
+                  selectedVariant?.id === variant?.id
                     ? "border-blue-500"
                     : "border-gray-200"
                 }`}>
-                <Image
-                  src={variant.image as string}
-                  alt={`${
-                    locale === "mn" ? product.mnName : product.enName
-                  } variant`}
-                  fill
-                  className="object-cover"
-                />
+                {/* Show all images for this variant */}
+                <div className="absolute inset-0 flex flex-wrap items-center justify-center gap-1">
+                  {variant?.image && variant?.image.length > 0 ? (
+                    variant?.image.map((img, idx) => (
+                      <div
+                        key={idx}
+                        className="relative w-1/2 h-1/2 rounded overflow-hidden"
+                        style={{ minWidth: "40px", minHeight: "40px" }}
+                      >
+                        <Image
+                          src={img}
+                          alt={`${
+                            locale === "mn" ? product.mnName : product.enName
+                          } variant ${idx + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <Image
+                      src="https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg"
+                      alt="No image"
+                      fill
+                      className="object-cover"
+                    />
+                  )}
+                </div>
               </button>
             ))}
           </div>
@@ -165,15 +185,15 @@ export default function ProductDetails({
             <div className="flex space-x-2">
               {product.variants.map((variant: Variant) => (
                 <button
-                  key={variant.id}
+                  key={variant?.id}
                   onClick={() => setSelectedVariant(variant)}
                   className={`w-8 h-8 rounded-full border-2 ${
-                    selectedVariant?.id === variant.id
+                    selectedVariant?.id === variant?.id
                       ? "border-gray-900"
                       : "border-gray-300"
                   }`}
-                  style={{ backgroundColor: variant.color.hex }}
-                  title={variant.color.name}
+                  style={{ backgroundColor: variant?.color.hex }}
+                  title={variant?.color.name}
                 />
               ))}
             </div>
@@ -232,7 +252,7 @@ export default function ProductDetails({
 
           <Button
             onClick={handleAddToCart}
-            disabled={!selectedVariant || selectedVariant.stock < quantity}
+            disabled={!selectedVariant || selectedVariant?.stock < quantity}
             size="lg"
             className="w-full">
             {selectedVariant?.stock > 0 ? t("add_to_cart") : t("out_of_stock")}

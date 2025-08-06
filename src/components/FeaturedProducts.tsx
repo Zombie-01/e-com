@@ -35,7 +35,7 @@ export default function FeaturedProducts({
               <div className="relative aspect-square overflow-hidden">
                 <Image
                   src={
-                    product.variants[0]?.image ||
+                    product?.variants?.[0]?.image?.[0] ??
                     "https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg"
                   }
                   alt={locale === "mn" ? product.mnName : product.enName}
