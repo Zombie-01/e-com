@@ -9,12 +9,22 @@ import {
 import { ShoppingBag, Users, Package, DollarSign, Eye } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend
+} from "recharts";
 
 interface DashboardStats {
   totalProducts: number;
   totalOrders: number;
   totalUsers: number;
   totalRevenue: number;
+  totalCost?: number;
+  margin?: number;
+  recentOrders?: any[];
+  revenueTrend?: { month: string; value: number }[];
+  costTrend?: { month: string; value: number }[];
+  marginTrend?: { month: string; value: number }[];
+  stockDistribution?: { name: string; value: number }[];
 }
 
 interface StatCardProps {
@@ -41,6 +51,25 @@ const StatCard = ({ title, value, Icon, color, bgColor }: StatCardProps) => (
   </Card>
 );
 
+const COLORS = ["#a78bfa", "#60a5fa", "#34d399", "#fbbf24"];
+
+const ChartCard = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => (
+  <Card className="mb-4">
+    <CardHeader>
+      <CardTitle>{title}</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className="h-64">{children}</div>
+    </CardContent>
+  </Card>
+);
+
 export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
   const t = useTranslations("admin");
 
@@ -51,6 +80,20 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
       Icon: DollarSign,
       color: "text-green-600",
       bgColor: "bg-green-100",
+    },
+    {
+      title: "Cost Price",
+      value: `$${(stats.totalCost ?? 0).toLocaleString()}`,
+      Icon: DollarSign,
+      color: "text-red-600",
+      bgColor: "bg-red-100",
+    },
+    {
+      title: "Margin",
+      value: `$${(stats.margin ?? (stats.totalRevenue - (stats.totalCost ?? 0))).toLocaleString()}`,
+      Icon: DollarSign,
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-100",
     },
     {
       title: t("orders"),
@@ -128,7 +171,7 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
       </header>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {statCards.map(({ title, value, Icon, color, bgColor }) => (
           <StatCard
             key={title}
@@ -139,6 +182,61 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
             bgColor={bgColor}
           />
         ))}
+      </div>
+
+      {/* Business Analytics Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <ChartCard title="Revenue Trend">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={stats.revenueTrend ?? []}>
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#22c55e" />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+        <ChartCard title="Cost Trend">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={stats.costTrend ?? []}>
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#ef4444" />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+        <ChartCard title="Margin Trend">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={stats.marginTrend ?? []}>
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="value" stroke="#facc15" />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartCard>
+        <ChartCard title="Product Stock Distribution">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={stats.stockDistribution ?? []}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={60}
+                label
+              >
+                {(stats.stockDistribution ?? []).map((entry, idx) => (
+                  <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </ChartCard>
       </div>
 
       {/* Quick Actions */}
@@ -162,3 +260,4 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
     </div>
   );
 }
+         

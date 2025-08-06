@@ -104,6 +104,8 @@ model Product {
   mnDesc     String
   enDesc     String
   price      Float
+  // The cost price of the product, used for margin calculations and business analytics
+  costPrice  Float
   sku        String           @unique
   brandId    String
   brand      Brand            @relation(fields: [brandId], references: [id])
@@ -122,7 +124,7 @@ model ProductVariant {
   colorId   String
   size      Size?       @relation(fields: [sizeId], references: [id])
   sizeId    String?
-  image     String
+  image     String[]
   stock     Int
   items     OrderItem[]
 }
