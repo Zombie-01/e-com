@@ -362,6 +362,7 @@
       "mongolianName": "Mongolian Name",
       "sku": "SKU",
       "price": "Price",
+      "costPrice": "Cost price",
       "selectBrand": "Select Brand",
       "selectCategory": "Select Category",
       "englishDescription": "English Description",
