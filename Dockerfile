@@ -15,7 +15,11 @@ COPY --from=deps /app/node_modules ./node_modules
 # Generate Prisma client before building
 RUN npx prisma generate
 
+# Run migrations (optional but recommended)
+RUN npx prisma migrate deploy
 
+# Run seed script
+RUN npx ts-node prisma/seed.ts
 
 RUN npm run build
 
