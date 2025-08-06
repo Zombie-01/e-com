@@ -1,7 +1,10 @@
 // prisma/seed.ts
 
-const { prisma } = require("../src/lib/prisma");
+import { PrismaClient } from "@prisma/client";
+
 const bcrypt = require("bcryptjs");
+
+const prisma =  new PrismaClient()
 
 async function main() {
   const adminEmail = "admin@orchid.com";
