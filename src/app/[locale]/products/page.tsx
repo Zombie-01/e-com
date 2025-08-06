@@ -76,7 +76,7 @@ export default async function ProductsPage({
         </aside>
 
         <div className="flex-1">
-          <ProductGrid products={products} locale={locale} />
+          <ProductGrid products={products as any} locale={locale} />
         </div>
       </div>
     </div>
