@@ -1,16 +1,16 @@
 // prisma/seed.ts
 
-import { prisma } from "@/src/lib/prisma";
-import bcrypt from "bcryptjs";
+const { prisma } = require("../src/lib/prisma");
+const bcrypt = require("bcryptjs");
 
 async function main() {
-  const adminEmail = "admin@example.com";
+  const adminEmail = "admin@orchid.com";
   const existingAdmin = await prisma.user.findUnique({
     where: { email: adminEmail },
   });
 
   if (!existingAdmin) {
-    const hashedPassword = await bcrypt.hash("admin123", 10);
+    const hashedPassword = await bcrypt.hash("orchid!123", 10);
 
     await prisma.user.create({
       data: {
