@@ -16,8 +16,6 @@ COPY --from=deps /app/node_modules ./node_modules
 RUN npx prisma generate
 
 
-# Run seed script
-RUN npx ts-node prisma/seed.ts
 
 RUN npm run build
 

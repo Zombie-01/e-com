@@ -362,6 +362,7 @@
       "mongolianName": "Монгол нэр",
       "sku": "SKU",
       "price": "Үнэ",
+      "costPrice": "Өртөг үнэ",
       "selectBrand": "Брэнд сонгох",
       "selectCategory": "Ангилал сонгох",
       "englishDescription": "Англи тайлбар",

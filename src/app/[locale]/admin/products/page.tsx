@@ -666,7 +666,7 @@ export default function AdminProductsPage() {
                 <strong>{t("preview.price")}:</strong> ₮{previewProduct.price}
               </p>
               <p>
-                <strong>{t("preview.costPrice") || "Cost Price"}:</strong> ₮{previewProduct.costPrice}
+                <strong>{t("dialog.costPrice") || "Cost Price"}:</strong> ₮{previewProduct.costPrice}
               </p>
               <p>
                 <strong>{t("preview.tags")}:</strong>{" "}
