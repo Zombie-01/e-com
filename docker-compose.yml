@@ -6,7 +6,7 @@ services:
     environment:
       DATABASE_URL: "postgresql://orchid_user:orchid_password@db:5432/orchid_db"
       NEXTAUTH_SECRET: "b4d8e56a2c3f4e8790123456789abcdef1234567890abcdef1234567890abcdef"
-      NEXTAUTH_URL: "http://103.50.205.95:3000" # Change to your domain or server IP in prod
+      NEXTAUTH_URL: "https://orchid.mn" # Change to your domain or server IP in prod
       QPAY_USERNAME: "ORCHID"
       QPAY_PASSWORD: "9zhYtl8y"
     depends_on:
