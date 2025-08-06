@@ -62,7 +62,7 @@ export default async function HomePage({
             {t("description")}
           </p>
         </div>
-        <FeaturedProducts products={products} locale={locale} />
+        <FeaturedProducts products={products as any} locale={locale} />
       </section>
 
       <section className="bg-white py-16">
