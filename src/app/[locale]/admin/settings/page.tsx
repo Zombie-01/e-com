@@ -80,10 +80,12 @@ export default function SiteSettingsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setSubmitting(true);
 
     try {
       let res;
+
       if (modalType === "banner") {
         const formData = new FormData();
         if (form.file) formData.append("file", form.file);
@@ -98,6 +100,7 @@ export default function SiteSettingsPage() {
           body: formData,
         });
       } else {
+        // CHECK FORM.HEX
         res = await fetch(`/api/admin/${modalType}s`, {
           method: form.id ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
@@ -105,14 +108,19 @@ export default function SiteSettingsPage() {
         });
       }
 
-      if (res.ok) {
-        setShowModal(false);
-        setForm({});
-        fetchSettings();
-        router.refresh();
+      if (!res.ok) {
+        const errorData = await res.json();
+        const message = errorData.message || "Something went wrong.";
+        throw new Error(message);
       }
-    } catch (err) {
+
+      setShowModal(false);
+      setForm({});
+      fetchSettings();
+      router.refresh();
+    } catch (err: any) {
       console.error("Error submitting form:", err);
+      alert(`Error: ${err.message || "Failed to submit form."}`); // Or use toast
     } finally {
       setSubmitting(false);
     }
@@ -120,16 +128,24 @@ export default function SiteSettingsPage() {
 
   const handleDelete = async (type: string, id: string) => {
     if (!confirm(t("deleteConfirmation"))) return;
+
     try {
       const res = await fetch(`/api/admin/${type}s?id=${id}`, {
         method: "DELETE",
       });
-      if (res.ok) {
-        fetchSettings();
-        router.refresh();
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        const errorMessage = errorData?.error || "Failed to delete item.";
+        alert(errorMessage); // Or use toast.error(errorMessage)
+        return;
       }
-    } catch (err) {
+
+      fetchSettings();
+      router.refresh();
+    } catch (err: any) {
       console.error("Error deleting:", err);
+      alert("An unexpected error occurred. Please try again."); // Or toast
     }
   };
 
@@ -271,6 +287,7 @@ export default function SiteSettingsPage() {
                   type="color"
                   placeholder={t("modal.placeholders.hex")}
                   value={form.hex || ""}
+                  defaultValue="#000000"
                   onChange={(e) => setForm({ ...form, hex: e.target.value })}
                   required
                 />

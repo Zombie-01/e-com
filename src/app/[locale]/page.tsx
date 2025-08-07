@@ -13,10 +13,12 @@ async function getBanners() {
 
 async function getFeaturedProducts() {
   return await prisma.product.findMany({
+    where: { active: true },
     include: {
       brand: true,
       category: true,
       variants: {
+        where: { active: true },
         include: {
           color: true,
           size: true,

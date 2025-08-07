@@ -13,10 +13,12 @@ export async function GET(request: NextRequest) {
     }
 
     const products = await prisma.product.findMany({
+      where: { active: true },
       include: {
         brand: true,
         category: true,
         variants: {
+          where: { active: true },
           include: {
             color: true,
             size: true,
@@ -87,7 +89,11 @@ export async function POST(request: NextRequest) {
       }
       if (files.length > 0) {
         variantImageUploads.push(
-          Promise.all(files.map((f) => uploadFileToPublicUploads(f).then((res) => res.urlPath as string)))
+          Promise.all(
+            files.map((f) =>
+              uploadFileToPublicUploads(f).then((res) => res.urlPath as string)
+            )
+          )
         );
       } else {
         variantImageUploads.push(Promise.resolve([]));
@@ -196,7 +202,9 @@ export async function PUT(request: NextRequest) {
       while (true) {
         const fileKey = `variantImage_${i}_${imgIdx}`;
         if (variantImagesMap[fileKey]) {
-          const uploadResult = await uploadFileToPublicUploads(variantImagesMap[fileKey]);
+          const uploadResult = await uploadFileToPublicUploads(
+            variantImagesMap[fileKey]
+          );
           images.push(uploadResult.urlPath as string);
         } else {
           break;
@@ -204,7 +212,9 @@ export async function PUT(request: NextRequest) {
         imgIdx++;
       }
       // If no new images, fallback to existing image array or empty
-      const existingImages = Array.isArray(variantsData[i].image) ? variantsData[i].image : [];
+      const existingImages = Array.isArray(variantsData[i].image)
+        ? variantsData[i].image
+        : [];
       variantsUpdate.push({
         colorId: variantsData[i].colorId,
         sizeId: variantsData[i].sizeId || null,
@@ -253,7 +263,6 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// DELETE a product (expects ?id=productId in query)
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -261,19 +270,38 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
-    if (!id) {
+    let body;
+    try {
+      body = await request.json();
+    } catch {
       return NextResponse.json(
-        { message: "Product ID required" },
+        { message: "Invalid request body" },
         { status: 400 }
       );
     }
 
-    await prisma.product.delete({ where: { id } });
+    const { id } = body;
+    if (!id) {
+      return NextResponse.json(
+        { message: "Product ID is required" },
+        { status: 400 }
+      );
+    }
 
-    return NextResponse.json({ message: "Product deleted" });
-  } catch (error) {
+    // Soft delete product variants
+    await prisma.productVariant.updateMany({
+      where: { productId: id },
+      data: { active: false },
+    });
+
+    // Soft delete product
+    await prisma.product.update({
+      where: { id },
+      data: { active: false },
+    });
+
+    return NextResponse.json({ message: "Product and variants deactivated" });
+  } catch (error: any) {
     console.error("DELETE error:", error);
     return NextResponse.json(
       { message: "Internal server error" },

@@ -64,18 +64,43 @@ export async function PUT(request: NextRequest) {
 
 // DELETE brand
 export async function DELETE(request: NextRequest) {
-  const result = await requireAdmin(request);
-  if (result instanceof NextResponse) return result;
+  try {
+    const result = await requireAdmin(request);
+    if (result instanceof NextResponse) return result;
 
-  const { id } = await request.json();
+    const { id } = await request.json();
 
-  if (!id) {
-    return NextResponse.json({ message: "Missing brand ID" }, { status: 400 });
+    if (!id) {
+      return NextResponse.json(
+        { message: "Missing brand ID" },
+        { status: 400 }
+      );
+    }
+
+    const deleted = await prisma.brand.delete({
+      where: { id },
+    });
+
+    return NextResponse.json(deleted);
+  } catch (error: any) {
+    console.error("DELETE brand error:", error);
+
+    if (error.code === "P2025") {
+      // Prisma error: Record not found
+      return NextResponse.json({ message: "Brand not found" }, { status: 404 });
+    }
+
+    if (error.code === "P2003") {
+      // Foreign key constraint failed
+      return NextResponse.json(
+        { message: "Cannot delete brand: it is referenced by other data." },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
   }
-
-  const deleted = await prisma.brand.delete({
-    where: { id },
-  });
-
-  return NextResponse.json(deleted);
 }
