@@ -108,22 +108,29 @@ export default function AdminCategoriesPage() {
       setSubmitting(false);
     }
   };
-
   const handleDelete = async (id: string) => {
     if (!confirm(t("deleteConfirmation"))) return;
 
     try {
-      const res = await fetch(`/api/admin/categories?id=${id}`, {
+      const res = await fetch("/api/admin/categories", {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
       });
+
       if (res.ok) {
         fetchCategories();
         router.refresh();
       } else {
-        console.error("Failed to delete category");
+        const errorData = await res.json();
+        const message = errorData?.message || "Failed to delete category.";
+        alert(message); // Or toast.error(message)
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error deleting category:", err);
+      alert("An unexpected error occurred while deleting."); // Or toast.error(...)
     }
   };
 

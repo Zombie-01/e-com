@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useCartStore } from "@/src/lib/store";
 import { Button } from "@/src/components/ui/button";
@@ -23,8 +23,9 @@ interface Variant {
   productId: string;
   colorId: string;
   sizeId: string;
-  image?: string[]; // changed from string to string[]
+  image?: string[]; // array of image URLs
   stock: number;
+  active: boolean;
   color: Color;
   size: Size;
 }
@@ -54,6 +55,7 @@ interface Product {
   enName: string;
   mnDesc: string;
   enDesc: string;
+  active: boolean;
   price: number;
   sku: string;
   brandId: string;
@@ -73,36 +75,83 @@ export default function ProductDetails({
   product,
   locale,
 }: ProductDetailsProps) {
-  const t = useTranslations("products"); // namespace "product"
-  const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
-  const [selectedSize, setSelectedSize] = useState(product.variants[0]?.size);
-  const [quantity, setQuantity] = useState(1);
+  const t = useTranslations("products");
   const { addItem } = useCartStore();
 
+  // Flatten all images from all variants for thumbnails
+  const allImages = product.variants.flatMap((v) => v.image || []);
+
+  // State: selected variant, size, image, quantity
+  const [selectedSize, setSelectedSize] = useState<Size | undefined>(
+    product.variants[0]?.size
+  );
+  const [selectedColor, setSelectedColor] = useState<Color | undefined>(
+    product.variants[0]?.color
+  );
+  const [selectedVariant, setSelectedVariant] = useState<Variant | undefined>(
+    product.variants[0]
+  );
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(
+    product.variants[0]?.image?.[0] || allImages[0]
+  );
+  const [quantity, setQuantity] = useState(1);
+
+  // When selectedColor or selectedSize changes, update selectedVariant accordingly
+  useEffect(() => {
+    if (!selectedColor || !selectedSize) return;
+
+    const variant = product.variants.find(
+      (v) =>
+        v.colorId === selectedColor.id &&
+        v.sizeId === selectedSize.id &&
+        v.active !== false
+    );
+
+    if (variant) {
+      setSelectedVariant(variant);
+
+      // Only reset image if currently selected image is not in the new variant
+      if (!variant.image?.includes(selectedImage || "")) {
+        setSelectedImage(variant.image?.[0] || allImages[0]);
+      }
+
+      setQuantity(1);
+    } else {
+      setSelectedVariant(undefined);
+
+      // Reset to first image from all images only if current image isn't in allImages
+      if (!allImages.includes(selectedImage || "")) {
+        setSelectedImage(allImages[0]);
+      }
+
+      setQuantity(1);
+    }
+  }, [selectedColor, selectedSize, product.variants, allImages, selectedImage]);
+
   const handleAddToCart = () => {
-    if (!selectedVariant || selectedVariant?.stock < quantity) return;
+    if (!selectedVariant || selectedVariant.stock < quantity) return;
 
     addItem({
       id: product.id,
       productId: product.id,
-      variantId: selectedVariant?.id,
+      variantId: selectedVariant.id,
       name: locale === "mn" ? product.mnName : product.enName,
       price: product.price,
       quantity,
-      image: selectedVariant?.image?.[0] || "", // use first image for cart
-      color: selectedVariant?.color,
-      size: selectedVariant?.size,
+      image: selectedVariant.image?.[0] || "",
+      color: selectedVariant.color,
+      size: selectedVariant.size,
     });
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      {/* Product Images */}
+      {/* Images */}
       <div className="space-y-4">
         <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-100">
           <Image
             src={
-              selectedVariant?.image?.[0] ||
+              selectedImage ||
               "https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg"
             }
             alt={locale === "mn" ? product.mnName : product.enName}
@@ -111,52 +160,33 @@ export default function ProductDetails({
           />
         </div>
 
-        {product.variants.length > 1 && (
+        {allImages.length > 1 && (
           <div className="grid grid-cols-4 gap-2">
-            {product.variants.map((variant: Variant) => (
+            {allImages.map((img, idx) => (
               <button
-                key={variant?.id}
-                onClick={() => setSelectedVariant(variant)}
-                className={`relative aspect-square rounded-lg overflow-hidden border-2 ${
-                  selectedVariant?.id === variant?.id
-                    ? "border-blue-500"
+                key={idx}
+                type="button"
+                onClick={() => setSelectedImage(img)}
+                className={`relative aspect-square rounded-lg overflow-hidden border-2 focus:outline-none focus:ring-2 ${
+                  selectedImage === img
+                    ? "border-blue-500 ring-blue-500"
                     : "border-gray-200"
                 }`}>
-                {/* Show all images for this variant */}
-                <div className="absolute inset-0 flex flex-wrap items-center justify-center gap-1">
-                  {variant?.image && variant?.image.length > 0 ? (
-                    variant?.image.map((img, idx) => (
-                      <div
-                        key={idx}
-                        className="relative w-1/2 h-1/2 rounded overflow-hidden"
-                        style={{ minWidth: "40px", minHeight: "40px" }}
-                      >
-                        <Image
-                          src={img}
-                          alt={`${
-                            locale === "mn" ? product.mnName : product.enName
-                          } variant ${idx + 1}`}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    ))
-                  ) : (
-                    <Image
-                      src="https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg"
-                      alt="No image"
-                      fill
-                      className="object-cover"
-                    />
-                  )}
-                </div>
+                <Image
+                  src={img}
+                  alt={`${
+                    locale === "mn" ? product.mnName : product.enName
+                  } image ${idx + 1}`}
+                  fill
+                  className="object-cover"
+                />
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* Product Info */}
+      {/* Info */}
       <div className="space-y-6">
         <div>
           <p className="text-gray-500 mb-2">
@@ -166,7 +196,7 @@ export default function ProductDetails({
             {locale === "mn" ? product.mnName : product.enName}
           </h1>
           <p className="text-2xl font-bold text-blue-600">
-            ₮{product.price.toFixed(2)}
+            ₮{product.price.toLocaleString()}
           </p>
         </div>
 
@@ -176,54 +206,62 @@ export default function ProductDetails({
           </p>
         </div>
 
-        {/* Color Selection */}
+        {/* Color selector */}
         {product.variants.length > 1 && (
           <div>
             <h3 className="text-sm font-medium text-gray-900 mb-3">
               {t("color")}
             </h3>
             <div className="flex space-x-2">
-              {product.variants.map((variant: Variant) => (
-                <button
-                  key={variant?.id}
-                  onClick={() => setSelectedVariant(variant)}
-                  className={`w-8 h-8 rounded-full border-2 ${
-                    selectedVariant?.id === variant?.id
-                      ? "border-gray-900"
-                      : "border-gray-300"
-                  }`}
-                  style={{ backgroundColor: variant?.color.hex }}
-                  title={variant?.color.name}
-                />
-              ))}
+              {product.variants
+                .map((v) => v.color)
+                .filter(
+                  (color, index, self) =>
+                    self.findIndex((c) => c.id === color.id) === index
+                )
+                .map((color) => (
+                  <button
+                    key={color.id}
+                    type="button"
+                    aria-label={color.name}
+                    title={color.name}
+                    onClick={() => setSelectedColor(color)}
+                    className={`w-8 h-8 rounded-full border-2 focus:outline-none focus:ring-2 ${
+                      selectedColor?.id === color.id
+                        ? "border-gray-900 ring-gray-900"
+                        : "border-gray-300"
+                    }`}
+                    style={{ backgroundColor: color.hex }}
+                  />
+                ))}
             </div>
           </div>
         )}
 
-        {/* Size Selection */}
+        {/* Size selector */}
         {product.variants.length > 0 && (
           <div>
             <h3 className="text-sm font-medium text-gray-900 mb-3">
               {t("size")}
             </h3>
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 flex-wrap">
               {Array.from(
                 new Map(
-                  product.variants.map((variant: Variant) => [
-                    variant?.size?.id,
-                    variant,
-                  ])
+                  product.variants
+                    .filter((v) => v.colorId === selectedColor?.id)
+                    .map((variant) => [variant.size.id, variant])
                 ).values()
-              ).map((variant: Variant) => (
+              ).map((variant) => (
                 <button
-                  key={variant?.size?.id}
-                  onClick={() => setSelectedSize(variant?.size)}
-                  className={`px-4 py-2 text-sm border rounded-md ${
-                    selectedSize?.id === variant?.size?.id
-                      ? "border-blue-500 bg-blue-50 text-blue-600"
+                  key={variant.size.id}
+                  type="button"
+                  onClick={() => setSelectedSize(variant.size)}
+                  className={`px-4 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 ${
+                    selectedSize?.id === variant.size.id
+                      ? "border-blue-500 bg-blue-50 text-blue-600 ring-blue-500"
                       : "border-gray-300 hover:border-gray-400"
                   }`}>
-                  {variant?.size?.name}
+                  {variant.size.name}
                 </button>
               ))}
             </div>
@@ -233,10 +271,13 @@ export default function ProductDetails({
         {/* Quantity & Add to Cart */}
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-900 mb-2 block">
+            <label
+              htmlFor="quantity"
+              className="text-sm font-medium text-gray-900 mb-2 block">
               {t("quantity")}
             </label>
             <select
+              id="quantity"
               value={quantity}
               onChange={(e) => setQuantity(Number(e.target.value))}
               className="border border-gray-300 rounded-md px-3 py-2">
@@ -252,21 +293,23 @@ export default function ProductDetails({
 
           <Button
             onClick={handleAddToCart}
-            disabled={!selectedVariant || selectedVariant?.stock < quantity}
+            disabled={!selectedVariant || selectedVariant.stock < quantity}
             size="lg"
             className="w-full">
-            {selectedVariant?.stock > 0 ? t("add_to_cart") : t("out_of_stock")}
+            {selectedVariant && selectedVariant.stock > 0
+              ? t("add_to_cart")
+              : t("out_of_stock")}
           </Button>
         </div>
 
-        {/* Product Tags */}
+        {/* Tags */}
         {product.tags.length > 0 && (
           <div>
             <h3 className="text-sm font-medium text-gray-900 mb-3">
               {t("tags")}
             </h3>
             <div className="flex flex-wrap gap-2">
-              {product.tags.map((tag: Tag) => (
+              {product.tags.map((tag) => (
                 <Badge key={tag.id} variant="secondary">
                   {locale === "mn" ? tag.mnName : tag.enName}
                 </Badge>

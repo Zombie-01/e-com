@@ -104,8 +104,9 @@ model Product {
   mnDesc     String
   enDesc     String
   price      Float
+  active    Boolean           @default(true)
   // The cost price of the product, used for margin calculations and business analytics
-  costPrice  Float
+  costPrice  Float            @default(0) 
   sku        String           @unique
   brandId    String
   brand      Brand            @relation(fields: [brandId], references: [id])
@@ -118,6 +119,7 @@ model Product {
 
 model ProductVariant {
   id        String      @id @default(cuid())
+  active    Boolean     @default(true)
   product   Product     @relation(fields: [productId], references: [id])
   productId String
   color     Color       @relation(fields: [colorId], references: [id])

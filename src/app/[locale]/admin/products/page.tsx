@@ -66,7 +66,7 @@ export default function AdminProductsPage() {
     categoryId: "",
     tagIds: [] as string[],
     variants: [
-      { colorId: "", sizeId: "", stock: 0, image: [], /* image is now array */ }
+      { colorId: "", sizeId: "", stock: 0, image: [] /* image is now array */ },
     ],
   });
   // Holds arrays of File objects for each variant
@@ -181,7 +181,10 @@ export default function AdminProductsPage() {
   };
 
   // Allow multiple images per variant
-  const handleVariantImageChange = (variantIdx: number, files: FileList | null) => {
+  const handleVariantImageChange = (
+    variantIdx: number,
+    files: FileList | null
+  ) => {
     const updatedImages = [...variantImages];
     updatedImages[variantIdx] = files ? Array.from(files) : [];
     setVariantImages(updatedImages);
@@ -191,7 +194,9 @@ export default function AdminProductsPage() {
   const handleRemoveVariantImage = (variantIdx: number, imgIdx: number) => {
     const updatedImages = [...variantImages];
     if (updatedImages[variantIdx]) {
-      updatedImages[variantIdx] = updatedImages[variantIdx]!.filter((_, i) => i !== imgIdx);
+      updatedImages[variantIdx] = updatedImages[variantIdx]!.filter(
+        (_, i) => i !== imgIdx
+      );
       setVariantImages(updatedImages);
     }
   };
@@ -266,23 +271,27 @@ export default function AdminProductsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this product?"
-    );
-    if (!confirmed) return;
+    if (!confirm("Are you sure you want to delete this product?")) return;
 
     try {
-      const res = await fetch(`/api/admin/products?id=${id}`, {
+      const res = await fetch("/api/admin/products", {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
       });
 
       if (res.ok) {
-        fetchInitialData(); // Refresh the list after deletion
+        router.refresh();
+        fetchInitialData();
       } else {
-        console.error("Failed to delete product:", await res.text());
+        const data = await res.json();
+        alert(data.message || "Failed to delete product.");
       }
-    } catch (error) {
-      console.error("Failed to delete product:", error);
+    } catch (err) {
+      console.error("Error deleting product:", err);
+      alert("Unexpected error while deleting product.");
     }
   };
 
@@ -501,7 +510,9 @@ export default function AdminProductsPage() {
                     {/* Preview and remove images */}
                     {variantImages[idx] &&
                       variantImages[idx]!.map((file, imgIdx) => (
-                        <div key={imgIdx} className="inline-block mr-2 relative">
+                        <div
+                          key={imgIdx}
+                          className="inline-block mr-2 relative">
                           <img
                             src={URL.createObjectURL(file)}
                             alt="Preview"
@@ -512,9 +523,10 @@ export default function AdminProductsPage() {
                             size="icon"
                             variant="ghost"
                             className="absolute top-0 right-0"
-                            onClick={() => handleRemoveVariantImage(idx, imgIdx)}
-                            title="Remove image"
-                          >
+                            onClick={() =>
+                              handleRemoveVariantImage(idx, imgIdx)
+                            }
+                            title="Remove image">
                             <Trash2 className="w-4 h-4 text-red-500" />
                           </Button>
                         </div>
@@ -533,8 +545,7 @@ export default function AdminProductsPage() {
                     })
                   }
                   variant="outline"
-                  className="flex items-center"
-                >
+                  className="flex items-center">
                   <Plus className="w-4 h-4 mr-2" /> {/* PLUS icon */}
                   {t("dialog.addVariant")}
                 </Button>
@@ -666,7 +677,8 @@ export default function AdminProductsPage() {
                 <strong>{t("preview.price")}:</strong> ₮{previewProduct.price}
               </p>
               <p>
-                <strong>{t("dialog.costPrice") || "Cost Price"}:</strong> ₮{previewProduct.costPrice}
+                <strong>{t("dialog.costPrice") || "Cost Price"}:</strong> ₮
+                {previewProduct.costPrice}
               </p>
               <p>
                 <strong>{t("preview.tags")}:</strong>{" "}
@@ -681,18 +693,20 @@ export default function AdminProductsPage() {
                     Color: {colors.find((c) => c.id === v.colorId)?.enName} |
                     Size: {sizes.find((s) => s.id === v.sizeId)?.enName || "-"}{" "}
                     | Stock: {v.stock}
-                    {v.image && Array.isArray(v.image) && v.image.length > 0 && (
-                      <div className="mt-1 flex flex-wrap gap-2">
-                        {v.image.map((imgUrl: string, imgIdx: number) => (
-                          <img
-                            key={imgIdx}
-                            src={imgUrl}
-                            alt="Variant"
-                            className="w-16 h-16 rounded object-cover"
-                          />
-                        ))}
-                      </div>
-                    )}
+                    {v.image &&
+                      Array.isArray(v.image) &&
+                      v.image.length > 0 && (
+                        <div className="mt-1 flex flex-wrap gap-2">
+                          {v.image.map((imgUrl: string, imgIdx: number) => (
+                            <img
+                              key={imgIdx}
+                              src={imgUrl}
+                              alt="Variant"
+                              className="w-16 h-16 rounded object-cover"
+                            />
+                          ))}
+                        </div>
+                      )}
                     {/* If image is string (legacy), show single image */}
                     {v.image && typeof v.image === "string" && (
                       <div className="mt-1">

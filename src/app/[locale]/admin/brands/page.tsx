@@ -110,14 +110,18 @@ export default function AdminBrandsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
+
       if (res.ok) {
         fetchBrands();
         router.refresh();
       } else {
-        console.error("Failed to delete brand");
+        const data = await res.json();
+        console.error("Failed to delete brand:", data.message);
+        alert(data.message || "Failed to delete brand.");
       }
     } catch (err) {
       console.error("Error deleting brand:", err);
+      alert("Unexpected error occurred while deleting brand.");
     }
   };
 

@@ -47,16 +47,41 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== "ADMIN") {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const id = body.id;
+
+    if (!id) {
+      return NextResponse.json(
+        { message: "Missing category ID" },
+        { status: 400 }
+      );
+    }
+
+    await prisma.category.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ message: "Category deleted" });
+  } catch (error: any) {
+    console.error("Delete category error:", error);
+
+    if (error.code === "P2003") {
+      // Foreign key constraint failure
+      return NextResponse.json(
+        { message: "Cannot delete category: it is used by other records." },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
   }
-
-  const { id } = await request.json();
-
-  await prisma.category.delete({
-    where: { id },
-  });
-
-  return NextResponse.json({ message: "Category deleted" });
 }

@@ -63,12 +63,27 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Missing ID" }, { status: 400 });
     }
 
+    const inUse = await prisma.productVariant.findFirst({
+      where: { colorId: id },
+    });
+
+    if (inUse) {
+      return NextResponse.json(
+        {
+          error:
+            "Cannot delete color; it is used in one or more product variants.",
+        },
+        { status: 400 }
+      );
+    }
+
     await prisma.color.delete({
       where: { id },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { error: "Failed to delete color" },
       { status: 500 }
