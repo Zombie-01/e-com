@@ -32,7 +32,7 @@ async function getFeaturedProducts() {
 
 async function getCategories() {
   return await prisma.category.findMany({
-    where: { parentId: null },
+    where: { parentId: null, active: true },
     include: {
       children: true,
     },

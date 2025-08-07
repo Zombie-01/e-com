@@ -77,7 +77,6 @@ export default function ProductDetails({
 }: ProductDetailsProps) {
   const t = useTranslations("products");
   const { addItem } = useCartStore();
-
   // Flatten all images from all variants for thumbnails
   const allImages = product.variants.flatMap((v) => v.image || []);
 

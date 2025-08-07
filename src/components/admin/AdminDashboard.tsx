@@ -10,7 +10,18 @@ import { ShoppingBag, Users, Package, DollarSign, Eye } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  Legend,
 } from "recharts";
 
 interface DashboardStats {
@@ -82,15 +93,17 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
       bgColor: "bg-green-100",
     },
     {
-      title: "Cost Price",
+      title: t("revenue"),
       value: `$${(stats.totalCost ?? 0).toLocaleString()}`,
       Icon: DollarSign,
       color: "text-red-600",
       bgColor: "bg-red-100",
     },
     {
-      title: "Margin",
-      value: `$${(stats.margin ?? (stats.totalRevenue - (stats.totalCost ?? 0))).toLocaleString()}`,
+      title: t("margin"),
+      value: `$${(
+        stats.margin ?? stats.totalRevenue - (stats.totalCost ?? 0)
+      ).toLocaleString()}`,
       Icon: DollarSign,
       color: "text-yellow-600",
       bgColor: "bg-yellow-100",
@@ -186,7 +199,7 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
 
       {/* Business Analytics Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        <ChartCard title="Revenue Trend">
+        <ChartCard title={t("revenueTrend")}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={stats.revenueTrend ?? []}>
               <XAxis dataKey="month" />
@@ -196,7 +209,7 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="Cost Trend">
+        <ChartCard title={t("costTrend")}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={stats.costTrend ?? []}>
               <XAxis dataKey="month" />
@@ -206,7 +219,7 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="Margin Trend">
+        <ChartCard title={t("marginTrend")}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={stats.marginTrend ?? []}>
               <XAxis dataKey="month" />
@@ -217,7 +230,7 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="Product Stock Distribution">
+        <ChartCard title={t("productStockDistribution")}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -227,10 +240,12 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
                 cx="50%"
                 cy="50%"
                 outerRadius={60}
-                label
-              >
+                label>
                 {(stats.stockDistribution ?? []).map((entry, idx) => (
-                  <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
+                  <Cell
+                    key={`cell-${idx}`}
+                    fill={COLORS[idx % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip />
@@ -260,4 +275,3 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
     </div>
   );
 }
-         

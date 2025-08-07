@@ -65,6 +65,7 @@ model Category {
   mnName   String
   enName   String
   parentId String?
+  active   Boolean     @default(true)
   parent   Category?  @relation("ParentCategory", fields: [parentId], references: [id])
   children Category[] @relation("ParentCategory")
   products Product[]
@@ -74,6 +75,7 @@ model Brand {
   id       String    @id @default(cuid())
   mnName   String
   enName   String
+  active   Boolean   @default(true)
   products Product[]
 }
 
@@ -89,10 +91,12 @@ model Color {
   name     String
   hex      String
   variants ProductVariant[]
+  active    Boolean         @default(true)
 }
 
 model Size {
   id       String           @id @default(cuid())
+  active   Boolean          @default(true)
   name     String
   variants ProductVariant[]
 }

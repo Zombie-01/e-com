@@ -68,7 +68,28 @@
     "shipping": "Shipping",
     "summary": "Order Summary"
   },
+  "brands": {
+    "title": "Brands",
+    "manageText": "Manage your product brands",
+    "addBrand": "Add Brand",
+    "editBrand": "Edit Brand",
+    "addBrandModalTitle": "Add Brand",
+    "englishNamePlaceholder": "English Name",
+    "mongolianNamePlaceholder": "Mongolian Name",
+    "creating": "Creating...",
+    "updating": "Updating...",
+    "createBrand": "Create Brand",
+    "updateBrand": "Update Brand",
+    "allBrands": "All Brands ({count})",
+    "searchPlaceholder": "Search brands...",
+    "actions": "Actions",
+    "deleteConfirmation": "Are you sure you want to delete this brand?",
+    "deleteFailed": "Failed to delete brand.",
+    "unexpectedError": "Unexpected error occurred while deleting brand."
+  },
   "admin": {
+    "title": "Dashboard",
+    "subtitle": "Dashboard section",
     "dashboard": "Dashboard",
     "dashboardDesc": "Dashboard section",
     "products": "Products",
@@ -78,6 +99,13 @@
     "brands": "Brands",
     "brandsDesc": "Brands section",
     "tags": "Tags",
+    "margin": "Margin",
+    "revenueTrend": "Revenue Trend",
+    "costTrend": "Cost Trend",
+    "marginTrend": "Margin Trend",
+    "value": "Value",
+    "productStockDistribution": "Product Stock Distribution",
+    "costPrice": "Cost price",
     "tagsDesc": "Tags section",
     "banners": "Banners",
     "bannersDesc": "Banners section",
@@ -212,7 +240,19 @@
       "total": "Total Amount",
       "status": "Status",
       "createdAt": "Created At"
-    }
+    },
+    "orderId": "Order ID",
+    "userEmail": "User Email",
+    "userName": "User Name",
+    "total": "Total",
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "createdAt": "Created At"
   },
   "AdminUsers": {
     "pageTitle": "Users",

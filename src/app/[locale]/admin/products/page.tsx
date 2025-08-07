@@ -116,9 +116,6 @@ export default function AdminProductsPage() {
   }, [session, status]);
 
   // Reset variantImages length whenever variants array changes
-  useEffect(() => {
-    setVariantImages(form.variants.map(() => null));
-  }, [form.variants.length]);
 
   const fetchInitialData = async () => {
     try {
@@ -221,7 +218,6 @@ export default function AdminProductsPage() {
       // Remove image field from variants for backend
       const variantsWithoutImage = form.variants.map(({ image, ...v }) => v);
       formData.append("variants", JSON.stringify(variantsWithoutImage));
-
       // Append all images for each variant
       variantImages.forEach((files, idx) => {
         if (files && files.length > 0) {
@@ -317,7 +313,7 @@ export default function AdminProductsPage() {
 
       {/* Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent>
+        <DialogContent className="max-h-[70vh] overflow-auto">
           <DialogHeader>
             <DialogTitle>
               {editingProduct
@@ -343,6 +339,7 @@ export default function AdminProductsPage() {
               />
               <Input
                 name="sku"
+                type="number"
                 value={form.sku}
                 onChange={handleFormChange}
                 placeholder={t("dialog.sku")}

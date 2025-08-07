@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 // GET: Get all colors
 export async function GET() {
-  const colors = await prisma.color.findMany();
+  const colors = await prisma.color.findMany({ where: { active: true } });
   return NextResponse.json(colors);
 }
 
@@ -54,38 +54,70 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-// DELETE: Delete color
+// DELETE: Soft-delete or hard-delete color
 export async function DELETE(req: NextRequest) {
   try {
-    const id = req.nextUrl.searchParams.get("id");
+    const colorId = req.nextUrl.searchParams.get("id");
 
-    if (!id) {
-      return NextResponse.json({ error: "Missing ID" }, { status: 400 });
+    if (!colorId) {
+      return NextResponse.json({ error: "Missing color ID" }, { status: 400 });
     }
 
-    const inUse = await prisma.productVariant.findFirst({
-      where: { colorId: id },
+    // Check if any active product variant uses this color
+    const activeVariantsUsingColor = await prisma.productVariant.findFirst({
+      where: {
+        colorId,
+        active: true,
+      },
     });
 
-    if (inUse) {
+    if (activeVariantsUsingColor) {
       return NextResponse.json(
         {
-          error:
-            "Cannot delete color; it is used in one or more product variants.",
+          success: false,
+          message:
+            "Cannot deactivate color because there are active product variants using it.",
         },
         { status: 400 }
       );
     }
 
-    await prisma.color.delete({
-      where: { id },
+    // Check if any (active or inactive) variants use this color
+    const variantsUsingColor = await prisma.productVariant.findFirst({
+      where: {
+        colorId,
+      },
     });
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.log(error);
+    if (variantsUsingColor) {
+      // Soft delete: set color active to false
+      await prisma.color.update({
+        where: { id: colorId },
+        data: { active: false },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message:
+          "Color is in use and was deactivated instead of being deleted.",
+      });
+    }
+
+    // No variants use this color: safe to hard delete
+    await prisma.color.delete({
+      where: { id: colorId },
+    });
+
+    return NextResponse.json({ success: true, message: "Color deleted." });
+  } catch (error: any) {
+    console.error("DELETE color error:", error);
+
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "Color not found" }, { status: 404 });
+    }
+
     return NextResponse.json(
-      { error: "Failed to delete color" },
+      { error: "Failed to delete or deactivate color" },
       { status: 500 }
     );
   }

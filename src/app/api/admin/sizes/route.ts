@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 // GET: Fetch all sizes
 export async function GET() {
-  const sizes = await prisma.size.findMany();
+  const sizes = await prisma.size.findMany({ where: { active: true } });
   return NextResponse.json(sizes);
 }
 
@@ -57,23 +57,66 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-// DELETE: Delete a size
 export async function DELETE(req: NextRequest) {
   try {
-    const id = req.nextUrl.searchParams.get("id");
+    const sizeId = req.nextUrl.searchParams.get("id");
 
-    if (!id) {
-      return NextResponse.json({ error: "Missing ID" }, { status: 400 });
+    if (!sizeId) {
+      return NextResponse.json({ error: "Missing size ID" }, { status: 400 });
     }
 
-    await prisma.size.delete({
-      where: { id },
+    // Check if any active product variant uses this size
+    const activeVariantUsingSize = await prisma.productVariant.findFirst({
+      where: {
+        sizeId,
+        active: true,
+      },
     });
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
+    if (activeVariantUsingSize) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Cannot deactivate size because there are active product variants using it.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check if any (active or inactive) variant uses this size
+    const variantUsingSize = await prisma.productVariant.findFirst({
+      where: { sizeId },
+    });
+
+    if (variantUsingSize) {
+      // Soft delete: set size active to false
+      await prisma.size.update({
+        where: { id: sizeId },
+        data: { active: false },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "Size is in use and was deactivated instead of being deleted.",
+      });
+    }
+
+    // No variants use this size: safe to hard delete
+    await prisma.size.delete({
+      where: { id: sizeId },
+    });
+
+    return NextResponse.json({ success: true, message: "Size deleted." });
+  } catch (error: any) {
+    console.error("DELETE size error:", error);
+
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "Size not found" }, { status: 404 });
+    }
+
     return NextResponse.json(
-      { error: "Failed to delete size" },
+      { error: "Failed to delete or deactivate size" },
       { status: 500 }
     );
   }
