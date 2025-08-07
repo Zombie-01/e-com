@@ -3,6 +3,8 @@ services:
     build: .
     ports:
       - "3000:3000"
+    volumes:
+      - ./uploads:/app/public/uploads
     environment:
       DATABASE_URL: "postgresql://orchid_user:orchid_password@db:5432/orchid_db"
       NEXTAUTH_SECRET: "b4d8e56a2c3f4e8790123456789abcdef1234567890abcdef1234567890abcdef"

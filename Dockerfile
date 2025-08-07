@@ -14,20 +14,29 @@ COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 # Generate Prisma client before building
 RUN npx prisma generate
-
-
-
 RUN npm run build
 
 # 3. Production image
 FROM node:18-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV production
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/prisma ./prisma
+
+# Add a non-root user for security best practices
+RUN addgroup -S node \
+    && adduser -S node -G node
+
+# Copy files from the builder stage
+COPY --from=builder --chown=node:node /app/public ./public
+COPY --from=builder --chown=node:node /app/.next ./.next
+COPY --from=builder --chown=node:node /app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/package.json ./package.json
+COPY --from=builder --chown=node:node /app/prisma ./prisma
+
+# Ensure the uploads directory is owned by the 'node' user
+RUN mkdir -p /app/public/uploads && chown -R node:node /app/public/uploads
+
+# Switch to the non-root user
+USER node
 
 EXPOSE 3000
 CMD ["npm", "start"]
