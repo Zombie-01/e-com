@@ -21,9 +21,6 @@ FROM node:18-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV production
 
-# Add a non-root user for security best practices
-RUN addgroup -S node \
-    && adduser -S node -G node
 
 # Copy files from the builder stage
 COPY --from=builder --chown=node:node /app/public ./public
