@@ -149,7 +149,7 @@ export default function CartPage() {
           handlePaymentSuccess();
           setInvoice(null);
         }}
-        ammount={getTotalPrice().toFixed(0)}
+        amount={getTotalPrice().toFixed(0)}
         // Add other props if needed
         // When payment confirmed inside modal, call handlePaymentSuccess
         // We'll pass handlePaymentSuccess below via callback or via prop
