@@ -17,7 +17,7 @@ interface InvoiceModalProps {
   onClose: () => void;
   courseId?: string;
   isLesson?: boolean;
-  ammount: string;
+  amount: string;
 }
 
 export const InvoiceModal: React.FC<InvoiceModalProps> = ({
@@ -26,7 +26,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
   onClose,
   courseId,
   isLesson,
-  ammount,
+  amount,
 }) => {
   const [isPaid, setIsPaid] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
@@ -123,9 +123,9 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
         <div className="bg-white rounded-lg max-w-xs w-full p-4 shadow-lg text-center">
           <h2 className="text-lg font-semibold mb-2">QPAY-р төлөх</h2>
 
-          {ammount && (
+          {amount && (
             <div className="text-red-600 font-semibold text-xl mb-3">
-              {ammount.toLocaleString()}₮
+              {amount.toLocaleString()}₮
             </div>
           )}
 
