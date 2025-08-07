@@ -69,10 +69,19 @@
     "summary": "Захиалгын хураангуй"
   },
   "admin": {
+    "title": "Хяналтын Самбар",
+    "costPrice": "Өртөг үнэ",
+    "margin": "Маржин",
+    "subtitle": "Хяналтын самбар хэсэг",
     "dashboard": "Хяналтын Самбар",
     "dashboardDesc": "Хяналтын самбар хэсэг",
     "products": "Бүтээгдэхүүн",
     "productsDesc": "Бүтээгдэхүүний хэсэг",
+    "revenueTrend": "Орлогын Хандлага",
+    "costTrend": "Зардлын Хандлага",
+    "marginTrend": "Орлогын Зөрүүгийн Хандлага",
+    "value": "Утга",
+    "productStockDistribution": "Бүтээгдэхүүний Үлдэгдлийн Түгээлт",
     "categories": "Ангилал",
     "categoriesDesc": "Ангиллын хэсэг",
     "brands": "Брэнд",
@@ -88,6 +97,25 @@
     "users": "Хэрэглэгч",
     "usersDesc": "Хэрэглэгчийн хэсэг",
     "revenue": "Ашиг"
+  },
+  "brands": {
+    "title": "Брэндүүд",
+    "manageText": "Бүтээгдэхүүний брэндүүдийг удирдах",
+    "addBrand": "Шинээр брэнд нэмэх",
+    "editBrand": "Брэнд засах",
+    "addBrandModalTitle": "Брэнд нэмэх",
+    "englishNamePlaceholder": "Англи нэр",
+    "mongolianNamePlaceholder": "Монгол нэр",
+    "creating": "Үүсгэж байна...",
+    "updating": "Шинэчилж байна...",
+    "createBrand": "Брэнд үүсгэх",
+    "updateBrand": "Брэнд шинэчлэх",
+    "allBrands": "Бүх брэндүүд ({count})",
+    "searchPlaceholder": "Брэндүүдээс хайх...",
+    "actions": "Үйлдлүүд",
+    "deleteConfirmation": "Та энэ брэндийг устгахдаа итгэлтэй байна уу?",
+    "deleteFailed": "Брэндийг устгах амжилтгүй боллоо.",
+    "unexpectedError": "Брэндийг устгах үед алдаа гарлаа."
   },
   "auth": {
     "welcome_back": "Тавтай морил",
@@ -212,7 +240,19 @@
       "total": "Нийт дүн",
       "status": "Төлөв",
       "createdAt": "Үүссэн огноо"
-    }
+    },
+    "orderId": "Захиалгын дугаар",
+    "userEmail": "Имэйл хаяг",
+    "userName": "Хэрэглэгчийн нэр",
+    "total": "Нийт дүн",
+    "status": {
+      "pending": "Хүлээгдэж буй",
+      "processing": "Боловсруулж байна",
+      "shipped": "Илгээсэн",
+      "delivered": "Хүргэгдсэн",
+      "cancelled": "Цуцлагдсан"
+    },
+    "createdAt": "Үүсгэсэн огноо"
   },
   "AdminUsers": {
     "pageTitle": "Хэрэглэгчид",

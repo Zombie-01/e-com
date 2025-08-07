@@ -41,7 +41,7 @@ async function getProducts(searchParams: any) {
 async function getFilterData() {
   const [brands, categories] = await Promise.all([
     prisma.brand.findMany(),
-    prisma.category.findMany(),
+    prisma.category.findMany({ where: { active: true } }),
   ]);
 
   return { brands, categories };

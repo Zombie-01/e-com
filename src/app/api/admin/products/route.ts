@@ -79,6 +79,7 @@ export async function POST(request: NextRequest) {
       let imgIdx = 0;
       while (true) {
         const fileKey = `variantImage_${i}_${imgIdx}`;
+
         const file = formData.get(fileKey) as File;
         if (file && file.name) {
           files.push(file);

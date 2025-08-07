@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
 // READ all brands
 export async function GET() {
-  const brands = await prisma.brand.findMany();
+  const brands = await prisma.brand.findMany({ where: { active: true } });
   return NextResponse.json(brands);
 }
 
@@ -62,7 +62,6 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// DELETE brand
 export async function DELETE(request: NextRequest) {
   try {
     const result = await requireAdmin(request);
@@ -77,11 +76,31 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const deleted = await prisma.brand.delete({
-      where: { id },
+    // Check if any active products exist for this brand
+    const activeProductsCount = await prisma.product.count({
+      where: {
+        brandId: id,
+        active: true,
+      },
     });
 
-    return NextResponse.json(deleted);
+    if (activeProductsCount > 0) {
+      return NextResponse.json(
+        {
+          message:
+            "Cannot deactivate brand: there are active products under this brand.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // No active products, safe to deactivate brand
+    const updatedBrand = await prisma.brand.update({
+      where: { id },
+      data: { active: false },
+    });
+
+    return NextResponse.json(updatedBrand);
   } catch (error: any) {
     console.error("DELETE brand error:", error);
 

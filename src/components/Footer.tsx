@@ -22,7 +22,7 @@ export const Footer = ({ menuItems = [], bottomLinks = [] }: FooterProps) => {
   const t = useTranslations("footer");
 
   return (
-    <section className="py-16">
+    <section className="py-16 px-4">
       <div className="container mx-auto">
         <footer>
           <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">

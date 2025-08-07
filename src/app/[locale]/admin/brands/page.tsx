@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import {
   Card,
@@ -32,6 +33,8 @@ import {
 import { Plus, Search, Edit, Trash2 } from "lucide-react";
 
 export default function AdminBrandsPage() {
+  const t = useTranslations("brands");
+
   const { data: session, status } = useSession();
   const [brands, setBrands] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -102,7 +105,7 @@ export default function AdminBrandsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this brand?")) return;
+    if (!confirm(t("deleteConfirmation"))) return;
 
     try {
       const res = await fetch("/api/admin/brands", {
@@ -116,33 +119,33 @@ export default function AdminBrandsPage() {
         router.refresh();
       } else {
         const data = await res.json();
-        console.error("Failed to delete brand:", data.message);
-        alert(data.message || "Failed to delete brand.");
+        console.error(t("deleteFailed"), data.message);
+        alert(data.message || t("deleteFailed"));
       }
     } catch (err) {
-      console.error("Error deleting brand:", err);
-      alert("Unexpected error occurred while deleting brand.");
+      console.error(t("unexpectedError"), err);
+      alert(t("unexpectedError"));
     }
   };
 
   if (status === "loading" || loading) {
-    return (
-      <div className="p-8 text-center text-gray-500">Loading brands...</div>
-    );
+    return <div className="p-8 text-center text-gray-500">{t("loading")}</div>;
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Brands</h1>
-          <p className="text-gray-600">Manage your product brands</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            {t("title")}
+          </h1>
+          <p className="text-gray-600">{t("manageText")}</p>
         </div>
         <Button
           className="flex items-center space-x-2"
           onClick={() => setShowModal(true)}>
           <Plus className="h-4 w-4" />
-          <span>Add Brand</span>
+          <span>{t("addBrand")}</span>
         </Button>
       </div>
 
@@ -150,19 +153,21 @@ export default function AdminBrandsPage() {
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{form.id ? "Edit Brand" : "Add Brand"}</DialogTitle>
+            <DialogTitle>
+              {form.id ? t("editBrand") : t("addBrandModalTitle")}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               name="enName"
-              placeholder="English Name"
+              placeholder={t("englishNamePlaceholder")}
               value={form.enName}
               onChange={handleFormChange}
               required
             />
             <Input
               name="mnName"
-              placeholder="Mongolian Name"
+              placeholder={t("mongolianNamePlaceholder")}
               value={form.mnName}
               onChange={handleFormChange}
               required
@@ -171,11 +176,11 @@ export default function AdminBrandsPage() {
               <Button type="submit" disabled={submitting}>
                 {submitting
                   ? form.id
-                    ? "Updating..."
-                    : "Creating..."
+                    ? t("updating")
+                    : t("creating")
                   : form.id
-                  ? "Update Brand"
-                  : "Create Brand"}
+                  ? t("updateBrand")
+                  : t("createBrand")}
               </Button>
             </DialogFooter>
           </form>
@@ -185,11 +190,11 @@ export default function AdminBrandsPage() {
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>All Brands ({brands.length})</CardTitle>
+            <CardTitle>{t("allBrands", { count: brands.length })}</CardTitle>
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search brands..."
+                placeholder={t("searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -201,9 +206,9 @@ export default function AdminBrandsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>English Name</TableHead>
-                <TableHead>Mongolian Name</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("englishNamePlaceholder")}</TableHead>
+                <TableHead>{t("mongolianNamePlaceholder")}</TableHead>
+                <TableHead>{t("actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

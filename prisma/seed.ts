@@ -1,32 +1,47 @@
 // prisma/seed.ts
 
-// Use CommonJS require for compatibility with Node.js and Docker
 const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcryptjs");
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminEmail = "admin@orchid.com";
-  const existingAdmin = await prisma.user.findUnique({
-    where: { email: adminEmail },
-  });
+  const admins = [
+    {
+      email: "admin@orchid.com",
+      password: "orchid!123",
+      name: "Admin",
+      role: "ADMIN",
+    },
+    {
+      email: "superadmin@orchid.com",
+      password: "superorchid!123",
+      name: "Super Admin",
+      role: "ADMIN",
+    },
+  ];
 
-  if (!existingAdmin) {
-    const hashedPassword = await bcrypt.hash("orchid!123", 10);
-
-    await prisma.user.create({
-      data: {
-        email: adminEmail,
-        password: hashedPassword,
-        name: "Admin",
-        role: "ADMIN",
-      },
+  for (const admin of admins) {
+    const existingAdmin = await prisma.user.findUnique({
+      where: { email: admin.email },
     });
 
-    console.log("✅ Admin user created.");
-  } else {
-    console.log("ℹ️ Admin user already exists.");
+    if (!existingAdmin) {
+      const hashedPassword = await bcrypt.hash(admin.password, 10);
+
+      await prisma.user.create({
+        data: {
+          email: admin.email,
+          password: hashedPassword,
+          name: admin.name,
+          role: admin.role,
+        },
+      });
+
+      console.log(`✅ Admin user created: ${admin.email}`);
+    } else {
+      console.log(`ℹ️ Admin user already exists: ${admin.email}`);
+    }
   }
 }
 

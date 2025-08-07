@@ -22,7 +22,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  const categories = await prisma.category.findMany();
+  const categories = await prisma.category.findMany({
+    where: { active: true },
+  });
   return NextResponse.json(categories);
 }
 
@@ -63,19 +65,46 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await prisma.category.delete({
-      where: { id },
+    // Check for active products with this category
+    const activeProductsCount = await prisma.product.count({
+      where: {
+        categoryId: id,
+        active: true,
+      },
     });
 
-    return NextResponse.json({ message: "Category deleted" });
+    if (activeProductsCount > 0) {
+      return NextResponse.json(
+        {
+          message:
+            "Cannot delete category: there are active products in this category.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Soft delete: set active = false
+    const updatedCategory = await prisma.category.update({
+      where: { id },
+      data: { active: false },
+    });
+
+    return NextResponse.json(updatedCategory);
   } catch (error: any) {
     console.error("Delete category error:", error);
 
     if (error.code === "P2003") {
-      // Foreign key constraint failure
       return NextResponse.json(
         { message: "Cannot delete category: it is used by other records." },
         { status: 400 }
+      );
+    }
+
+    if (error.code === "P2025") {
+      // Record not found
+      return NextResponse.json(
+        { message: "Category not found" },
+        { status: 404 }
       );
     }
 

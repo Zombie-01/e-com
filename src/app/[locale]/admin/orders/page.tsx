@@ -10,16 +10,16 @@ import {
   CardTitle,
 } from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/src/components/ui/table";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+
+enum OrderStatus {
+  PENDING = "PENDING",
+  PROCESSING = "PROCESSING",
+  SHIPPED = "SHIPPED",
+  DELIVERED = "DELIVERED",
+  CANCELLED = "CANCELLED",
+}
 
 export default function AdminOrdersPage() {
   const { data: session, status } = useSession();
@@ -32,7 +32,6 @@ export default function AdminOrdersPage() {
     new Set()
   );
 
-  // Initialize useTranslation hook
   const t = useTranslations("orders");
   const locale = useLocale();
 
@@ -73,13 +72,43 @@ export default function AdminOrdersPage() {
   const toggleExpand = (orderId: string) => {
     setExpandedOrderIds((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(orderId)) {
-        newSet.delete(orderId);
-      } else {
-        newSet.add(orderId);
-      }
+      newSet.has(orderId) ? newSet.delete(orderId) : newSet.add(orderId);
       return newSet;
     });
+  };
+
+  const getStatusLabel = (status: OrderStatus) => {
+    switch (status) {
+      case OrderStatus.PENDING:
+        return t("status.pending");
+      case OrderStatus.PROCESSING:
+        return t("status.processing");
+      case OrderStatus.SHIPPED:
+        return t("status.shipped");
+      case OrderStatus.DELIVERED:
+        return t("status.delivered");
+      case OrderStatus.CANCELLED:
+        return t("status.cancelled");
+      default:
+        return status;
+    }
+  };
+
+  const getStatusBadgeColor = (status: OrderStatus) => {
+    switch (status) {
+      case OrderStatus.PENDING:
+        return "bg-yellow-100 text-yellow-800";
+      case OrderStatus.PROCESSING:
+        return "bg-blue-100 text-blue-800";
+      case OrderStatus.SHIPPED:
+        return "bg-indigo-100 text-indigo-800";
+      case OrderStatus.DELIVERED:
+        return "bg-green-100 text-green-800";
+      case OrderStatus.CANCELLED:
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
   };
 
   if (status === "loading" || loading) {
@@ -88,164 +117,152 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">{t("orders")}</h1>
-        <p className="text-gray-600">{t("manageOrdersDescription")}</p>
-      </div>
+      <h1 className="text-4xl font-bold text-gray-900 mb-2">{t("orders")}</h1>
+      <p className="text-gray-600 mb-6">{t("manageOrdersDescription")}</p>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            {t("allOrders", { page: page, totalPages: totalPages })}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t("table.orderId")}</TableHead>
-                <TableHead>{t("table.userEmail")}</TableHead>
-                <TableHead>{t("table.userName")}</TableHead>
-                <TableHead>{t("table.phone")}</TableHead>
-                <TableHead>{t("table.total")}</TableHead>
-                <TableHead>{t("table.status")}</TableHead>
-                <TableHead>{t("table.createdAt")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center">
-                    {t("noOrdersFound")}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                orders.map((order) => (
-                  <tbody key={order.id}>
-                    <TableRow
-                      className="cursor-pointer hover:bg-gray-100"
-                      onClick={() => toggleExpand(order.id)}
-                      title={t("clickToExpand")}>
-                      <TableCell>{order.id}</TableCell>
-                      <TableCell>{order.user?.email || "N/A"}</TableCell>
-                      <TableCell>{order.user?.name || "N/A"}</TableCell>
-                      <TableCell>
+      {orders.length === 0 ? (
+        <div className="text-center text-gray-600">{t("noOrdersFound")}</div>
+      ) : (
+        <div className="space-y-6">
+          {orders.map((order) => (
+            <Card
+              key={order.id}
+              className="cursor-pointer border hover:shadow-md transition"
+              onClick={() => toggleExpand(order.id)}
+              title={t("clickToExpand")}>
+              <CardHeader>
+                <CardTitle className="flex justify-between items-center">
+                  <span>
+                    {t("orderId")}: {order.id}
+                  </span>
+                  <span
+                    className={`px-2 py-1 text-xs rounded ${getStatusBadgeColor(
+                      order.status
+                    )}`}>
+                    {getStatusLabel(order.status)}
+                  </span>
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="space-y-2">
+                <div>
+                  <strong>{t("userEmail")}:</strong>{" "}
+                  {order.user?.email || "N/A"}
+                </div>
+                <div>
+                  <strong>{t("userName")}:</strong> {order.user?.name || "N/A"}
+                </div>
+                <div>
+                  <strong>{t("phone")}:</strong>{" "}
+                  {order.user?.addresses?.[0]?.phone || "N/A"}
+                </div>
+                <div>
+                  <strong>{t("total")}:</strong> ${order.total.toFixed(2)}
+                </div>
+                <div>
+                  <strong>{t("createdAt")}:</strong>{" "}
+                  {new Date(order.createdAt).toLocaleString()}
+                </div>
+
+                {expandedOrderIds.has(order.id) && (
+                  <div className="mt-4 space-y-4 border-t pt-4">
+                    <div>
+                      <h3 className="font-semibold text-lg mb-2">
+                        {t("deliveryDetails")}
+                      </h3>
+                      <div>
+                        <strong>{t("option")}:</strong>{" "}
+                        {locale === "mn"
+                          ? order.delivery?.mnName
+                          : order.delivery?.enName}
+                      </div>
+                      <div>
+                        <strong>{t("price")}:</strong> $
+                        {order.delivery?.price?.toFixed(2) || "0.00"}
+                      </div>
+                      <div>
+                        <strong>{t("eta")}:</strong>{" "}
+                        {order.delivery?.etaDays ||
+                          t("etaDays", {
+                            days: order.delivery?.etaDays || "N/A",
+                          })}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-lg mb-2">
+                        {t("customerDetails")}
+                      </h3>
+                      <div>
+                        <strong>{t("address")}:</strong>{" "}
+                        {order.user?.addresses?.[0]?.fullName || "N/A"}
+                      </div>
+                      <div>
+                        <strong>{t("email")}:</strong>{" "}
+                        {order.user?.email || "N/A"}
+                      </div>
+                      <div>
+                        <strong>{t("phone")}:</strong>{" "}
                         {order.user?.addresses?.[0]?.phone || "N/A"}
-                      </TableCell>
-                      <TableCell>${order.total.toFixed(2)}</TableCell>
-                      <TableCell>{order.status}</TableCell>
-                      <TableCell>
-                        {new Date(order.createdAt).toLocaleString()}
-                      </TableCell>
-                    </TableRow>
-                    {expandedOrderIds.has(order.id) && (
-                      <TableRow className="bg-gray-50">
-                        <TableCell colSpan={7} className="p-4">
-                          <div className="grid md:grid-cols-2 gap-4">
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-lg mb-2">
+                        {t("orderItems")}
+                      </h3>
+                      <ul className="space-y-3">
+                        {order.items.map((item: any) => (
+                          <li
+                            key={item.id}
+                            className="flex items-center space-x-4 border p-2 rounded">
+                            <img
+                              src={item.productVariant?.image}
+                              alt={
+                                item.productVariant?.product?.enName ||
+                                "Product"
+                              }
+                              className="w-16 h-16 object-cover rounded"
+                            />
                             <div>
-                              <h3 className="font-bold text-lg mb-2">
-                                {t("deliveryDetails")}
-                              </h3>
-                              <div className="mb-2">
-                                <strong>{t("option")}:</strong>{" "}
+                              <div className="font-medium">
                                 {locale === "mn"
-                                  ? order.delivery?.mnName || "N/A"
-                                  : order.delivery?.enName || "N/A"}
+                                  ? item.productVariant?.product?.mnName
+                                  : item.productVariant?.product?.enName}
                               </div>
-                              <div className="mb-2">
-                                <strong>{t("price")}:</strong> $
-                                {order.delivery?.price?.toFixed(2) || "0.00"}
+                              <div className="text-sm text-gray-600">
+                                {t("quantity")}: {item.quantity} × $
+                                {item.unitPrice?.toFixed(2) || "0.00"}
                               </div>
-                              <div className="mb-2">
-                                <strong>{t("eta")}:</strong>{" "}
-                                {t("etaDays", {
-                                  days: order.delivery?.etaDays || "N/A",
-                                })}
+                              <div className="text-sm text-gray-600">
+                                {t("subtotal")}: $
+                                {(item.quantity * item.unitPrice).toFixed(2)}
                               </div>
                             </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
-                            <div>
-                              <h3 className="font-bold text-lg mb-2">
-                                {t("customerDetails")}
-                              </h3>
-                              <div className="mb-2">
-                                <strong>{t("address")}:</strong>{" "}
-                                {order.user?.addresses?.[0]?.fullName || "N/A"}
-                              </div>
-                              <div className="mb-2">
-                                <strong>{t("email")}:</strong>{" "}
-                                {order.user?.email || "N/A"}
-                              </div>
-                              <div className="mb-2">
-                                <strong>{t("phone")}:</strong>{" "}
-                                {order.user?.addresses?.[0]?.phone || "N/A"}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="mt-4">
-                            <h3 className="font-bold text-lg mb-2">
-                              {t("orderItems")}
-                            </h3>
-                            <ul className="space-y-4">
-                              {order.items.map((item: any) => (
-                                <li
-                                  key={item.id}
-                                  className="flex items-center space-x-4 border p-2 rounded-md">
-                                  <img
-                                    src={item.productVariant?.image}
-                                    alt={
-                                      item.productVariant?.product?.enName ||
-                                      "Product image"
-                                    }
-                                    className="w-16 h-16 object-cover rounded"
-                                  />
-                                  <div>
-                                    <div className="font-semibold text-gray-900">
-                                      {locale === "mn"
-                                        ? item.productVariant?.product
-                                            ?.mnName || "N/A"
-                                        : item.productVariant?.product
-                                            ?.enName || "N/A"}
-                                    </div>
-                                    <div className="text-gray-600 text-sm">
-                                      {t("quantity")}: {item.quantity} × $
-                                      {item.unitPrice?.toFixed(2) || "0.00"}
-                                    </div>
-                                    <div className="text-gray-600 text-sm">
-                                      {t("subtotal")}: $
-                                      {(item.quantity * item.unitPrice).toFixed(
-                                        2
-                                      )}
-                                    </div>
-                                  </div>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </tbody>
-                ))
-              )}
-            </TableBody>
-          </Table>
-
-          <div className="flex justify-center mt-4 space-x-4">
-            <Button
-              onClick={() => setPage((p) => Math.max(p - 1, 1))}
-              disabled={page === 1}>
-              <ChevronLeft className="w-4 h-4" /> {t("previous")}
-            </Button>
-            <Button
-              onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-              disabled={page === totalPages}>
-              {t("next")} <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex justify-center mt-8 space-x-4">
+        <Button
+          onClick={() => setPage((p) => Math.max(p - 1, 1))}
+          disabled={page === 1}>
+          <ChevronLeft className="w-4 h-4" /> {t("previous")}
+        </Button>
+        <Button
+          onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+          disabled={page === totalPages}>
+          {t("next")} <ChevronRight className="w-4 h-4" />
+        </Button>
+      </div>
     </div>
   );
 }
