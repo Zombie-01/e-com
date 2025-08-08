@@ -15,8 +15,8 @@ interface InvoiceModalProps {
   invoice: Invoice | null;
   isOpen: boolean;
   onClose: () => void;
-  courseId?: string;
   isLesson?: boolean;
+  token: string | null | undefined;
   amount: string;
 }
 
@@ -24,9 +24,9 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
   invoice,
   isOpen,
   onClose,
-  courseId,
   isLesson,
   amount,
+  token,
 }) => {
   const [isPaid, setIsPaid] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
@@ -38,7 +38,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
     const interval = setInterval(async () => {
       try {
         const res = await fetch(
-          `/api/user/check-invoice?invoice_id=${invoice.invoice_id}`
+          `/api/user/check-invoice?invoice_id=${invoice.invoice_id}&token=${token}`
         );
         const data = await res.json();
         if (data.status === "CLOSED") {
@@ -66,13 +66,13 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
     };
 
     enrollUser();
-  }, [isPaid, enrolled, courseId, isLesson]);
+  }, [isPaid, enrolled, isLesson]);
 
   const checkInvoice = async () => {
     if (!invoice) return;
     try {
       const res = await fetch(
-        `/api/user/check-invoice?invoice_id=${invoice.invoice_id}`
+        `/api/user/check-invoice?invoice_id=${invoice.invoice_id}&token=${token}`
       );
       const data = await res.json();
       if (data.status === "CLOSED") {

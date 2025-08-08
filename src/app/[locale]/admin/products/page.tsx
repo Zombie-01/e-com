@@ -339,7 +339,6 @@ export default function AdminProductsPage() {
               />
               <Input
                 name="sku"
-                type="number"
                 value={form.sku}
                 onChange={handleFormChange}
                 placeholder={t("dialog.sku")}
