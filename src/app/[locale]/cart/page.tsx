@@ -19,10 +19,10 @@ export default function CartPage() {
     invoice_id: string;
     qr_image: string;
     qPay_shortUrl: string;
+    token: string;
   }>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [orderCreated, setOrderCreated] = useState(false);
 
   // Called when modal detects payment success
   async function handlePaymentSuccess() {
@@ -43,7 +43,6 @@ export default function CartPage() {
 
       if (!orderRes.ok) throw new Error("Order creation failed");
 
-      setOrderCreated(true);
       clearCart();
       alert("Order placed successfully!");
       window.location.href = "/profile";
@@ -68,6 +67,7 @@ export default function CartPage() {
           amount: getTotalPrice(),
           invoiceNumber: `${Date.now()}`,
           invoiceReceiverCode: "1",
+          items,
         }),
       });
 
@@ -144,6 +144,7 @@ export default function CartPage() {
       <InvoiceModal
         invoice={invoice as any}
         isOpen={modalOpen}
+        token={invoice?.token}
         onClose={() => {
           setModalOpen(false);
           handlePaymentSuccess();
