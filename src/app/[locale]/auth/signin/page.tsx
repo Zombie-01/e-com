@@ -8,14 +8,19 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/src/components/ui/card";
 import { Alert, AlertDescription } from "@/src/components/ui/alert";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 
 export default function SignInPage({
-  params: { locale }
+  params: { locale },
 }: {
-  params: { locale: string }
+  params: { locale: string };
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -54,6 +59,10 @@ export default function SignInPage({
     }
   };
 
+  const signInWithGoogle = async () => {
+    await signIn("google", { callbackUrl: `/${locale}` });
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 px-4">
       <Card className="w-full max-w-md shadow-xl border-0">
@@ -61,11 +70,23 @@ export default function SignInPage({
           <CardTitle className="text-3xl font-bold text-gray-900 mb-2">
             {t("welcome_back")}
           </CardTitle>
-          <p className="text-gray-600">
-            {t("sign_in_to_continue")}
-          </p>
+          <p className="text-gray-600">{t("sign_in_to_continue")}</p>
         </CardHeader>
         <CardContent>
+          <div className="space-y-3 mb-6">
+            <Button
+              onClick={signInWithGoogle}
+              className="w-full"
+              variant="outline">
+              Continue with Google
+            </Button>
+            <div className="flex items-center gap-2">
+              <div className="h-px flex-1 bg-gray-200" />
+              <span className="text-xs text-gray-500">or</span>
+              <div className="h-px flex-1 bg-gray-200" />
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <Alert className="border-red-200 bg-red-50">
@@ -76,7 +97,9 @@ export default function SignInPage({
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="email"
+                className="text-sm font-medium text-gray-700">
                 {t("email_address")}
               </Label>
               <div className="relative">
@@ -94,7 +117,9 @@ export default function SignInPage({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="password"
+                className="text-sm font-medium text-gray-700">
                 {t("password")}
               </Label>
               <div className="relative">
@@ -104,41 +129,39 @@ export default function SignInPage({
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   placeholder={t("enter_password")}
                   required
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => setShowPassword((v) => !v)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  aria-label={showPassword ? t("hide_password") : t("show_password")}
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  aria-label={
+                    showPassword ? t("hide_password") : t("show_password")
+                  }>
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium"
-            >
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? t("signing_in") : t("sign_in")}
             </Button>
-          </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-gray-600">
+            <div className="text-center text-sm text-gray-600">
               {t("no_account")}{" "}
               <Link
                 href={`/${locale}/auth/signup`}
-                className="text-blue-600 hover:text-blue-700 font-medium"
-              >
+                className="text-blue-600 hover:underline">
                 {t("sign_up")}
               </Link>
-            </p>
-          </div>
+            </div>
+          </form>
         </CardContent>
       </Card>
     </div>
