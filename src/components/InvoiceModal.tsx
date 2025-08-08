@@ -15,6 +15,7 @@ interface InvoiceModalProps {
   invoice: Invoice | null;
   isOpen: boolean;
   onClose: () => void;
+  onEnd: () => void;
   isLesson?: boolean;
   token: string | null | undefined;
   amount: string;
@@ -27,6 +28,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
   isLesson,
   amount,
   token,
+  onEnd,
 }) => {
   const [isPaid, setIsPaid] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
@@ -42,6 +44,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
         );
         const data = await res.json();
         if (data.status === "CLOSED") {
+          onEnd();
           onClose();
           clearInterval(interval);
           setIsPaid(true);
@@ -76,6 +79,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
       );
       const data = await res.json();
       if (data.status === "CLOSED") {
+        onEnd();
         onClose();
         setIsPaid(true);
       } else {

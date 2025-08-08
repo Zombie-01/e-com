@@ -147,13 +147,14 @@ export default function CartPage() {
         token={invoice?.token}
         onClose={() => {
           setModalOpen(false);
-          handlePaymentSuccess();
+
           setInvoice(null);
+        }}
+        onEnd={() => {
+          handlePaymentSuccess();
         }}
         amount={getTotalPrice().toFixed(0)}
         // Add other props if needed
-        // When payment confirmed inside modal, call handlePaymentSuccess
-        // We'll pass handlePaymentSuccess below via callback or via prop
       />
     </>
   );
