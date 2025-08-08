@@ -57,7 +57,7 @@ export default function FeaturedProducts({
                   {locale === "mn" ? product.mnName : product.enName}
                 </h3>
                 <p className="text-lg font-bold text-blue-600">
-                  ₮{product.price.toFixed(2)}
+                  ₮{product.price.toLocaleString()}
                 </p>
               </div>
             </CardContent>

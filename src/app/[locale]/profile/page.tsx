@@ -345,7 +345,7 @@ export default function ProfilePage() {
                           </div>
                           <div className="text-right">
                             <p className="font-semibold text-slate-900">
-                              ${order.total.toFixed(2)}
+                              ${order.total.toLocaleString()}
                             </p>
                             <p className="text-sm text-slate-600">
                               {new Date(order.createdAt).toLocaleDateString()}
@@ -364,7 +364,7 @@ export default function ProfilePage() {
                                 × {item.quantity}
                               </span>
                               <span className="text-slate-600">
-                                ${item.unitPrice.toFixed(2)}
+                                ${item.unitPrice.toLocaleString()}
                               </span>
                             </div>
                           ))}
@@ -412,7 +412,7 @@ export default function ProfilePage() {
                                 <div className="flex justify-between">
                                   <span>{t("orderDetails.total")}:</span>
                                   <span className="font-semibold">
-                                    ${order.total.toFixed(2)}
+                                    ${order.total.toLocaleString()}
                                   </span>
                                 </div>
                                 <div className="flex justify-between">

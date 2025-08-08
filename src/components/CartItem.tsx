@@ -54,7 +54,7 @@ export default function CartItem({ item }: { item: CartItemProps }) {
               {item.size && ` • Size: ${item.size.name}`}
             </p>
             <p className="font-semibold text-blue-600 mt-1">
-              ₮{item.price.toFixed(2)}
+              ₮{item.price.toLocaleString()}
             </p>
           </div>
 
@@ -78,7 +78,7 @@ export default function CartItem({ item }: { item: CartItemProps }) {
 
           <div className="text-right">
             <p className="font-semibold text-gray-900">
-              ₮{(item.price * item.quantity).toFixed(2)}
+              ₮{(item.price * item.quantity).toLocaleString()}
             </p>
             <Button
               variant="ghost"
