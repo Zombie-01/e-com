@@ -95,38 +95,6 @@ export default function ProductDetails({
   );
   const [quantity, setQuantity] = useState(1);
 
-  // When selectedColor or selectedSize changes, update selectedVariant accordingly
-  useEffect(() => {
-    if (!selectedColor || !selectedSize) return;
-
-    const variant = product.variants.find(
-      (v) =>
-        v.colorId === selectedColor.id &&
-        v.sizeId === selectedSize.id &&
-        v.active !== false
-    );
-
-    if (variant) {
-      setSelectedVariant(variant);
-
-      // Only reset image if currently selected image is not in the new variant
-      if (!variant.image?.includes(selectedImage || "")) {
-        setSelectedImage(variant.image?.[0] || allImages[0]);
-      }
-
-      setQuantity(1);
-    } else {
-      setSelectedVariant(undefined);
-
-      // Reset to first image from all images only if current image isn't in allImages
-      if (!allImages.includes(selectedImage || "")) {
-        setSelectedImage(allImages[0]);
-      }
-
-      setQuantity(1);
-    }
-  }, [selectedColor, selectedSize, product.variants, allImages, selectedImage]);
-
   const handleAddToCart = () => {
     if (!selectedVariant || selectedVariant.stock < quantity) return;
 
