@@ -23,7 +23,7 @@ interface Variant {
   productId: string;
   colorId: string;
   sizeId: string;
-  image?: string[]; // array of image URLs
+  image?: string[];
   stock: number;
   active: boolean;
   color: Color;
@@ -77,26 +77,55 @@ export default function ProductDetails({
 }: ProductDetailsProps) {
   const t = useTranslations("products");
   const { addItem } = useCartStore();
-  // Flatten all images from all variants for thumbnails
+
+  // Helper: find variant by colorId and sizeId
+  const findVariant = (colorId?: string, sizeId?: string) =>
+    product.variants.find(
+      (v) => v.colorId === colorId && v.sizeId === sizeId && v.active
+    );
+
+  // Flatten all images from all variants for thumbnails (show ALL images always)
   const allImages = product.variants.flatMap((v) => v.image || []);
 
-  // State: selected variant, size, image, quantity
-  const [selectedSize, setSelectedSize] = useState<Size | undefined>(
-    product.variants[0]?.size
-  );
+  // Initial states
+  const initialColor = product.variants[0]?.color;
+  const initialSize = product.variants[0]?.size;
+  const initialVariant = findVariant(initialColor?.id, initialSize?.id);
+
   const [selectedColor, setSelectedColor] = useState<Color | undefined>(
-    product.variants[0]?.color
+    initialColor
+  );
+  const [selectedSize, setSelectedSize] = useState<Size | undefined>(
+    initialSize
   );
   const [selectedVariant, setSelectedVariant] = useState<Variant | undefined>(
-    product.variants[0]
+    initialVariant
   );
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
-    product.variants[0]?.image?.[0] || allImages[0]
+    initialVariant?.image?.[0] || allImages[0]
   );
   const [quantity, setQuantity] = useState(1);
 
+  // This hook is the only one that updates the selected variant.
+  // It ensures the correct price, stock, etc., are used.
+  useEffect(() => {
+    const variant = findVariant(selectedColor?.id, selectedSize?.id);
+    if (variant) {
+      setSelectedVariant(variant);
+      setQuantity(1); // Reset quantity when the variant changes
+    }
+  }, [selectedColor, selectedSize, product.variants]);
+
+  // IMPORTANT: The useEffect hook that automatically reset the main image
+  // has been removed. Now, the main image will only change when a thumbnail is clicked.
+
   const handleAddToCart = () => {
-    if (!selectedVariant || selectedVariant.stock < quantity) return;
+    if (!selectedVariant || selectedVariant.stock < quantity) {
+      console.error(
+        "Cannot add to cart: variant not selected or insufficient stock."
+      );
+      return;
+    }
 
     addItem({
       id: product.id,
@@ -127,12 +156,14 @@ export default function ProductDetails({
           />
         </div>
 
+        {/* Show ALL variant images from all variants here */}
         {allImages.length > 1 && (
           <div className="grid grid-cols-4 gap-2">
             {allImages.map((img, idx) => (
               <button
-                key={idx}
+                key={img + idx}
                 type="button"
+                // This handler is now the ONLY way the main image changes after initial load.
                 onClick={() => setSelectedImage(img)}
                 className={`relative aspect-square rounded-lg overflow-hidden border-2 focus:outline-none focus:ring-2 ${
                   selectedImage === img
@@ -180,12 +211,10 @@ export default function ProductDetails({
               {t("color")}
             </h3>
             <div className="flex space-x-2">
-              {product.variants
-                .map((v) => v.color)
-                .filter(
-                  (color, index, self) =>
-                    self.findIndex((c) => c.id === color.id) === index
-                )
+              {Array.from(
+                new Map(product.variants.map((v) => [v.color.id, v.color]))
+              )
+                .map(([, color]) => color)
                 .map((color) => (
                   <button
                     key={color.id}

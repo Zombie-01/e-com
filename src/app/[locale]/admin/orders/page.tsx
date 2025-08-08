@@ -157,7 +157,7 @@ export default function AdminOrdersPage() {
                   {order.user?.addresses?.[0]?.phone || "N/A"}
                 </div>
                 <div>
-                  <strong>{t("total")}:</strong> ${order.total.toFixed(2)}
+                  <strong>{t("total")}:</strong> ${order.total.toLocaleString()}
                 </div>
                 <div>
                   <strong>{t("createdAt")}:</strong>{" "}
@@ -178,7 +178,7 @@ export default function AdminOrdersPage() {
                       </div>
                       <div>
                         <strong>{t("price")}:</strong> $
-                        {order.delivery?.price?.toFixed(2) || "0.00"}
+                        {order.delivery?.price?.toLocaleString() || "0.00"}
                       </div>
                       <div>
                         <strong>{t("eta")}:</strong>{" "}
@@ -232,11 +232,13 @@ export default function AdminOrdersPage() {
                               </div>
                               <div className="text-sm text-gray-600">
                                 {t("quantity")}: {item.quantity} × $
-                                {item.unitPrice?.toFixed(2) || "0.00"}
+                                {item.unitPrice?.toLocaleString() || "0.00"}
                               </div>
                               <div className="text-sm text-gray-600">
                                 {t("subtotal")}: $
-                                {(item.quantity * item.unitPrice).toFixed(2)}
+                                {(
+                                  item.quantity * item.unitPrice
+                                ).toLocaleString()}
                               </div>
                             </div>
                           </li>

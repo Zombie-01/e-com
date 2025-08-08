@@ -35,7 +35,6 @@ export default function ProductGrid({
     );
   }
 
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {products.map((product) => {
@@ -75,7 +74,7 @@ export default function ProductGrid({
                     {locale === "mn" ? product.mnName : product.enName}
                   </h3>
                   <p className="text-lg font-bold text-blue-600">
-                    ₮{product.price.toFixed(2)}
+                    ₮{product.price.toLocaleString()}
                   </p>
                 </div>
               </CardContent>
