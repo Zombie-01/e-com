@@ -50,7 +50,7 @@ export default function HeroSection({
   const currentBanner = banners[currentSlide];
 
   return (
-    <section className="relative aspect-video overflow-hidden">
+    <section className="relative aspect-video sm:aspect-auto sm:h-[700px] max-h-[70vh] overflow-hidden">
       <div className="relative w-full h-full">
         <Image
           src={
