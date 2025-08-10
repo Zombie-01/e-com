@@ -24,13 +24,9 @@ import {
   ShoppingCart,
   User,
   Menu,
-  X,
-  Globe,
   LogOut,
   Settings,
   Package,
-  CreditCard,
-  MapPin,
   Shield,
   Users,
   BarChart3,
@@ -38,15 +34,12 @@ import {
   FolderTree,
   ShoppingBag,
   Cog,
-  Bell,
-  Heart,
-  History,
-  HelpCircle,
+  Home,
+  Package2,
 } from "lucide-react";
 import { usePathname } from "../i18n/navigation";
 
 export default function Navigation({ locale }: { locale: string }) {
-  const [isOpen, setIsOpen] = useState(false);
   const { data: session } = useSession();
   const t = useTranslations("");
   const { getTotalItems } = useCartStore();
@@ -54,8 +47,8 @@ export default function Navigation({ locale }: { locale: string }) {
   const pathWithoutLocale = pathname.replace(/^\/(en|mn)/, "");
 
   const navItems = [
-    { href: `/${locale}`, label: t("nav.home") },
-    { href: `/${locale}/products`, label: t("nav.products") },
+    { href: `/${locale}`, label: t("nav.home"), icon: Home },
+    { href: `/${locale}/products`, label: t("nav.products"), icon: Package2 },
   ];
 
   // Admin menu items
@@ -107,16 +100,6 @@ export default function Navigation({ locale }: { locale: string }) {
       label: t("admin.settings"),
       icon: Cog,
       description: t("admin.settingsDesc"),
-    },
-  ];
-
-  // User profile menu items
-  const userMenuItems = [
-    {
-      href: `/${locale}/profile`,
-      label: t("profile.settings"),
-      icon: Settings,
-      description: t("profile.settingsDesc"),
     },
   ];
 
@@ -192,202 +175,164 @@ export default function Navigation({ locale }: { locale: string }) {
             </Link>
 
             {/* User Profile */}
-            {session ? (
-              <>
-                {/* Desktop Profile Dropdown */}
-                <div className="hidden md:block">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="relative h-10 w-10 rounded-full hover:ring-2 hover:ring-blue-200 transition-all duration-200">
-                        <Avatar className="h-9 w-9">
-                          <AvatarImage
-                            src={session.user?.image || undefined}
-                            alt={session.user?.name || "User"}
-                          />
-                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-semibold">
-                            {getUserInitials(session.user?.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="w-80 p-2 shadow-xl border-0 bg-white/95 backdrop-blur-md">
-                      {/* User Info Header */}
-                      <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg mb-2">
-                        <Avatar className="h-12 w-12 ring-2 ring-white shadow-sm">
-                          <AvatarImage src={session.user?.image || undefined} />
-                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                            {getUserInitials(session.user?.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 truncate">
-                            {session.user?.name}
-                          </p>
-                          <p className="text-xs text-gray-600 truncate">
-                            {session.user?.email}
-                          </p>
-                          {session.user?.role === "ADMIN" && (
-                            <Badge
-                              variant="secondary"
-                              className="mt-1 text-xs bg-purple-100 text-purple-700 border-purple-200">
-                              <Shield className="w-3 h-3 mr-1" />
-                              {t("common.admin")}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-
-                      <DropdownMenuSeparator className="my-2" />
-
-                      {/* Admin Section */}
-                      {
-                        <>
-                          <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2">
-                            {t("common.administration")}
-                          </DropdownMenuLabel>
-                          {(session.user?.role === "ADMIN"
-                            ? adminMenuItems
-                            : navItems
-                          ).map((item: any) => (
-                            <DropdownMenuItem
-                              key={item.href}
-                              asChild
-                              className="p-0">
-                              <Link
-                                href={item.href}
-                                className="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-purple-50 transition-colors group">
-                                {item?.icon && (
-                                  <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                                    <item.icon className="h-4 w-4 text-purple-600" />
-                                  </div>
-                                )}
-                                <div className="flex-1">
-                                  <p className="text-sm font-medium text-gray-900">
-                                    {item.label}
-                                  </p>
-                                  {item?.description && (
-                                    <p className="text-xs text-gray-500">
-                                      {item.description}
-                                    </p>
-                                  )}
-                                </div>
-                              </Link>
-                            </DropdownMenuItem>
-                          ))}
-                          <DropdownMenuSeparator className="my-2" />
-                        </>
-                      }
-
-                      {/* User Section */}
-                      {session?.user?.role !== "ADMIN" && (
-                        <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2">
-                          {t("common.account")}
-                        </DropdownMenuLabel>
-                      )}
-                      {session?.user?.role !== "ADMIN" &&
-                        userMenuItems.map((item) => (
-                          <DropdownMenuItem
-                            key={item.href}
-                            asChild
-                            className="p-0">
-                            <Link
-                              href={item.href}
-                              className="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-blue-50 transition-colors group">
-                              <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                                <item.icon className="h-4 w-4 text-blue-600" />
-                              </div>
-                              <div className="flex-1">
-                                <p className="text-sm font-medium text-gray-900">
-                                  {item.label}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {item.description}
-                                </p>
-                              </div>
-                            </Link>
-                          </DropdownMenuItem>
-                        ))}
-
-                      <DropdownMenuSeparator className="my-2" />
-
-                      <DropdownMenuSeparator className="my-2" />
-
-                      {/* Sign Out */}
-                      <DropdownMenuItem
-                        onClick={() => signOut()}
-                        className="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-red-50 transition-colors group cursor-pointer">
-                        <div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
-                          <LogOut className="h-4 w-4 text-red-600" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-red-900">
-                            {t("auth.signOut")}
-                          </p>
-                          <p className="text-xs text-red-600">
-                            {t("auth.signOutDesc")}
-                          </p>
-                        </div>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                {/* Mobile Profile Dropdown */}
-                <div className="md:hidden">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="relative">
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={session.user?.image || undefined} />
-                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
-                            {getUserInitials(session.user?.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-64 shadow-lg">
-                      <div className="px-3 py-2">
-                        <p className="text-sm font-medium text-gray-900">
+            <div className="hidden md:block">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-10 w-10 rounded-full hover:ring-2 hover:ring-blue-200 transition-all duration-200">
+                    <Menu />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-80 p-2 shadow-xl border-0 bg-white/95 backdrop-blur-md">
+                  {/* User Info Header */}
+                  {session && (
+                    <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg mb-2">
+                      <Avatar className="h-12 w-12 ring-2 ring-white shadow-sm">
+                        <AvatarImage src={session.user?.image || undefined} />
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+                          {getUserInitials(session.user?.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">
                           {session.user?.name}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-600 truncate">
                           {session.user?.email}
                         </p>
                         {session.user?.role === "ADMIN" && (
-                          <Badge variant="secondary" className="mt-1 text-xs">
+                          <Badge
+                            variant="secondary"
+                            className="mt-1 text-xs bg-purple-100 text-purple-700 border-purple-200">
+                            <Shield className="w-3 h-3 mr-1" />
                             {t("common.admin")}
                           </Badge>
                         )}
                       </div>
-                      <DropdownMenuSeparator />
+                    </div>
+                  )}
 
-                      {userMenuItems.slice(0, 3).map((item) => (
-                        <DropdownMenuItem key={item.href} asChild>
+                  <DropdownMenuSeparator className="my-2" />
+
+                  {/* Admin Section */}
+                  {
+                    <>
+                      <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2">
+                        {t("common.administration")}
+                      </DropdownMenuLabel>
+                      {(session && session.user?.role == "ADMIN"
+                        ? adminMenuItems
+                        : navItems
+                      ).map((item: any) => (
+                        <DropdownMenuItem
+                          key={item.href}
+                          asChild
+                          className="p-0">
                           <Link
                             href={item.href}
-                            className="flex items-center space-x-2">
-                            <item.icon className="mr-2 h-4 w-4" />
-                            {item.label}
+                            className="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-purple-50 transition-colors group">
+                            {item?.icon && (
+                              <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+                                <item.icon className="h-4 w-4 text-purple-600" />
+                              </div>
+                            )}
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-gray-900">
+                                {item.label}
+                              </p>
+                              {item?.description && (
+                                <p className="text-xs text-gray-500">
+                                  {item.description}
+                                </p>
+                              )}
+                            </div>
                           </Link>
                         </DropdownMenuItem>
                       ))}
+                      <DropdownMenuSeparator className="my-2" />
+                    </>
+                  }
+                  <DropdownMenuSeparator className="my-2" />
 
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => signOut()}
-                        className="flex items-center text-red-600">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        {t("auth.signOut")}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </>
-            ) : (
+                  {/* Sign Out */}
+                  {session && (
+                    <DropdownMenuItem
+                      onClick={() => signOut()}
+                      className="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-red-50 transition-colors group cursor-pointer">
+                      <div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
+                        <LogOut className="h-4 w-4 text-red-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-red-900">
+                          {t("auth.signOut")}
+                        </p>
+                        <p className="text-xs text-red-600">
+                          {t("auth.signOutDesc")}
+                        </p>
+                      </div>
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Mobile Profile Dropdown */}
+            <div className="md:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="relative">
+                    <Menu />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64 shadow-lg">
+                  {session && (
+                    <div className="px-3 py-2">
+                      <p className="text-sm font-medium text-gray-900">
+                        {session.user?.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {session.user?.email}
+                      </p>
+                      {session.user?.role === "ADMIN" && (
+                        <Badge variant="secondary" className="mt-1 text-xs">
+                          {t("common.admin")}
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+                  <DropdownMenuSeparator />
+
+                  {(session && session.user?.role == "ADMIN"
+                    ? adminMenuItems
+                    : navItems
+                  ).map((item) => (
+                    <DropdownMenuItem key={item.href} asChild>
+                      <Link
+                        href={item.href}
+                        className="flex items-center space-x-2">
+                        <item.icon className="mr-2 h-4 w-4" />
+                        {item.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+
+                  <DropdownMenuSeparator />
+                  {session && (
+                    <DropdownMenuItem
+                      onClick={() => signOut()}
+                      className="flex items-center text-red-600">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      {t("auth.signOut")}
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {!session && (
               <Link href={`/${locale}/auth/signin`}>
                 <Button
                   variant="outline"
