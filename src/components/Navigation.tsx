@@ -189,7 +189,9 @@ export default function Navigation({ locale }: { locale: string }) {
                   className="w-80 p-2 shadow-xl border-0 bg-white/95 backdrop-blur-md">
                   {/* User Info Header */}
                   {session && (
-                    <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg mb-2">
+                    <Link
+                      href={`/${locale}/profile`}
+                      className="flex items-center space-x-3 p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg mb-2">
                       <Avatar className="h-12 w-12 ring-2 ring-white shadow-sm">
                         <AvatarImage src={session.user?.image || undefined} />
                         <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
@@ -212,7 +214,7 @@ export default function Navigation({ locale }: { locale: string }) {
                           </Badge>
                         )}
                       </div>
-                    </div>
+                    </Link>
                   )}
 
                   <DropdownMenuSeparator className="my-2" />
@@ -220,9 +222,11 @@ export default function Navigation({ locale }: { locale: string }) {
                   {/* Admin Section */}
                   {
                     <>
-                      <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2">
-                        {t("common.administration")}
-                      </DropdownMenuLabel>
+                      {session && session.user?.role == "ADMIN" && (
+                        <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2">
+                          {t("common.administration")}
+                        </DropdownMenuLabel>
+                      )}
                       {(session && session.user?.role == "ADMIN"
                         ? adminMenuItems
                         : navItems
@@ -289,7 +293,7 @@ export default function Navigation({ locale }: { locale: string }) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-64 shadow-lg">
                   {session && (
-                    <div className="px-3 py-2">
+                    <Link href={`/${locale}/profile`} className="px-3 py-2">
                       <p className="text-sm font-medium text-gray-900">
                         {session.user?.name}
                       </p>
@@ -301,7 +305,7 @@ export default function Navigation({ locale }: { locale: string }) {
                           {t("common.admin")}
                         </Badge>
                       )}
-                    </div>
+                    </Link>
                   )}
                   <DropdownMenuSeparator />
 
