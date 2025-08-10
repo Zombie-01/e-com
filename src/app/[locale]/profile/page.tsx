@@ -66,6 +66,7 @@ export default function ProfilePage() {
     name: "",
     email: "",
     image: "",
+    phone: "",
     addresses: [],
   });
   const [isAddingAddress, setIsAddingAddress] = useState(false);
@@ -243,6 +244,26 @@ export default function ProfilePage() {
                   </div>
                   <div className="flex-1 space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="name"
+                          className="text-sm font-medium text-slate-700">
+                          {t("auth.phone")}
+                        </Label>
+                        <Input
+                          id="phone"
+                          value={profile?.phone || ""}
+                          disabled={!isEditingProfile}
+                          className={
+                            !isEditingProfile
+                              ? "bg-slate-50 border-slate-200"
+                              : ""
+                          }
+                          onChange={(e) =>
+                            setProfile({ ...profile, phone: e.target.value })
+                          }
+                        />
+                      </div>
                       <div className="space-y-2">
                         <Label
                           htmlFor="name"
