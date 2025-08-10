@@ -125,6 +125,9 @@
     "email_address": "Email address",
     "enter_email": "Enter your email address",
     "password": "Password",
+    "phone": "Phone",
+    "enter_phone": "Enter your phone number",
+
     "enter_password": "Enter your password",
     "show_password": "Show password",
     "hide_password": "Hide password",

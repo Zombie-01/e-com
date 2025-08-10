@@ -125,6 +125,8 @@
     "email_address": "Имэйл хаяг",
     "enter_email": "Имэйлээ оруулна уу",
     "password": "Нууц үг",
+    "phone": "Утас",
+    "enter_phone": "Утасны дугаараа оруулна уу",
     "enter_password": "Нууц үгээ оруулна уу",
     "show_password": "Нууц үгийг харуулах",
     "hide_password": "Нууц үгийг нуух",

@@ -122,7 +122,7 @@ export default function SignUpPage({
             </div>
             <div className="space-y-2">
               <Label
-                htmlFor="name"
+                htmlFor="phone"
                 className="text-sm font-medium text-gray-700">
                 {t("phone")}
               </Label>
@@ -135,7 +135,7 @@ export default function SignUpPage({
                   value={formData.phone}
                   onChange={handleChange}
                   className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                  placeholder={t("enter_full_name")}
+                  placeholder={t("enter_phone")}
                   required
                 />
               </div>
