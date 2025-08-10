@@ -1,0 +1,27 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+        - ./public/uploads:/app/public/uploads # Mount host uploads into container uploads
+    env_file:
+        - .env
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    restart: always
+    container_name: db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: orchid_user
+      POSTGRES_PASSWORD: orchid_password
+      POSTGRES_DB: orchid_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

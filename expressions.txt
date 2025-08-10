@@ -1,0 +1,2 @@
+regex:(?i)GOOGLE_CLIENT_ID\s*=\s*.*==>***REMOVED***
+regex:(?i)GOOGLE_CLIENT_SECRET\s*=\s*.*==>***REMOVED***
