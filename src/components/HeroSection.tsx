@@ -50,7 +50,7 @@ export default function HeroSection({
   const currentBanner = banners[currentSlide];
 
   return (
-    <section className="relative h-[600px] overflow-hidden">
+    <section className="relative aspect-video overflow-hidden">
       <div className="relative w-full h-full">
         <Image
           src={
@@ -63,17 +63,17 @@ export default function HeroSection({
           priority
         />
         <div className="absolute inset-0 bg-black/40" />
-
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-white max-w-4xl px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              {locale === "mn" ? currentBanner.mnTitle : currentBanner.enTitle}
-            </h1>
-            <Button size="lg" className="mt-4">
-              {t("shop_now")} {/* <-- translated button text */}
-            </Button>
+        {currentBanner?.mnTitle != "1" && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center text-white max-w-4xl px-4">
+              <h1 className="text-5xl md:text-6xl font-bold mb-6">
+                {locale === "mn"
+                  ? currentBanner.mnTitle
+                  : currentBanner.enTitle}
+              </h1>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {banners.length > 1 && (
