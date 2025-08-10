@@ -24,7 +24,7 @@ interface CartItemProps {
   price: number;
   quantity: number;
   image: string;
-  color: Color;
+  color?: Color;
   size?: Size;
 }
 
@@ -50,7 +50,9 @@ export default function CartItem({ item }: { item: CartItemProps }) {
               Color:{" "}
               <span
                 className={`w-8 h-8 rounded-full border-2 q`}
-                style={{ backgroundColor: item.color.hex }}></span>
+                style={{
+                  backgroundColor: item?.color?.hex || "#FFFFFF",
+                }}></span>
               {item.size && ` • Size: ${item.size.name}`}
             </p>
             <p className="font-semibold text-blue-600 mt-1">

@@ -26,8 +26,8 @@ interface Variant {
   image?: string[];
   stock: number;
   active: boolean;
-  color: Color;
-  size: Size;
+  color?: Color;
+  size?: Size;
 }
 
 interface Tag {
@@ -149,8 +149,8 @@ export default function ProductDetails({
       price: product.price,
       quantity,
       image: selectedVariant.image?.[0] || "",
-      color: selectedVariant.color,
-      size: selectedVariant.size,
+      color: selectedVariant?.color,
+      size: selectedVariant?.size,
     });
   };
 
@@ -243,7 +243,7 @@ export default function ProductDetails({
                         ? "border-gray-900 ring-gray-900"
                         : "border-gray-300"
                     }`}
-                    style={{ backgroundColor: color.hex }}
+                    style={{ backgroundColor: color?.hex }}
                   />
                 ))}
             </div>

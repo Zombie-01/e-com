@@ -19,7 +19,7 @@ interface CartItem {
   price: number;
   quantity: number;
   image: string;
-  color: Color;
+  color?: Color;
   size?: Size;
 }
 

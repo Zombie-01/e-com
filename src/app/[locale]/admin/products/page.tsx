@@ -462,7 +462,7 @@ export default function AdminProductsPage() {
                         <option
                           key={c.id}
                           value={c.id}
-                          style={{ background: c.hex }}>
+                          style={{ background: c?.hex }}>
                           {c.name}
                         </option>
                       ))}
