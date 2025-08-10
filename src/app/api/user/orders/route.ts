@@ -94,6 +94,17 @@ export async function POST(request: NextRequest) {
         }),
       });
 
+      await tx.transaction.create({
+        data: {
+          orderId: order.id,
+          amount: total,
+          status: "COMPLETED",
+          paymentId: order.id,
+          method: "QPAY",
+          // add other fields as your schema requires
+        },
+      });
+
       return order;
     });
     if (session.user.email && session.user.name) {
