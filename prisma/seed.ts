@@ -11,12 +11,14 @@ async function main() {
       email: "admin@orchid.com",
       password: "orchid!123",
       name: "Admin",
+      phone: "99999999",
       role: "ADMIN",
     },
     {
       email: "superadmin@orchid.com",
       password: "superorchid!123",
       name: "Super Admin",
+      phone: "99999999",
       role: "ADMIN",
     },
   ];
