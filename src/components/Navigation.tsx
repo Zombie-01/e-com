@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -174,20 +173,6 @@ export default function Navigation({ locale }: { locale: string }) {
                 )}
               </Button>
             </Link>
-            <Button
-              onClick={async () =>
-                await sendEmail({
-                  to: "mm6816557@gmail.com",
-                  subject: "Захиалгын төлөв шинэчлэгдлээ",
-                  customerName: "test",
-                  orderId: "test",
-                  status: "Хүлээгдэж байна", // Mongolian for "PENDING"
-                  message:
-                    "Таны захиалгыг бид хүлээн авлаа. Хүргэлт удахгүй эхэлнэ.",
-                })
-              }>
-              sendEmail
-            </Button>
 
             {/* User Profile */}
             <div className="hidden md:block">
