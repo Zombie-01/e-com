@@ -1,20 +1,55 @@
-("use client");
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/src/lib/utils";
-
-const items = (locale: string) => [
-  { href: `/${locale}/admin`, label: "Dashboard" },
-  { href: `/${locale}/admin/products`, label: "Products" },
-  { href: `/${locale}/admin/orders`, label: "Orders" },
-  { href: `/${locale}/admin/users`, label: "Users" },
-  { href: `/${locale}/admin/categories`, label: "Categories" },
-  { href: `/${locale}/admin/tags`, label: "Tags" },
-  { href: `/${locale}/admin/settings`, label: "Settings" },
-];
+import { useTranslations } from "next-intl";
 
 export default function AdminNavbar({ locale }: { locale: string }) {
+  const t = useTranslations("");
+  const adminMenuItems = [
+    {
+      href: `/${locale}/admin`,
+      label: t("admin.dashboard"),
+      description: t("admin.dashboardDesc"),
+    },
+    {
+      href: "/admin/brands",
+      label: t("admin.brands"),
+      desc: t("admin.brandsDesc"),
+    },
+    {
+      href: `/${locale}/admin/products`,
+      label: t("admin.products"),
+      description: t("admin.productsDesc"),
+    },
+    {
+      href: `/${locale}/admin/orders`,
+      label: t("admin.orders"),
+      description: t("admin.ordersDesc"),
+    },
+    {
+      href: `/${locale}/admin/users`,
+      label: t("admin.users"),
+      description: t("admin.usersDesc"),
+    },
+    {
+      href: `/${locale}/admin/categories`,
+      label: t("admin.categories"),
+      description: t("admin.categoriesDesc"),
+    },
+    {
+      href: `/${locale}/admin/tags`,
+      label: t("admin.tags"),
+      description: t("admin.tagsDesc"),
+    },
+    {
+      href: `/${locale}/admin/settings`,
+      label: t("admin.settings"),
+      description: t("admin.settingsDesc"),
+    },
+  ];
+
   const pathname = usePathname();
   const isActive = (href: string) => pathname.startsWith(href);
 
@@ -25,7 +60,7 @@ export default function AdminNavbar({ locale }: { locale: string }) {
           ORCHID Admin
         </Link>
         <div className="flex items-center gap-2 flex-wrap">
-          {items(locale).map((item) => (
+          {adminMenuItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}

@@ -126,10 +126,13 @@ model ProductVariant {
   active    Boolean     @default(true)
   product   Product     @relation(fields: [productId], references: [id])
   productId String
-  color     Color       @relation(fields: [colorId], references: [id])
-  colorId   String
+
+  color     Color?      @relation(fields: [colorId], references: [id])
+  colorId   String?
+
   size      Size?       @relation(fields: [sizeId], references: [id])
   sizeId    String?
+
   image     String[]
   stock     Int
   items     OrderItem[]

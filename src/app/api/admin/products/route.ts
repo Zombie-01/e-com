@@ -67,7 +67,6 @@ export async function POST(request: NextRequest) {
     const tagIds = tagIdsStr ? JSON.parse(tagIdsStr) : [];
 
     // Variants JSON string (array of variant objects)
-    // Example variant: { colorId: "colorId1", sizeId: "sizeId1", imageFileName: "file1.jpg", stock: 5 }
     // But for images in variants, usually you upload separately; here simplified as a JSON string with no files.
     const variantsStr = formData.get("variants") as string;
     const variantsData: any[] = variantsStr ? JSON.parse(variantsStr) : [];
@@ -106,7 +105,7 @@ export async function POST(request: NextRequest) {
 
     // Assign uploaded image URLs array back to variants
     const variantsCreate = variantsData.map((v, i) => ({
-      colorId: v.colorId,
+      colorId: v.colorId || null, // <-- explicitly set null if falsy
       sizeId: v.sizeId || null,
       image: uploadedImageUrlsArr[i], // array of image URLs
       stock: v.stock,
@@ -217,7 +216,7 @@ export async function PUT(request: NextRequest) {
         ? variantsData[i].image
         : [];
       variantsUpdate.push({
-        colorId: variantsData[i].colorId,
+        colorId: variantsData[i].colorId || null, // explicitly null if falsy
         sizeId: variantsData[i].sizeId || null,
         image: images.length > 0 ? images : existingImages,
         stock: variantsData[i].stock,

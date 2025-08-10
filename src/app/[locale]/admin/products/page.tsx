@@ -456,8 +456,7 @@ export default function AdminProductsPage() {
                       onChange={(e) =>
                         handleVariantChange(idx, "colorId", e.target.value)
                       }
-                      className="border p-2"
-                      required>
+                      className="border p-2">
                       <option value="">{t("dialog.color")}</option>
                       {colors.map((c) => (
                         <option

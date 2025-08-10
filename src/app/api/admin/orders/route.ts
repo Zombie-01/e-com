@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
+import { sendEmail } from "@/src/lib/email";
 
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -56,6 +57,65 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching orders:", error);
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export enum OrderStatus {
+  PENDING = "PENDING",
+  PROCESSING = "PROCESSING",
+  SHIPPED = "SHIPPED",
+  DELIVERED = "DELIVERED",
+  CANCELLED = "CANCELLED",
+}
+
+export async function PUT(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const { orderId, status } = body;
+
+    if (!orderId || !status || !(status in OrderStatus)) {
+      return NextResponse.json(
+        { message: "Invalid orderId or status" },
+        { status: 400 }
+      );
+    }
+
+    // Захиалгын төлөвийг шинэчлэх
+    const updatedOrder = await prisma.order.update({
+      where: { id: orderId },
+      data: { status },
+      include: {
+        user: true,
+      },
+    });
+
+    // И-мэйл илгээх
+    if (updatedOrder.user?.email && updatedOrder.user?.name) {
+      await sendEmail({
+        to: updatedOrder.user.email,
+        subject: "Захиалгын төлөв шинэчлэгдлээ",
+        customerName: updatedOrder.user.name,
+        orderId: updatedOrder.id,
+        status,
+        message: `Таны захиалгын төлөв одоо ${status} боллоо.`,
+      });
+    }
+
+    return NextResponse.json({
+      message: "Order status updated",
+      order: updatedOrder,
+    });
+  } catch (error) {
+    console.error("Error updating order status:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
+import { sendEmail } from "@/src/lib/email";
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -95,6 +96,16 @@ export async function POST(request: NextRequest) {
 
       return order;
     });
+    if (session.user.email && session.user.name) {
+      await sendEmail({
+        to: session.user.email,
+        subject: "Захиалгын төлөв шинэчлэгдлээ",
+        customerName: session.user.name,
+        orderId: createdOrder.id,
+        status: "Хүлээгдэж байна", // Mongolian for "PENDING"
+        message: "Таны захиалгыг бид хүлээн авлаа. Хүргэлт удахгүй эхэлнэ.",
+      });
+    }
 
     return NextResponse.json({ order: createdOrder }, { status: 201 });
   } catch (error: any) {

@@ -111,6 +111,30 @@ export default function AdminOrdersPage() {
     }
   };
 
+  const handleStatusChange = async (
+    orderId: string,
+    newStatus: OrderStatus
+  ) => {
+    try {
+      const res = await fetch("/api/admin/orders", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, status: newStatus }),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to update status");
+      }
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === orderId ? { ...order, status: newStatus } : order
+        )
+      );
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert(t("updateFailed"));
+    }
+  };
+
   if (status === "loading" || loading) {
     return <div className="p-8 text-center text-gray-500">{t("loading")}</div>;
   }
@@ -135,12 +159,24 @@ export default function AdminOrdersPage() {
                   <span>
                     {t("orderId")}: {order.id}
                   </span>
-                  <span
-                    className={`px-2 py-1 text-xs rounded ${getStatusBadgeColor(
+                  <select
+                    className={`px-2 py-1 text-xs rounded cursor-pointer ${getStatusBadgeColor(
                       order.status
-                    )}`}>
-                    {getStatusLabel(order.status)}
-                  </span>
+                    )}`}
+                    value={order.status}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) =>
+                      handleStatusChange(
+                        order.id,
+                        e.target.value as OrderStatus
+                      )
+                    }>
+                    {Object.values(OrderStatus).map((status) => (
+                      <option key={status} value={status}>
+                        {getStatusLabel(status)}
+                      </option>
+                    ))}
+                  </select>
                 </CardTitle>
               </CardHeader>
 

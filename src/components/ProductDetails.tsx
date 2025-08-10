@@ -205,14 +205,19 @@ export default function ProductDetails({
         </div>
 
         {/* Color selector */}
-        {product.variants.length > 1 && (
+        {/* Color selector */}
+        {product.variants.some((v) => v.color) && (
           <div>
             <h3 className="text-sm font-medium text-gray-900 mb-3">
               {t("color")}
             </h3>
             <div className="flex space-x-2">
               {Array.from(
-                new Map(product.variants.map((v) => [v.color.id, v.color]))
+                new Map(
+                  product.variants
+                    .filter((v) => v.color) // only variants with a color
+                    .map((v) => [v.color!.id, v.color!])
+                )
               )
                 .map(([, color]) => color)
                 .map((color) => (
@@ -235,7 +240,9 @@ export default function ProductDetails({
         )}
 
         {/* Size selector */}
-        {product.variants.length > 0 && (
+        {product.variants.some(
+          (v) => v.colorId === selectedColor?.id && v.size
+        ) && (
           <div>
             <h3 className="text-sm font-medium text-gray-900 mb-3">
               {t("size")}
@@ -244,20 +251,20 @@ export default function ProductDetails({
               {Array.from(
                 new Map(
                   product.variants
-                    .filter((v) => v.colorId === selectedColor?.id)
-                    .map((variant) => [variant.size.id, variant])
+                    .filter((v) => v.colorId === selectedColor?.id && v.size)
+                    .map((variant) => [variant.size!.id, variant])
                 ).values()
               ).map((variant) => (
                 <button
-                  key={variant.size.id}
+                  key={variant.size!.id}
                   type="button"
-                  onClick={() => setSelectedSize(variant.size)}
+                  onClick={() => setSelectedSize(variant.size!)}
                   className={`px-4 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 ${
-                    selectedSize?.id === variant.size.id
+                    selectedSize?.id === variant.size!.id
                       ? "border-blue-500 bg-blue-50 text-blue-600 ring-blue-500"
                       : "border-gray-300 hover:border-gray-400"
                   }`}>
-                  {variant.size.name}
+                  {variant.size!.name}
                 </button>
               ))}
             </div>
