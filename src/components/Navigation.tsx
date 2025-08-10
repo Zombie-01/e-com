@@ -38,6 +38,7 @@ import {
   Package2,
 } from "lucide-react";
 import { usePathname } from "../i18n/navigation";
+import { sendEmail } from "../lib/email";
 
 export default function Navigation({ locale }: { locale: string }) {
   const { data: session } = useSession();
@@ -173,6 +174,20 @@ export default function Navigation({ locale }: { locale: string }) {
                 )}
               </Button>
             </Link>
+            <Button
+              onClick={async () =>
+                await sendEmail({
+                  to: "mm6816557@gmail.com",
+                  subject: "Захиалгын төлөв шинэчлэгдлээ",
+                  customerName: "test",
+                  orderId: "test",
+                  status: "Хүлээгдэж байна", // Mongolian for "PENDING"
+                  message:
+                    "Таны захиалгыг бид хүлээн авлаа. Хүргэлт удахгүй эхэлнэ.",
+                })
+              }>
+              sendEmail
+            </Button>
 
             {/* User Profile */}
             <div className="hidden md:block">
