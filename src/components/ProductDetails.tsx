@@ -81,16 +81,24 @@ export default function ProductDetails({
   // Helper: find variant by colorId and sizeId
   const findVariant = (colorId?: string, sizeId?: string) =>
     product.variants.find(
-      (v) => v.colorId === colorId && v.sizeId === sizeId && v.active
+      (v) =>
+        v.colorId === colorId &&
+        v.sizeId === sizeId &&
+        v.active &&
+        v.color != null &&
+        v.size != null
     );
 
   // Flatten all images from all variants for thumbnails (show ALL images always)
   const allImages = product.variants.flatMap((v) => v.image || []);
 
   // Initial states
-  const initialColor = product.variants[0]?.color;
-  const initialSize = product.variants[0]?.size;
-  const initialVariant = findVariant(initialColor?.id, initialSize?.id);
+  const initialColor = product.variants[0]?.color ?? undefined;
+  const initialSize = product.variants[0]?.size ?? undefined;
+  const initialVariant =
+    findVariant(initialColor?.id, initialSize?.id) || product?.variants[0];
+
+  console.log(initialVariant);
 
   const [selectedColor, setSelectedColor] = useState<Color | undefined>(
     initialColor
@@ -98,9 +106,9 @@ export default function ProductDetails({
   const [selectedSize, setSelectedSize] = useState<Size | undefined>(
     initialSize
   );
-  const [selectedVariant, setSelectedVariant] = useState<Variant | undefined>(
-    initialVariant
-  );
+  const [selectedVariant, setSelectedVariant] =
+    useState<Variant>(initialVariant);
+
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
     initialVariant?.image?.[0] || allImages[0]
   );
@@ -109,10 +117,16 @@ export default function ProductDetails({
   // This hook is the only one that updates the selected variant.
   // It ensures the correct price, stock, etc., are used.
   useEffect(() => {
-    const variant = findVariant(selectedColor?.id, selectedSize?.id);
+    if (!selectedColor || !selectedSize) {
+      setSelectedVariant(product?.variants[0]);
+      return;
+    }
+    const variant = findVariant(selectedColor.id, selectedSize.id);
     if (variant) {
       setSelectedVariant(variant);
-      setQuantity(1); // Reset quantity when the variant changes
+      setQuantity(1);
+    } else {
+      setSelectedVariant(product?.variants[0]);
     }
   }, [selectedColor, selectedSize, product.variants]);
 
@@ -205,18 +219,15 @@ export default function ProductDetails({
         </div>
 
         {/* Color selector */}
-        {/* Color selector */}
-        {product.variants.some((v) => v.color) && (
+        {product.variants.some((v) => v.color != null) && (
           <div>
-            <h3 className="text-sm font-medium text-gray-900 mb-3">
-              {t("color")}
-            </h3>
+            <h3>Color</h3>
             <div className="flex space-x-2">
               {Array.from(
                 new Map(
                   product.variants
-                    .filter((v) => v.color) // only variants with a color
-                    .map((v) => [v.color!.id, v.color!])
+                    .filter((v) => v.color != null) // only variants with a color
+                    .map((v) => [v.color!.id, v.color!]) // create unique color entries by id
                 )
               )
                 .map(([, color]) => color)
@@ -227,7 +238,7 @@ export default function ProductDetails({
                     aria-label={color.name}
                     title={color.name}
                     onClick={() => setSelectedColor(color)}
-                    className={`w-8 h-8 rounded-full border-2 focus:outline-none focus:ring-2 ${
+                    className={`w-8 h-8 rounded-full border-2 ${
                       selectedColor?.id === color.id
                         ? "border-gray-900 ring-gray-900"
                         : "border-gray-300"
@@ -240,36 +251,37 @@ export default function ProductDetails({
         )}
 
         {/* Size selector */}
-        {product.variants.some(
-          (v) => v.colorId === selectedColor?.id && v.size
-        ) && (
-          <div>
-            <h3 className="text-sm font-medium text-gray-900 mb-3">
-              {t("size")}
-            </h3>
-            <div className="flex space-x-2 flex-wrap">
-              {Array.from(
-                new Map(
-                  product.variants
-                    .filter((v) => v.colorId === selectedColor?.id && v.size)
-                    .map((variant) => [variant.size!.id, variant])
-                ).values()
-              ).map((variant) => (
-                <button
-                  key={variant.size!.id}
-                  type="button"
-                  onClick={() => setSelectedSize(variant.size!)}
-                  className={`px-4 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 ${
-                    selectedSize?.id === variant.size!.id
-                      ? "border-blue-500 bg-blue-50 text-blue-600 ring-blue-500"
-                      : "border-gray-300 hover:border-gray-400"
-                  }`}>
-                  {variant.size!.name}
-                </button>
-              ))}
+        {selectedColor &&
+          product.variants.some(
+            (v) => v.colorId === selectedColor.id && v.size != null
+          ) && (
+            <div>
+              <h3>Size</h3>
+              <div className="flex space-x-2 flex-wrap">
+                {Array.from(
+                  new Map(
+                    product.variants
+                      .filter(
+                        (v) => v.colorId === selectedColor.id && v.size != null
+                      )
+                      .map((v) => [v.size!.id, v]) // unique sizes by id
+                  ).values()
+                ).map((variant) => (
+                  <button
+                    key={variant.size!.id}
+                    type="button"
+                    onClick={() => setSelectedSize(variant.size!)}
+                    className={`px-4 py-2 text-sm border rounded-md ${
+                      selectedSize?.id === variant.size!.id
+                        ? "border-blue-500 bg-blue-50 text-blue-600"
+                        : "border-gray-300 hover:border-gray-400"
+                    }`}>
+                    {variant.size!.name}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Quantity & Add to Cart */}
         <div className="space-y-4">
