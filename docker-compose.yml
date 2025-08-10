@@ -4,9 +4,9 @@ services:
     ports:
       - "3000:3000"
     volumes:
-        - ./public/uploads:/app/public/uploads # Mount host uploads into container uploads
+      - ./public/uploads:/app/public/uploads
     env_file:
-        - .env
+      - .env
     depends_on:
       - db
 
