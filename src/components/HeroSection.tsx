@@ -36,7 +36,7 @@ export default function HeroSection({
 
   if (banners.length === 0) {
     return (
-      <section className="relative h-[600px] bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+      <section className="relative h-[750px] bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
         <div className="text-center text-white">
           <h1 className="text-5xl font-bold mb-4">Premium E-Commerce</h1>
           <p className="text-xl">
