@@ -25,6 +25,7 @@ export default function SignUpPage({
     name: "",
     email: "",
     password: "",
+    phone: "",
     confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -52,6 +53,7 @@ export default function SignUpPage({
           name: formData.name,
           email: formData.email,
           password: formData.password,
+          phone: formData.phone,
         }),
       });
 
@@ -111,6 +113,26 @@ export default function SignUpPage({
                   name="name"
                   type="text"
                   value={formData.name}
+                  onChange={handleChange}
+                  className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  placeholder={t("enter_full_name")}
+                  required
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label
+                htmlFor="name"
+                className="text-sm font-medium text-gray-700">
+                {t("phone")}
+              </Label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="text"
+                  value={formData.phone}
                   onChange={handleChange}
                   className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   placeholder={t("enter_full_name")}

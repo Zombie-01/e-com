@@ -193,7 +193,7 @@ export default function AdminOrdersPage() {
                   {order.user?.addresses?.[0]?.phone || "N/A"}
                 </div>
                 <div>
-                  <strong>{t("total")}:</strong> ${order.total.toLocaleString()}
+                  <strong>{t("total")}:</strong> ₮{order.total.toLocaleString()}
                 </div>
                 <div>
                   <strong>{t("createdAt")}:</strong>{" "}
