@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export enum OrderStatus {
+enum OrderStatus {
   PENDING = "PENDING",
   PROCESSING = "PROCESSING",
   SHIPPED = "SHIPPED",
