@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
         where: { id: userId },
         data: {
           bonus: {
-            increment: (total - costPrice)*0.1 // Adds newPrice to the existing costPrice
+            increment: (total - costPrice) * 0.1 // Adds newPrice to the existing costPrice
           },
         },
       });
