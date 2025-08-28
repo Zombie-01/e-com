@@ -17,6 +17,7 @@ interface CartItem {
   variantId: string;
   name: string;
   price: number;
+  costPrice: number;
   quantity: number;
   image: string;
   color?: Color;

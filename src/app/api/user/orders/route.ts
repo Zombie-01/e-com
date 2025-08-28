@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
 
     // ✅ Calculate total
     let total = 0;
+    let costPrice = 0;
     const variantMap = new Map(variants.map((v) => [v.id, v]));
     for (const item of items) {
       const variant = variantMap.get(item.variantId);
@@ -59,6 +60,18 @@ export async function POST(request: NextRequest) {
       }
       total += variant.product.price * item.quantity;
     }
+
+     for (const item of items) {
+      const variant = variantMap.get(item.variantId);
+      if (!variant || typeof item.quantity !== "number" || item.quantity < 1) {
+        return NextResponse.json(
+          { message: `Invalid quantity or variant: ${item.variantId}` },
+          { status: 400 }
+        );
+      }
+      costPrice += variant.product.costPrice * item.quantity;
+    }
+    
 
     // ✅ Transactional creation of order + items
     const createdOrder = await prisma.$transaction(async (tx) => {
@@ -93,6 +106,16 @@ export async function POST(request: NextRequest) {
           };
         }),
       });
+
+      await tx.users.update({
+        where: { id: userId },
+        data: {
+          bonus: {
+            increment: (total - costPrice)*0.1 // Adds newPrice to the existing costPrice
+          },
+        },
+      });
+
 
       await tx.transaction.create({
         data: {

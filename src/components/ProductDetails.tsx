@@ -57,6 +57,7 @@ interface Product {
   enDesc: string;
   active: boolean;
   price: number;
+  costPrice: number;
   sku: string;
   brandId: string;
   categoryId: string;
@@ -151,6 +152,7 @@ export default function ProductDetails({
       image: selectedVariant.image?.[0] || "",
       color: selectedVariant?.color,
       size: selectedVariant?.size,
+      costPrice: product?.costPrice
     });
   };
 
