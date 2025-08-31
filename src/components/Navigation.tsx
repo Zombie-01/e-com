@@ -40,7 +40,7 @@ import { usePathname } from "../i18n/navigation";
 import { sendEmail } from "../lib/email";
 
 export default function Navigation({ locale }: { locale: string }) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const t = useTranslations("");
   const { getTotalItems } = useCartStore();
   const pathname = usePathname();
@@ -126,7 +126,8 @@ export default function Navigation({ locale }: { locale: string }) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {session?.user?.role !== "ADMIN" &&
+            {((session && session?.user?.role !== "ADMIN") ||
+              (!session && status !== "loading")) &&
               navItems.map((item) => (
                 <Link
                   key={item.href}
@@ -180,7 +181,7 @@ export default function Navigation({ locale }: { locale: string }) {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="relative h-10 w-10 rounded-full hover:ring-2 hover:ring-blue-200 transition-all duration-200">
+                    className="relative  rounded-full hover:ring-2 hover:ring-blue-200 transition-all duration-200">
                     <Menu />
                   </Button>
                 </DropdownMenuTrigger>

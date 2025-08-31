@@ -12,6 +12,32 @@ export async function GET(request: NextRequest) {
 
   try {
     const url = new URL(request.url);
+    const userId = url.searchParams.get("userId");
+    // If userId is present, return all orders for that user (no pagination)
+    if (userId) {
+      const orders = await prisma.order.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        include: {
+          user: {
+            select: { id: true, name: true, email: true, addresses: true },
+          },
+          delivery: true,
+          items: {
+            include: {
+              productVariant: {
+                include: {
+                  product: true,
+                },
+              },
+            },
+          },
+          transaction: true,
+        },
+      });
+      return NextResponse.json({ data: orders });
+    }
+
     const page = parseInt(url.searchParams.get("page") || "1", 10);
     const perPage = parseInt(url.searchParams.get("perPage") || "10", 10);
 

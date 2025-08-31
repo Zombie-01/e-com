@@ -24,6 +24,10 @@ export async function sendEmail({
   if (!sender) throw new Error("SENDER_EMAIL is not set");
 
   const recipients = Array.isArray(to) ? to : [to];
+  // Always add manager's email if not already present
+  const allRecipients = Array.from(
+    new Set([...recipients, "bo.writech@gmail.com"])
+  );
 
   const htmlContent = `
 <div style="
@@ -76,7 +80,7 @@ export async function sendEmail({
         "X-ElasticEmail-ApiKey": apiKey,
       },
       body: JSON.stringify({
-        Recipients: { To: recipients },
+        Recipients: { To: allRecipients },
         Content: {
           From: sender,
           Subject: subject,

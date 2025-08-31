@@ -66,7 +66,8 @@
     "clear": "Сагсыг цэвэрлэх",
     "subtotal": "Дүн",
     "shipping": "Хүргэлт",
-    "summary": "Захиалгын хураангуй"
+    "summary": "Захиалгын хураангуй",
+    "register": "И баримт үүсгэх Регистр"
   },
   "admin": {
     "title": "Хяналтын Самбар",
@@ -164,6 +165,7 @@
       "title": "Профайлын мэдээлэл",
       "description": "Хувийн мэдээлэл, тохиргоогоо удирдах",
       "edit": "Засах",
+      "phone": "Утас",
       "cancelEdit": "Болих",
       "fullName": "Бүтэн нэр",
       "email": "И-мэйл хаяг",
@@ -266,6 +268,7 @@
     "searchPlaceholder": "Хэрэглэгч хайх...",
     "previousButton": "Өмнөх",
     "nextButton": "Дараагийн",
+
     "modal": {
       "title": "{type, select, add {Хэрэглэгч нэмэх} edit {Хэрэглэгч засах}}",
       "namePlaceholder": "Нэр",
@@ -273,6 +276,16 @@
       "roleLabel": "Эрх",
       "userRole": "Хэрэглэгч",
       "adminRole": "Админ",
+      "orderDetailTitle": "Захиалгын дэлгэрэнгүй",
+      "orderStatus": "Төлөв",
+      "orderTotal": "Нийт дүн",
+      "orderCreatedAt": "Бүртгэгдсэн огноо",
+      "delivery": "Хүргэлт",
+      "address": "Хаяг",
+      "items": "Бараа",
+      "itemName": "Нэр",
+      "itemQuantity": "Тоо ширхэг",
+      "itemPrice": "Үнэ",
       "buttons": {
         "create": "Үүсгэх",
         "update": "Шинэчлэх",

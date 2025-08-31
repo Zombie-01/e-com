@@ -248,7 +248,7 @@ export default function ProfilePage() {
                         <Label
                           htmlFor="name"
                           className="text-sm font-medium text-slate-700">
-                          {t("auth.phone")}
+                          {t("profileInfo.phone")}
                         </Label>
                         <Input
                           id="phone"

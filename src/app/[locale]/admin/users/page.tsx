@@ -47,6 +47,10 @@ export default function AdminUsersPage() {
   const [page, setPage] = useState(1);
   const [perPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
+  const [userOrders, setUserOrders] = useState<any[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -137,6 +141,25 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleRowClick = async (user: any) => {
+    setSelectedUser(user);
+    setShowModal(true);
+    setOrdersLoading(true);
+    try {
+      const res = await fetch(`/api/admin/orders?userId=${user.id}`);
+      if (res.ok) {
+        const { data } = await res.json();
+        setUserOrders(data);
+      } else {
+        setUserOrders([]);
+      }
+    } catch (err) {
+      setUserOrders([]);
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
+
   if (status === "loading" || loading) {
     return <div className="p-8 text-center text-gray-500">{t("loading")}</div>;
   }
@@ -161,54 +184,160 @@ export default function AdminUsersPage() {
         </Button>
       </div>
 
-      <Dialog open={showModal} onOpenChange={setShowModal}>
+      {/* User info & orders modal */}
+      <Dialog
+        open={showModal}
+        onOpenChange={(open) => {
+          setShowModal(open);
+          if (!open) {
+            setSelectedUser(null);
+            setUserOrders([]);
+          }
+        }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {form.id
+              {selectedUser
+                ? t("modal.userOrdersTitle", { name: selectedUser.name })
+                : form.id
                 ? t("modal.title", { type: "edit" })
                 : t("modal.title", { type: "add" })}
             </DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              name="name"
-              placeholder={t("modal.namePlaceholder")}
-              value={form.name}
-              onChange={handleFormChange}
-              required
-            />
-            <Input
-              name="email"
-              type="email"
-              placeholder={t("modal.emailPlaceholder")}
-              value={form.email}
-              onChange={handleFormChange}
-              required
-            />
-            <label className="block text-sm font-medium text-gray-700">
-              {t("modal.roleLabel")}
-            </label>
-            <select
-              name="role"
-              value={form.role}
-              onChange={handleFormChange}
-              className="w-full rounded border border-gray-300 p-2">
-              <option value="USER">{t("modal.userRole")}</option>
-              <option value="ADMIN">{t("modal.adminRole")}</option>
-            </select>
-            <DialogFooter>
-              <Button type="submit" disabled={submitting}>
-                {submitting
-                  ? form.id
-                    ? t("modal.buttons.updating")
-                    : t("modal.buttons.creating")
-                  : form.id
-                  ? t("modal.buttons.update")
-                  : t("modal.buttons.create")}
-              </Button>
-            </DialogFooter>
-          </form>
+          {selectedUser ? (
+            <div>
+              <div className="mb-4">
+                <div>
+                  <b>{t("tableHeaders.name")}:</b> {selectedUser.name}
+                </div>
+                <div>
+                  <b>{t("tableHeaders.email")}:</b> {selectedUser.email}
+                </div>
+                <div>
+                  <b>{t("tableHeaders.role")}:</b> {selectedUser.role}
+                </div>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-2">
+                  {t("modal.ordersListTitle")}
+                </h4>
+                {ordersLoading ? (
+                  <div>{t("loading")}</div>
+                ) : userOrders.length === 0 ? (
+                  <div>{t("modal.noOrders")}</div>
+                ) : (
+                  <ul className="space-y-2 max-h-60 overflow-y-auto">
+                    {userOrders.map((order: any) => (
+                      <li
+                        key={order.id}
+                        className="border rounded p-2 cursor-pointer hover:bg-gray-100"
+                        onClick={() => setSelectedOrder(order)}>
+                        <div>
+                          <b>ID:</b> {order.id}
+                        </div>
+                        <div>
+                          <b>{t("modal.orderStatus")}:</b> {order.status}
+                        </div>
+                        <div>
+                          <b>{t("modal.orderTotal")}:</b> {order.total}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <Input
+                name="name"
+                placeholder={t("modal.namePlaceholder")}
+                value={form.name}
+                onChange={handleFormChange}
+                required
+              />
+              <Input
+                name="email"
+                type="email"
+                placeholder={t("modal.emailPlaceholder")}
+                value={form.email}
+                onChange={handleFormChange}
+                required
+              />
+              <label className="block text-sm font-medium text-gray-700">
+                {t("modal.roleLabel")}
+              </label>
+              <select
+                name="role"
+                value={form.role}
+                onChange={handleFormChange}
+                className="w-full rounded border border-gray-300 p-2">
+                <option value="USER">{t("modal.userRole")}</option>
+                <option value="ADMIN">{t("modal.adminRole")}</option>
+              </select>
+              <DialogFooter>
+                <Button type="submit" disabled={submitting}>
+                  {submitting
+                    ? form.id
+                      ? t("modal.buttons.updating")
+                      : t("modal.buttons.creating")
+                    : form.id
+                    ? t("modal.buttons.update")
+                    : t("modal.buttons.create")}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Order details modal */}
+      <Dialog
+        open={!!selectedOrder}
+        onOpenChange={(open) => !open && setSelectedOrder(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {t("modal.orderDetailTitle") || "Order Details"}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedOrder && (
+            <div className="space-y-2">
+              <div>
+                <b>ID:</b> {selectedOrder.id}
+              </div>
+              <div>
+                <b>{t("modal.orderStatus")}:</b> {selectedOrder.status}
+              </div>
+              <div>
+                <b>{t("modal.orderTotal")}:</b> {selectedOrder.total}
+              </div>
+              <div>
+                <b>{t("modal.orderCreatedAt") || "Created At"}:</b>{" "}
+                {new Date(selectedOrder.createdAt).toLocaleString()}
+              </div>
+              <div>
+                <b>{t("modal.delivery")}:</b> {selectedOrder.delivery?.mnName} (
+                {selectedOrder.delivery?.price}₮)
+              </div>
+              <div>
+                <b>{t("modal.address")}:</b>{" "}
+                {selectedOrder.user?.addresses?.[0]?.fullName} |{" "}
+                {selectedOrder.user?.addresses?.[0]?.phone}
+              </div>
+              <div>
+                <b>{t("modal.items") || "Items"}:</b>
+                <ul className="ml-4 list-disc">
+                  {selectedOrder.items.map((item: any) => (
+                    <li key={item.id}>
+                      {item.productVariant?.product?.mnName} - {item.quantity} x{" "}
+                      {item.unitPrice}₮
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
@@ -245,20 +374,25 @@ export default function AdminUsersPage() {
             </TableHeader>
             <TableBody>
               {users.map((user) => (
-                <TableRow key={user.id}>
+                <TableRow
+                  key={user.id}
+                  className="cursor-pointer"
+                  onClick={() => handleRowClick(user)}>
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{user.role}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setForm({
                             id: user.id,
                             name: user.name,
                             email: user.email,
                             role: user.role,
                           });
+                          setSelectedUser(null);
                           setShowModal(true);
                         }}
                         variant="ghost"
@@ -269,7 +403,10 @@ export default function AdminUsersPage() {
                         variant="ghost"
                         size="sm"
                         className="text-red-600 hover:text-red-700"
-                        onClick={() => handleDelete(user.id)}>
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(user.id);
+                        }}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>

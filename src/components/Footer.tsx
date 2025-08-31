@@ -1,6 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Link } from "../i18n/navigation";
+import { Facebook, Instagram, Twitter, Youtube } from "lucide-react";
 
 interface MenuItem {
   title: string;
@@ -22,45 +24,124 @@ export const Footer = ({ menuItems = [], bottomLinks = [] }: FooterProps) => {
   const t = useTranslations("footer");
 
   return (
-    <section className="py-16 px-4">
+    <footer className="pt-10 pb-4 px-4">
       <div className="container mx-auto">
-        <footer>
-          <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <h2 className="text-xl font-bold">{t("logoText")}</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {t("tagline")}
-              </p>
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+          {/* Social column */}
+          <div>
+            <h2 className="text-lg font-bold mb-2">Сошиал холбоос</h2>
+            <p className="text-sm mb-4 text-muted-foreground">
+              ИМЭЙЛ ХАЯГАА БҮРТГҮҮЛЭЭД ХУДАЛДААНЫ ТАЛААРХ ШИНЭ, СОНИРХОЛТОЙ
+              МЭДЭЭЛЛИЙГ ХҮЛЭЭН АВААРАЙ.
+            </p>
+            <form className="flex mb-4">
+              <input
+                type="email"
+                placeholder="Таны имэйл хаяг"
+                className="rounded-l px-3 py-1 text-black w-full"
+              />
+              <button
+                type="submit"
+                className="bg-white text-[#36384C] px-3 py-1 rounded-r">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                  <path
+                    d="M2 12h20m0 0l-7-7m7 7l-7 7"
+                    stroke="#36384C"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </form>
+            <div className="flex space-x-4 mt-2 ">
+              <Link href="#" aria-label="Instagram">
+                <Instagram />
+              </Link>
+              <Link href="#" aria-label="Facebook">
+                <Facebook />
+              </Link>
+              <Link href="#" aria-label="Twitter">
+                <Twitter />
+              </Link>
+              <Link href="#" aria-label="YouTube">
+                <Youtube />
+              </Link>
             </div>
-            {menuItems.map((section, sectionIdx) => (
-              <div key={sectionIdx}>
-                <h3 className="mb-3 font-semibold">{t(section.title)}</h3>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  {section.links.map((link, linkIdx) => (
-                    <li key={linkIdx}>
-                      <a href={link.url} className="hover:text-primary">
-                        {t(link.text)}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
           </div>
-          <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-6 text-xs text-muted-foreground sm:flex-row">
-            <p>{t("copyright")}</p>
-            <ul className="flex flex-wrap gap-3">
-              {bottomLinks.map((link, idx) => (
-                <li key={idx}>
-                  <a href={link.url} className="hover:text-primary underline">
-                    {t(link.text)}
-                  </a>
-                </li>
-              ))}
+          {/* "Миний бүртгэл" */}
+          <div>
+            <h3 className="mb-3 font-semibold text-lg">Миний бүртгэл</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>
+                <Link href="/auth/signin" className="hover:underline">
+                  Нэвтрье
+                </Link>
+              </li>
+              <li>
+                <Link href="/auth/signup" className="hover:underline">
+                  Бүртгэл үүсгэх
+                </Link>
+              </li>
+              <li>
+                <Link href="/profile" className="hover:underline">
+                  Захиалгууд
+                </Link>
+              </li>
             </ul>
           </div>
-        </footer>
+          {/* "GoldenPen.mn" */}
+          <div>
+            <h3 className="mb-3 font-semibold text-lg">GoldenPen.mn</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>
+                <Link href="/prodicts" className="hover:underline">
+                  Брэндүүд
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  Холбогдох
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  Бидний тухай
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  Үйлчилгээний нөхцөл
+                </Link>
+              </li>
+            </ul>
+          </div>
+          {/* "Дэлгүүрийн" */}
+          <div>
+            <h3 className="mb-3 font-semibold text-lg">Дэлгүүрийн</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>
+                <Link href="#" className="hover:underline">
+                  Салбар, хаяг
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  Хүргэлт
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  Буцаалт
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-8 border-t border-gray-600 pt-4 text-xs text-center text-gray-300">
+          ©2021-2022. TAKA систем-v2. Зохиогчийн эрх хамгаалагдсан.
+        </div>
       </div>
-    </section>
+    </footer>
   );
 };

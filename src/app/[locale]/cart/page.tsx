@@ -24,6 +24,9 @@ export default function CartPage() {
 
   const [modalOpen, setModalOpen] = useState(false);
 
+  const [invoiceReceiverCode, setInvoiceReceiverCode] = useState("");
+  const [ebarimtReg, setEbarimtReg] = useState("");
+
   // Called when modal detects payment success
   async function handlePaymentSuccess() {
     if (!session?.user) return;
@@ -66,7 +69,8 @@ export default function CartPage() {
         body: JSON.stringify({
           amount: getTotalPrice(),
           invoiceNumber: `${Date.now()}`,
-          invoiceReceiverCode: "1",
+          invoiceReceiverCode: invoiceReceiverCode || "1",
+          ebarimtReg,
           items,
         }),
       });
@@ -114,6 +118,20 @@ export default function CartPage() {
           <div className="bg-white rounded-2xl p-6 shadow-lg h-fit">
             <h3 className="text-xl font-semibold mb-4">{t("summary")}</h3>
 
+            {/* New inputs for invoiceReceiverCode and ebarimtReg */}
+            <div className="mb-4 space-y-2">
+              <label className="block text-sm font-medium text-gray-700 mt-2 mb-1">
+                {t("register")}
+              </label>
+              <input
+                type="text"
+                className="w-full border rounded px-3 py-2"
+                value={invoiceReceiverCode}
+                onChange={(e) => setInvoiceReceiverCode(e.target.value)}
+                placeholder={t("register")}
+              />
+            </div>
+
             <div className="space-y-2 mb-4">
               <div className="flex justify-between">
                 <span>{t("subtotal")}</span>
@@ -121,7 +139,7 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between">
                 <span>{t("shipping")}</span>
-                <span>Free</span>
+                <span>{getTotalPrice() < 100000 ? 6000 : 0}₮</span>
               </div>
               <hr />
               <div className="flex justify-between font-semibold text-lg">
@@ -153,7 +171,9 @@ export default function CartPage() {
         onEnd={() => {
           handlePaymentSuccess();
         }}
-        amount={getTotalPrice().toFixed(0)}
+        amount={(
+          getTotalPrice() + (getTotalPrice() < 100000 ? 6000 : 0)
+        ).toFixed(0)}
         // Add other props if needed
       />
     </>

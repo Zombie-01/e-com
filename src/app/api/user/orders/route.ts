@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       total += variant.product.price * item.quantity;
     }
 
-     for (const item of items) {
+    for (const item of items) {
       const variant = variantMap.get(item.variantId);
       if (!variant || typeof item.quantity !== "number" || item.quantity < 1) {
         return NextResponse.json(
@@ -71,7 +71,6 @@ export async function POST(request: NextRequest) {
       }
       costPrice += variant.product.costPrice * item.quantity;
     }
-    
 
     // ✅ Transactional creation of order + items
     const createdOrder = await prisma.$transaction(async (tx) => {
@@ -107,15 +106,14 @@ export async function POST(request: NextRequest) {
         }),
       });
 
-      await tx.users.update({
+      await tx.user.update({
         where: { id: userId },
         data: {
           bonus: {
-            increment: (total - costPrice) * 0.1 // Adds newPrice to the existing costPrice
+            increment: (total - costPrice) * 0.1, // Adds newPrice to the existing costPrice
           },
         },
       });
-
 
       await tx.transaction.create({
         data: {
