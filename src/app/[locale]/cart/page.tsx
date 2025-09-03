@@ -26,6 +26,8 @@ export default function CartPage() {
 
   const [invoiceReceiverCode, setInvoiceReceiverCode] = useState("");
   const [ebarimtReg, setEbarimtReg] = useState("");
+  // Bonus state
+  const [useBonus, setUseBonus] = useState(false);
 
   // Called when modal detects payment success
   async function handlePaymentSuccess() {
@@ -87,6 +89,13 @@ export default function CartPage() {
     }
   }
 
+  // Calculate prices
+  const subtotal = getTotalPrice();
+  const shipping = subtotal < 100000 ? 6000 : 0;
+  const userBonus = session?.user?.bonus ?? 0;
+  const totalBeforeBonus = subtotal + shipping;
+  const totalAfterBonus = useBonus && userBonus > 0 ? Math.max(totalBeforeBonus - userBonus, 0) : totalBeforeBonus;
+
   if (items.length === 0) {
     return (
       <div className="container mx-auto px-4 py-16">
@@ -132,19 +141,42 @@ export default function CartPage() {
               />
             </div>
 
+            {/* Bonus field and checkbox */}
+            <div className="mb-4 space-y-2">
+              <label className="flex items-center mt-2">
+                <input
+                  type="checkbox"
+                  checked={useBonus}
+                  onChange={(e) => setUseBonus(e.target.checked)}
+                  disabled={userBonus <= 0}
+                  className="mr-2"
+                />
+                Use bonus
+              </label>
+              <div className="text-sm text-gray-600 mt-1">
+                Your bonus: ₮{userBonus.toLocaleString()}
+              </div>
+            </div>
+
             <div className="space-y-2 mb-4">
               <div className="flex justify-between">
                 <span>{t("subtotal")}</span>
-                <span>₮{getTotalPrice().toLocaleString()}</span>
+                <span>₮{subtotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span>{t("shipping")}</span>
-                <span>{getTotalPrice() < 100000 ? 6000 : 0}₮</span>
+                <span>{shipping}₮</span>
               </div>
+              {useBonus && userBonus > 0 && (
+                <div className="flex justify-between text-blue-600">
+                  <span>Bonus</span>
+                  <span>-₮{userBonus.toLocaleString()}</span>
+                </div>
+              )}
               <hr />
               <div className="flex justify-between font-semibold text-lg">
                 <span>{t("total")}</span>
-                <span>₮{getTotalPrice().toLocaleString()}</span>
+                <span>₮{totalAfterBonus.toLocaleString()}</span>
               </div>
             </div>
 
@@ -171,9 +203,7 @@ export default function CartPage() {
         onEnd={() => {
           handlePaymentSuccess();
         }}
-        amount={(
-          getTotalPrice() + (getTotalPrice() < 100000 ? 6000 : 0)
-        ).toFixed(0)}
+        amount={totalAfterBonus.toFixed(0)}
         // Add other props if needed
       />
     </>

@@ -9,6 +9,7 @@ declare module "next-auth" {
       name?: string
       image?: string
       role: "USER" | "ADMIN" | string
+      bonus: number
     } & DefaultSession["user"]
   }
 

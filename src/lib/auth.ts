@@ -1,9 +1,9 @@
-import { NextAuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
-import { prisma } from "@/src/lib/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { prisma } from "@/src/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
@@ -33,6 +33,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name ?? undefined,
           role: user.role,
+          bonus: user.bonus,
         };
       },
     }),
@@ -55,6 +56,24 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (!user.email) return false;
+
+      // Upsert user to ensure bonus/phone defaults
+      await prisma.user.upsert({
+        where: { email: user.email },
+        update: {},
+        create: {
+          email: user.email,
+          name: user.name || null,
+          bonus: 0,
+          phone: null,
+        },
+      });
+
+      return true;
+    },
+
     async jwt({ token, user }) {
       // Attach user role on sign in
       if (user) {
@@ -62,6 +81,7 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
+
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.sub!;
@@ -69,6 +89,7 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+
     async redirect({ url, baseUrl }) {
       const clientRedirectUrl = process.env.CLIENT_REDIRECT_URL;
       if (url.startsWith(baseUrl)) return url;
@@ -81,4 +102,6 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/signin",
     newUser: "/auth/signup",
   },
-};
+}
+
+export default NextAuth(authOptions);

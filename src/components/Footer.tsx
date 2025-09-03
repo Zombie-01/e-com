@@ -95,7 +95,7 @@ export const Footer = ({ menuItems = [], bottomLinks = [] }: FooterProps) => {
             <h3 className="mb-3 font-semibold text-lg">GoldenPen.mn</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <Link href="/prodicts" className="hover:underline">
+                <Link href="/products" className="hover:underline">
                   Брэндүүд
                 </Link>
               </li>
@@ -139,7 +139,7 @@ export const Footer = ({ menuItems = [], bottomLinks = [] }: FooterProps) => {
           </div>
         </div>
         <div className="mt-8 border-t border-gray-600 pt-4 text-xs text-center text-gray-300">
-          ©2021-2022. TAKA систем-v2. Зохиогчийн эрх хамгаалагдсан.
+          ©{new Date().getFullYear()} Зохиогчийн эрх хамгаалагдсан.
         </div>
       </div>
     </footer>
