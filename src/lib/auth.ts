@@ -59,17 +59,17 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account, profile }) {
       if (!user.email) return false;
 
-      // Upsert user to ensure bonus/phone defaults
-      await prisma.user.upsert({
-        where: { email: user.email },
-        update: {},
-        create: {
-          email: user.email,
-          name: user.name || null,
-          bonus: 0,
-          phone: null,
-        },
-      });
+  await prisma.user.upsert({
+    where: { email: user.email },
+    update: {},
+    create: {
+      email: user.email,
+      name: user.name || null,
+      bonus: 0,
+      phone: null,
+      role: "USER",   // 👈 заавал нэм
+    },
+  });
 
       return true;
     },

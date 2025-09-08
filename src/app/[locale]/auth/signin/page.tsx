@@ -62,9 +62,7 @@ export default function SignInPage({
   const signInWithGoogle = async () => {
     await signIn("google", { callbackUrl: `/${locale}` });
   };
-  const signInWithFacebook = async () => {
-    await signIn("facebook", { callbackUrl: `/${locale}` });
-  };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 px-4">
@@ -82,18 +80,6 @@ export default function SignInPage({
               className="w-full"
               variant="outline">
               Continue with Google
-            </Button>
-            <div className="flex items-center gap-2">
-              <div className="h-px flex-1 bg-gray-200" />
-              <span className="text-xs text-gray-500">or</span>
-              <div className="h-px flex-1 bg-gray-200" />
-            </div>
-            <Button
-              onClick={signInWithFacebook}
-              className="w-full mt-2"
-              variant="outline">
-              <FacebookIcon className="mr-2 h-5 w-5" />
-              Continue with Facebook
             </Button>
             <div className="flex items-center gap-2">
               <div className="h-px flex-1 bg-gray-200" />
