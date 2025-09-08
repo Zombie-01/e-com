@@ -60,7 +60,9 @@ export default function SignInPage({
   };
 
   const signInWithGoogle = async () => {
-    await signIn("google", { callbackUrl: `/${locale}` });
+    await signIn("google", { callbackUrl: `/${locale}` }).then(() => {
+        router.push(`/${locale}`);
+    })
   };
 
 
