@@ -51,7 +51,7 @@ export default function AdminNavbar({ locale }: { locale: string }) {
   ];
 
   const pathname = usePathname();
-  const isActive = (href: string) => pathname.startsWith(href);
+  const isActive = (href: string) => `${pathname}`.startsWith(href);
 
   return (
     <nav className="sticky hidden md:block top-0 z-40 w-full border-b bg-white/90 backdrop-blur">
