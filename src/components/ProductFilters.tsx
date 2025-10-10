@@ -37,15 +37,16 @@ export default function ProductFilters({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const params = searchParams ?? new URLSearchParams();
   const t = useTranslations("filters"); // Using "filters" namespace
 
-  const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
-  const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
+  const [minPrice, setMinPrice] = useState(params.get("minPrice") || "");
+  const [maxPrice, setMaxPrice] = useState(params.get("maxPrice") || "");
   const [selectedBrands, setSelectedBrands] = useState<string[]>(
-    searchParams.get("brand")?.split(",") || []
+    params.get("brand")?.split(",") || []
   );
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    searchParams.get("category")?.split(",") || []
+    params.get("category")?.split(",") || []
   );
 
   const applyFilters = () => {
