@@ -49,6 +49,9 @@ export default function AdminProductsPage() {
   const [sizes, setSizes] = useState<any[]>([]);
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
+  const [showSaleModal, setShowSaleModal] = useState(false);
+  const [saleTargetProduct, setSaleTargetProduct] = useState<any | null>(null);
+  const [salePercentInput, setSalePercentInput] = useState<number>(0);
   const t = useTranslations("AdminProductsPage");
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -60,14 +63,15 @@ export default function AdminProductsPage() {
     mnDesc: "",
     enDesc: "",
     price: "",
-    costPrice: "", // Added costPrice
+    costPrice: "",
     sku: "",
     brandId: "",
     categoryId: "",
     tagIds: [] as string[],
-    variants: [
-      { colorId: "", sizeId: "", stock: 0, image: [] /* image is now array */ },
-    ],
+    wholesalePrice: "", // Added wholesalePrice
+    wholesaleMinQty: "", // Added wholesaleMinQty
+    salePercent: "", // Added salePercent
+    variants: [{ colorId: "", sizeId: "", stock: 0, image: [] }],
   });
   // Holds arrays of File objects for each variant
   const [variantImages, setVariantImages] = useState<(File[] | null)[]>([]);
@@ -84,11 +88,14 @@ export default function AdminProductsPage() {
       mnDesc: product.mnDesc,
       enDesc: product.enDesc,
       price: product.price,
-      costPrice: product.costPrice || "", // Added costPrice
+      costPrice: product.costPrice || "",
       sku: product.sku,
       brandId: product.brandId,
       categoryId: product.categoryId,
       tagIds: product.tags.map((tag: any) => tag.id),
+      wholesalePrice: product.wholesalePrice || "", // Populate wholesalePrice
+      wholesaleMinQty: product.wholesaleMinQty || "", // Populate wholesaleMinQty
+      salePercent: product.salePercent || "", // Populate salePercent
       variants: product.variants.map((v: any) => ({
         colorId: v.colorId,
         sizeId: v.sizeId,
@@ -99,10 +106,7 @@ export default function AdminProductsPage() {
     setVariantImages(product.variants.map(() => null));
   };
 
-  const handlePreview = (product: any) => {
-    setPreviewProduct(product);
-  };
-
+ 
   useEffect(() => {
     if (
       status === "unauthenticated" ||
@@ -209,16 +213,17 @@ export default function AdminProductsPage() {
       formData.append("mnDesc", form.mnDesc);
       formData.append("enDesc", form.enDesc);
       formData.append("price", form.price.toString());
-      formData.append("costPrice", form.costPrice.toString()); // Added costPrice
+      formData.append("costPrice", form.costPrice.toString());
       formData.append("sku", form.sku);
       formData.append("brandId", form.brandId);
       formData.append("categoryId", form.categoryId);
       formData.append("tagIds", JSON.stringify(form.tagIds));
+      formData.append("wholesalePrice", form.wholesalePrice.toString()); // Add wholesalePrice
+      formData.append("wholesaleMinQty", form.wholesaleMinQty.toString()); // Add wholesaleMinQty
+      formData.append("salePercent", form.salePercent.toString()); // Add salePercent
 
-      // Remove image field from variants for backend
       const variantsWithoutImage = form.variants.map(({ image, ...v }) => v);
       formData.append("variants", JSON.stringify(variantsWithoutImage));
-      // Append all images for each variant
       variantImages.forEach((files, idx) => {
         if (files && files.length > 0) {
           files.forEach((file, imgIdx) => {
@@ -246,11 +251,14 @@ export default function AdminProductsPage() {
           mnDesc: "",
           enDesc: "",
           price: "",
-          costPrice: "", // Reset costPrice
+          costPrice: "",
           sku: "",
           brandId: "",
           categoryId: "",
           tagIds: [],
+          wholesalePrice: "",
+          wholesaleMinQty: "",
+          salePercent: "",
           variants: [{ colorId: "", sizeId: "", stock: 0, image: [] }],
         });
         setVariantImages([]);
@@ -288,6 +296,25 @@ export default function AdminProductsPage() {
     } catch (err) {
       console.error("Error deleting product:", err);
       alert("Unexpected error while deleting product.");
+    }
+  };
+
+  const handleSale = async (id: string, salePercent: number) => {
+    try {
+      const res = await fetch(`/api/admin/products/sale`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, salePercent }),
+      });
+
+      if (res.ok) {
+        fetchInitialData();
+        router.refresh();
+      } else {
+        console.error("Failed to apply sale:", await res.text());
+      }
+    } catch (error) {
+      console.error("Error applying sale:", error);
     }
   };
 
@@ -586,69 +613,95 @@ export default function AdminProductsPage() {
                   <TableHead>{t("table.brand")}</TableHead>
                   <TableHead>{t("table.category")}</TableHead>
                   <TableHead>{t("table.price")}</TableHead>
-                  <TableHead>{t("table.stock")}</TableHead>
-                  <TableHead>{t("table.status")}</TableHead>
+                  <TableHead>{t("table.salePercent")}</TableHead>
                   <TableHead>{t("table.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProducts.map((product) => {
-                  const stock =
-                    product.variants?.reduce(
-                      (sum: number, v: any) => sum + v.stock,
-                      0
-                    ) || 0;
-                  return (
-                    <TableRow key={product.id}>
-                      <TableCell>{product.enName}</TableCell>
-                      <TableCell>{product.sku}</TableCell>
-                      <TableCell>{product.brand?.enName}</TableCell>
-                      <TableCell>{product.category?.enName}</TableCell>
-                      <TableCell>₮{product.price}</TableCell>
-                      <TableCell>
-                        <Badge>{stock}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={stock > 0 ? "default" : "secondary"}>
-                          {stock > 0
-                            ? t("stockStatus.inStock")
-                            : t("stockStatus.outOfStock")}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            title={t("dialog.viewButton")}
-                            onClick={() => handlePreview(product)}>
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            title="Edit"
-                            onClick={() => handleEdit(product)}>
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-500"
-                            title="Delete"
-                            onClick={() => handleDelete(product.id)}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                {filteredProducts.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell>{product.enName}</TableCell>
+                    <TableCell>{product.sku}</TableCell>
+                    <TableCell>{product.brand?.enName}</TableCell>
+                    <TableCell>{product.category?.enName}</TableCell>
+                    <TableCell>₮{product.price}</TableCell>
+                    <TableCell>
+                      {product.salePercent
+                        ? `${product.salePercent}%`
+                        : t("noSale")}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          title="Edit"
+                          onClick={() => handleEdit(product)}>
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          title="Apply Sale"
+                          onClick={() => {
+                            setSaleTargetProduct(product);
+                            setSalePercentInput(product.salePercent || 0);
+                            setShowSaleModal(true);
+                          }}>
+                          <ChevronDown className="w-4 h-4" />
+                        </Button>
+
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-500"
+                          title="Delete"
+                          onClick={() => handleDelete(product.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>
         </CardContent>
       </Card>
+      <Dialog open={showSaleModal} onOpenChange={setShowSaleModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Apply Sale</DialogTitle>
+          </DialogHeader>
+          {saleTargetProduct && (
+            <div className="space-y-4">
+              <p>
+                <strong>Product:</strong> {saleTargetProduct.enName} (
+                {saleTargetProduct.sku})
+              </p>
+              <Input
+                type="number"
+                placeholder="Enter sale percent"
+                value={salePercentInput}
+                onChange={(e) => setSalePercentInput(parseInt(e.target.value))}
+                min={0}
+                max={100}
+              />
+              <DialogFooter>
+                <Button
+                  onClick={async () => {
+                    await handleSale(saleTargetProduct.id, salePercentInput);
+                    setShowSaleModal(false);
+                    setSaleTargetProduct(null);
+                  }}>
+                  Apply
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Dialog
         open={!!previewProduct}
         onOpenChange={() => setPreviewProduct(null)}>

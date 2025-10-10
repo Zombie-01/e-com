@@ -9,6 +9,7 @@ interface Product {
   mnName: string;
   enName: string;
   price: number;
+  salePercent?: number;
   brand: {
     mnName: string;
     enName: string;
@@ -26,44 +27,75 @@ export default function FeaturedProducts({
   locale: string;
 }) {
   const t = useTranslations();
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {products.map((product) => (
-        <Link key={product.id} href={`/${locale}/products/${product.id}`}>
-          <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden border-0 bg-white">
-            <CardContent className="p-0">
-              <div className="relative aspect-square overflow-hidden">
-                <Image
-                  src={
-                    product?.variants?.[0]?.image?.[0] ??
-                    "https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg"
-                  }
-                  alt={locale === "mn" ? product.mnName : product.enName}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <Badge className="absolute top-3 left-3 bg-black/80 text-white">
-                  {t("products.new")}
-                </Badge>
-              </div>
+      {products.map((product) => {
+        const hasSale = !!product.salePercent && product.salePercent > 0;
+        const salePrice = hasSale
+          ? Math.round(product.price * (1 - product.salePercent! / 100))
+          : product.price;
 
-              <div className="p-4">
-                <p className="text-sm text-gray-500 mb-1">
-                  {locale === "mn"
-                    ? product.brand.mnName
-                    : product.brand.enName}
-                </p>
-                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
-                  {locale === "mn" ? product.mnName : product.enName}
-                </h3>
-                <p className="text-lg font-bold text-blue-600">
-                  ₮{product.price.toLocaleString()}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-      ))}
+        return (
+          <Link key={product.id} href={`/${locale}/products/${product.id}`}>
+            <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden border-0 bg-white">
+              <CardContent className="p-0">
+                <div className="relative aspect-square overflow-hidden">
+                  <Image
+                    src={
+                      product?.variants?.[0]?.image?.[0] ??
+                      "https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg"
+                    }
+                    alt={locale === "mn" ? product.mnName : product.enName}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+
+                  {/* "New" badge */}
+                  <Badge className="absolute top-3 left-3 bg-black/80 text-white">
+                    {t("products.new")}
+                  </Badge>
+
+                  {/* Sale badge */}
+                  {hasSale && (
+                    <Badge className="absolute top-3 right-3 bg-red-500 text-white">
+                      -{product.salePercent}%
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="p-4">
+                  <p className="text-sm text-gray-500 mb-1">
+                    {locale === "mn"
+                      ? product.brand.mnName
+                      : product.brand.enName}
+                  </p>
+                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                    {locale === "mn" ? product.mnName : product.enName}
+                  </h3>
+
+                  <div className="flex items-center gap-2">
+                    {hasSale ? (
+                      <>
+                        <p className="text-lg font-bold text-red-600">
+                          ₮{salePrice.toLocaleString()}
+                        </p>
+                        <p className="text-sm text-gray-400 line-through">
+                          ₮{product.price.toLocaleString()}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-lg font-bold text-blue-600">
+                        ₮{product.price.toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        );
+      })}
     </div>
   );
 }

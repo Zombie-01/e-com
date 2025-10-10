@@ -65,6 +65,7 @@ interface Product {
   category: Category;
   tags: Tag[];
   variants: Variant[];
+  salePercent?: number; // 👈 add this
 }
 
 interface ProductDetailsProps {
@@ -72,14 +73,10 @@ interface ProductDetailsProps {
   locale: "mn" | "en";
 }
 
-export default function ProductDetails({
-  product,
-  locale,
-}: ProductDetailsProps) {
+export default function ProductDetails({ product, locale }: ProductDetailsProps) {
   const t = useTranslations("products");
   const { addItem } = useCartStore();
 
-  // Helper: find variant by colorId and sizeId
   const findVariant = (colorId?: string, sizeId?: string) =>
     product.variants.find(
       (v) =>
@@ -90,33 +87,20 @@ export default function ProductDetails({
         v.size != null
     );
 
-  // Flatten all images from all variants for thumbnails (show ALL images always)
   const allImages = product.variants.flatMap((v) => v.image || []);
-
-  // Initial states
   const initialColor = product.variants[0]?.color ?? undefined;
   const initialSize = product.variants[0]?.size ?? undefined;
   const initialVariant =
     findVariant(initialColor?.id, initialSize?.id) || product?.variants[0];
 
-  console.log(initialVariant);
-
-  const [selectedColor, setSelectedColor] = useState<Color | undefined>(
-    initialColor
-  );
-  const [selectedSize, setSelectedSize] = useState<Size | undefined>(
-    initialSize
-  );
-  const [selectedVariant, setSelectedVariant] =
-    useState<Variant>(initialVariant);
-
+  const [selectedColor, setSelectedColor] = useState<Color | undefined>(initialColor);
+  const [selectedSize, setSelectedSize] = useState<Size | undefined>(initialSize);
+  const [selectedVariant, setSelectedVariant] = useState<Variant>(initialVariant);
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
     initialVariant?.image?.[0] || allImages[0]
   );
   const [quantity, setQuantity] = useState(1);
 
-  // This hook is the only one that updates the selected variant.
-  // It ensures the correct price, stock, etc., are used.
   useEffect(() => {
     if (!selectedColor || !selectedSize) {
       setSelectedVariant(product?.variants[0]);
@@ -131,30 +115,36 @@ export default function ProductDetails({
     }
   }, [selectedColor, selectedSize, product.variants]);
 
-  // IMPORTANT: The useEffect hook that automatically reset the main image
-  // has been removed. Now, the main image will only change when a thumbnail is clicked.
-
   const handleAddToCart = () => {
     if (!selectedVariant || selectedVariant.stock < quantity) {
-      console.error(
-        "Cannot add to cart: variant not selected or insufficient stock."
-      );
+      console.error("Cannot add to cart: variant not selected or insufficient stock.");
       return;
     }
+
+    const hasSale = !!product.salePercent && product.salePercent > 0;
+    const finalPrice = hasSale
+      ? Math.round(product.price * (1 - product.salePercent! / 100))
+      : product.price;
 
     addItem({
       id: product.id,
       productId: product.id,
       variantId: selectedVariant.id,
       name: locale === "mn" ? product.mnName : product.enName,
-      price: product.price,
+      price: finalPrice, // 👈 use sale price in cart
       quantity,
       image: selectedVariant.image?.[0] || "",
       color: selectedVariant?.color,
       size: selectedVariant?.size,
-      costPrice: product?.costPrice
+      costPrice: product?.costPrice,
     });
   };
+
+  // ✅ Calculate sale price
+  const hasSale = !!product.salePercent && product.salePercent > 0;
+  const salePrice = hasSale
+    ? Math.round(product.price * (1 - product.salePercent! / 100))
+    : product.price;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -170,27 +160,31 @@ export default function ProductDetails({
             fill
             className="object-cover"
           />
+
+          {/* Sale Badge */}
+          {hasSale && (
+            <Badge className="absolute top-3 left-3 bg-red-500 text-white text-sm px-3 py-1">
+              -{product.salePercent}%
+            </Badge>
+          )}
         </div>
 
-        {/* Show ALL variant images from all variants here */}
         {allImages.length > 1 && (
           <div className="grid grid-cols-4 gap-2">
             {allImages.map((img, idx) => (
               <button
                 key={img + idx}
                 type="button"
-                // This handler is now the ONLY way the main image changes after initial load.
                 onClick={() => setSelectedImage(img)}
-                className={`relative aspect-square rounded-lg overflow-hidden border-2 focus:outline-none focus:ring-2 ${
+                className={`relative aspect-square rounded-lg overflow-hidden border-2 ${
                   selectedImage === img
-                    ? "border-blue-500 ring-blue-500"
-                    : "border-gray-200"
-                }`}>
+                    ? "border-blue-500"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
                 <Image
                   src={img}
-                  alt={`${
-                    locale === "mn" ? product.mnName : product.enName
-                  } image ${idx + 1}`}
+                  alt={`${locale === "mn" ? product.mnName : product.enName} ${idx + 1}`}
                   fill
                   className="object-cover"
                 />
@@ -209,11 +203,25 @@ export default function ProductDetails({
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             {locale === "mn" ? product.mnName : product.enName}
           </h1>
-          <p className="text-2xl font-bold text-blue-600">
-            ₮{product.price.toLocaleString()}
-          </p>
+
+          {/* Price with sale logic */}
+          <div className="flex items-baseline gap-3">
+            <p
+              className={`text-2xl font-bold ${
+                hasSale ? "text-red-600" : "text-blue-600"
+              }`}
+            >
+              ₮{salePrice.toLocaleString()}
+            </p>
+            {hasSale && (
+              <p className="text-gray-400 line-through text-lg">
+                ₮{product.price.toLocaleString()}
+              </p>
+            )}
+          </div>
         </div>
 
+        {/* Description */}
         <div>
           <p className="text-gray-700 leading-relaxed">
             {locale === "mn" ? product.mnDesc : product.enDesc}
@@ -228,8 +236,8 @@ export default function ProductDetails({
               {Array.from(
                 new Map(
                   product.variants
-                    .filter((v) => v.color != null) // only variants with a color
-                    .map((v) => [v.color!.id, v.color!]) // create unique color entries by id
+                    .filter((v) => v.color != null)
+                    .map((v) => [v.color!.id, v.color!])
                 )
               )
                 .map(([, color]) => color)
@@ -266,7 +274,7 @@ export default function ProductDetails({
                       .filter(
                         (v) => v.colorId === selectedColor.id && v.size != null
                       )
-                      .map((v) => [v.size!.id, v]) // unique sizes by id
+                      .map((v) => [v.size!.id, v])
                   ).values()
                 ).map((variant) => (
                   <button
@@ -277,7 +285,8 @@ export default function ProductDetails({
                       selectedSize?.id === variant.size!.id
                         ? "border-blue-500 bg-blue-50 text-blue-600"
                         : "border-gray-300 hover:border-gray-400"
-                    }`}>
+                    }`}
+                  >
                     {variant.size!.name}
                   </button>
                 ))}
@@ -290,21 +299,21 @@ export default function ProductDetails({
           <div>
             <label
               htmlFor="quantity"
-              className="text-sm font-medium text-gray-900 mb-2 block">
+              className="text-sm font-medium text-gray-900 mb-2 block"
+            >
               {t("quantity")}
             </label>
             <select
               id="quantity"
               value={quantity}
               onChange={(e) => setQuantity(Number(e.target.value))}
-              className="border border-gray-300 rounded-md px-3 py-2">
-              {[...Array(Math.min(selectedVariant?.stock || 0, 10))].map(
-                (_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1}
-                  </option>
-                )
-              )}
+              className="border border-gray-300 rounded-md px-3 py-2"
+            >
+              {[...Array(Math.min(selectedVariant?.stock || 0, 10))].map((_, i) => (
+                <option key={i + 1} value={i + 1}>
+                  {i + 1}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -312,7 +321,8 @@ export default function ProductDetails({
             onClick={handleAddToCart}
             disabled={!selectedVariant || selectedVariant.stock < quantity}
             size="lg"
-            className="w-full">
+            className="w-full"
+          >
             {selectedVariant && selectedVariant.stock > 0
               ? t("add_to_cart")
               : t("out_of_stock")}
@@ -322,9 +332,7 @@ export default function ProductDetails({
         {/* Tags */}
         {product.tags.length > 0 && (
           <div>
-            <h3 className="text-sm font-medium text-gray-900 mb-3">
-              {t("tags")}
-            </h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-3">{t("tags")}</h3>
             <div className="flex flex-wrap gap-2">
               {product.tags.map((tag) => (
                 <Badge key={tag.id} variant="secondary">

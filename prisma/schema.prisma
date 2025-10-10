@@ -121,6 +121,9 @@ model Product {
   tags       Tag[]            @relation("ProductTags")
   variants   ProductVariant[]
   createdAt  DateTime         @default(now())
+  wholesalePrice  Float?           // ✅ For bulk discount
+  wholesaleMinQty Int?             // ✅ Minimum quantity for wholesale
+  salePercent     Float?           // ✅ Admin-defined sale (e.g., 20 = 20%)
 }
 
 model ProductVariant {

@@ -8,12 +8,13 @@ interface Product {
   mnName: string;
   enName: string;
   price: number;
+  salePercent?: number; // ✅ added
   brand: {
     mnName: string;
     enName: string;
   };
   variants: Array<{
-    image: string;
+    image: string[];
     stock: number;
   }>;
 }
@@ -43,9 +44,15 @@ export default function ProductGrid({
           0
         );
 
+        // ✅ Calculate discounted price if sale is active
+        const hasSale = product.salePercent && product.salePercent > 0;
+        const discountedPrice = hasSale
+          ? product.price - product.price * (product.salePercent! / 100)
+          : product.price;
+
         return (
           <Link key={product.id} href={`/${locale}/products/${product.id}`}>
-            <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden border-0 bg-white">
+            <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden border-0 bg-white relative">
               <CardContent className="p-0">
                 <div className="relative aspect-square overflow-hidden">
                   <Image
@@ -57,8 +64,17 @@ export default function ProductGrid({
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
+
+                  {/* ✅ Sale badge */}
+                  {hasSale && (
+                    <Badge className="absolute top-3 left-3 bg-red-500 text-white text-sm">
+                      -{product.salePercent}% SALE
+                    </Badge>
+                  )}
+
+                  {/* ✅ Out of stock badge */}
                   {totalStock === 0 && (
-                    <Badge className="absolute top-3 left-3 bg-red-500">
+                    <Badge className="absolute top-3 right-3 bg-gray-600">
                       Out of Stock
                     </Badge>
                   )}
@@ -73,9 +89,22 @@ export default function ProductGrid({
                   <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
                     {locale === "mn" ? product.mnName : product.enName}
                   </h3>
-                  <p className="text-lg font-bold text-blue-600">
-                    ₮{product.price.toLocaleString()}
-                  </p>
+
+                  {/* ✅ Show discounted price + old price */}
+                  <div className="flex items-center gap-2">
+                    <p
+                      className={`text-lg font-bold ${
+                        hasSale ? "text-red-600" : "text-blue-600"
+                      }`}>
+                      ₮{discountedPrice.toLocaleString()}
+                    </p>
+
+                    {hasSale && (
+                      <p className="text-sm text-gray-400 line-through">
+                        ₮{product.price.toLocaleString()}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>

@@ -128,6 +128,8 @@
     "password": "Password",
     "phone": "Phone",
     "enter_phone": "Enter your phone number",
+    "address": "Address",
+    "enter_address": "Enter your address",
 
     "enter_password": "Enter your password",
     "show_password": "Show password",

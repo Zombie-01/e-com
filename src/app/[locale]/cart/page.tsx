@@ -29,6 +29,16 @@ export default function CartPage() {
   // Bonus state
   const [useBonus, setUseBonus] = useState(false);
 
+  // Calculate prices
+  const subtotal = getTotalPrice();
+  const shipping = 6000;
+  const userBonus = session?.user?.bonus ?? 0;
+  const totalBeforeBonus = subtotal + shipping;
+  const totalAfterBonus =
+    useBonus && userBonus > 0
+      ? Math.max(totalBeforeBonus - userBonus, 0)
+      : totalBeforeBonus;
+
   // Called when modal detects payment success
   async function handlePaymentSuccess() {
     if (!session?.user) return;
@@ -42,7 +52,7 @@ export default function CartPage() {
           items,
           userId: session.user.id,
           transactionId: "0",
-          total: getTotalPrice(),
+          total: getTotalPrice() + 6000, // Add shipping
         }),
       });
 
@@ -69,7 +79,7 @@ export default function CartPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: getTotalPrice(),
+          amount: totalAfterBonus,
           invoiceNumber: `${Date.now()}`,
           invoiceReceiverCode: invoiceReceiverCode || "1",
           ebarimtReg,
@@ -88,13 +98,6 @@ export default function CartPage() {
       alert("Failed to create transaction.");
     }
   }
-
-  // Calculate prices
-  const subtotal = getTotalPrice();
-  const shipping = subtotal < 100000 ? 6000 : 0;
-  const userBonus = session?.user?.bonus ?? 0;
-  const totalBeforeBonus = subtotal + shipping;
-  const totalAfterBonus = useBonus && userBonus > 0 ? Math.max(totalBeforeBonus - userBonus, 0) : totalBeforeBonus;
 
   if (items.length === 0) {
     return (

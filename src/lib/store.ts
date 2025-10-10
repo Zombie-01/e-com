@@ -18,6 +18,7 @@ interface CartItem {
   name: string;
   price: number;
   costPrice: number;
+  salePercent?: number; // 🆕 added
   quantity: number;
   image: string;
   color?: Color;
