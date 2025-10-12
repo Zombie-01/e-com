@@ -106,7 +106,6 @@ export default function AdminProductsPage() {
     setVariantImages(product.variants.map(() => null));
   };
 
- 
   useEffect(() => {
     if (
       status === "unauthenticated" ||
@@ -387,6 +386,21 @@ export default function AdminProductsPage() {
                 placeholder={t("dialog.costPrice") || "Cost Price"}
                 required
               />
+              <Input
+                name="wholesalePrice"
+                type="number"
+                value={form.wholesalePrice}
+                onChange={handleFormChange}
+                placeholder={t("dialog.wholesalePrice") || "Wholesale Price"}
+              />
+              <Input
+                name="wholesaleMinQty"
+                type="number"
+                value={form.wholesaleMinQty}
+                onChange={handleFormChange}
+                placeholder={t("dialog.wholesaleMinQty") || "Wholesale Min Qty"}
+              />
+
               <select
                 name="brandId"
                 value={form.brandId}
