@@ -111,6 +111,11 @@ export default function ProductDetails({
   );
   const [quantity, setQuantity] = useState(1);
 
+  const hasSale = !!product.salePercent && product.salePercent > 0;
+  const salePrice = hasSale
+    ? Math.round(product.price * (1 - product.salePercent! / 100))
+    : product.price;
+
   useEffect(() => {
     if (!selectedColor || !selectedSize) {
       setSelectedVariant(product?.variants[0]);
@@ -139,20 +144,20 @@ export default function ProductDetails({
       product.wholesaleMinQty &&
       quantity >= product.wholesaleMinQty;
 
-    // 🧮 Calculate base price (with sale)
+    // Calculate sale price (if applicable)
     const salePrice = hasSale
       ? Math.round(product.price * (1 - product.salePercent! / 100))
       : product.price;
 
-    // 🧮 Determine final price (wholesale overrides sale)
-    const finalPrice = isWholesale ? product.wholesalePrice : salePrice;
+    // Determine final price (wholesale overrides sale price)
+    const finalPrice = isWholesale ? product.wholesalePrice! : salePrice;
 
     addItem({
       id: product.id,
       productId: product.id,
       variantId: selectedVariant.id,
       name: locale === "mn" ? product.mnName : product.enName,
-      price: Number(finalPrice), // 👈 use sale price in cart
+      price: Number(finalPrice), // Use the calculated final price
       quantity,
       image: selectedVariant.image?.[0] || "",
       color: selectedVariant?.color,
@@ -162,10 +167,6 @@ export default function ProductDetails({
   };
 
   // ✅ Calculate sale price
-  const hasSale = !!product.salePercent && product.salePercent > 0;
-  const salePrice = hasSale
-    ? Math.round(product.price * (1 - product.salePercent! / 100))
-    : product.price;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

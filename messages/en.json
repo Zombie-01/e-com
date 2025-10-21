@@ -54,7 +54,9 @@
     "size": "Size",
     "quantity": "Quantity",
     "add_to_cart": "Add to Cart",
-    "out_of_stock": "Out of stock"
+    "out_of_stock": "Out of stock",
+    "wholesaleMinQty": "Wholesale Min Qty",
+    "wholesalePrice": "Wholesale Price"
   },
   "cart": {
     "title": "Shopping Cart",
@@ -431,7 +433,9 @@
       "addVariant": "Add Variant",
       "createButton": "Create Product",
       "updateButton": "Update Product",
-      "viewButton": "View"
+      "viewButton": "View",
+      "wholesaleMinQty": "Wholesale Min Qty",
+      "wholesalePrice": "Wholesale Price"
     },
     "preview": {
       "title": "Product Preview",

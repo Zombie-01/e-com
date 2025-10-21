@@ -4,9 +4,9 @@ import { prisma } from "@/src/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password, phone, address } = await request.json();
+    const { name, email, password, phone } = await request.json();
 
-    if (!email || !password || !phone || !address) {
+    if (!email || !password || !phone) {
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }
@@ -35,17 +35,6 @@ export async function POST(request: NextRequest) {
         email,
         password: hashedPassword,
         phone,
-        addresses: {
-          create: {
-            fullName: address || "No name",
-            phone,
-            // If address is string, save it in fullName or a future "street" field
-            // For now, just use a placeholder logic
-            ...(typeof address === "string"
-              ? { fullName: address || "No name" }
-              : {}),
-          },
-        },
       },
       include: { addresses: true },
     });

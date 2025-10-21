@@ -7,14 +7,23 @@ import { Button } from "@/src/components/ui/button";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { InvoiceModal } from "@/src/components/InvoiceModal"; // Adjust path
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/src/components/ui/dialog";
 
 export default function CartPage() {
   const t = useTranslations("cart");
   const { items, getTotalPrice, clearCart } = useCartStore();
-
   const { data: session } = useSession();
+  const router = useRouter();
 
+  const [addresses, setAddresses] = useState<any[]>([]);
   const [invoice, setInvoice] = useState<null | {
     invoice_id: string;
     qr_image: string;
@@ -23,13 +32,11 @@ export default function CartPage() {
   }>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
-
+  const [addressDialogOpen, setAddressDialogOpen] = useState(false); // Address dialog state
   const [invoiceReceiverCode, setInvoiceReceiverCode] = useState("");
   const [ebarimtReg, setEbarimtReg] = useState("");
-  // Bonus state
   const [useBonus, setUseBonus] = useState(false);
 
-  // Calculate prices
   const subtotal = getTotalPrice();
   const shipping = 6000;
   const userBonus = session?.user?.bonus ?? 0;
@@ -38,6 +45,15 @@ export default function CartPage() {
     useBonus && userBonus > 0
       ? Math.max(totalBeforeBonus - userBonus, 0)
       : totalBeforeBonus;
+
+  useEffect(() => {
+    if (session?.user) {
+      fetch("/api/user/addresses")
+        .then((res) => res.json())
+        .then((data) => setAddresses(data))
+        .catch((err) => console.error("Failed to fetch addresses:", err));
+    }
+  }, [session]);
 
   // Called when modal detects payment success
   async function handlePaymentSuccess() {
@@ -52,7 +68,7 @@ export default function CartPage() {
           items,
           userId: session.user.id,
           transactionId: "0",
-          total: getTotalPrice() + 6000, // Add shipping
+          total: totalAfterBonus,
         }),
       });
 
@@ -70,6 +86,12 @@ export default function CartPage() {
   async function handleCheckout() {
     if (!session?.user) {
       alert("Please log in to checkout.");
+      return;
+    }
+
+    if (addresses.length === 0) {
+      // Open the address dialog if no addresses exist
+      setAddressDialogOpen(true);
       return;
     }
 
@@ -194,20 +216,37 @@ export default function CartPage() {
         </div>
       </div>
 
+      {/* Address Dialog */}
+      <Dialog open={addressDialogOpen} onOpenChange={setAddressDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("noAddressDialog.title")}</DialogTitle>
+          </DialogHeader>
+          <p>{t("noAddressDialog.message")}</p>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                setAddressDialogOpen(false);
+                router.push("/profile");
+              }}>
+              {t("noAddressDialog.confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <InvoiceModal
         invoice={invoice as any}
         isOpen={modalOpen}
         token={invoice?.token}
         onClose={() => {
           setModalOpen(false);
-
           setInvoice(null);
         }}
         onEnd={() => {
           handlePaymentSuccess();
         }}
         amount={totalAfterBonus.toFixed(0)}
-        // Add other props if needed
       />
     </>
   );
