@@ -48,7 +48,7 @@ export default function CartPage() {
 
   useEffect(() => {
     if (session?.user) {
-      fetch("/api/user/addresses")
+      fetch("/api/user/address")
         .then((res) => res.json())
         .then((data) => setAddresses(data))
         .catch((err) => console.error("Failed to fetch addresses:", err));
