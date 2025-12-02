@@ -60,9 +60,8 @@ interface Product {
   costPrice: number;
   sku: string;
   brandId: string;
-  categoryId: string;
   brand: Brand;
-  category: Category;
+  categories: Category[];
   tags: Tag[];
   variants: Variant[];
   salePercent?: number;

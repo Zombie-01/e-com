@@ -66,7 +66,7 @@ export default function AdminProductsPage() {
     costPrice: "",
     sku: "",
     brandId: "",
-    categoryId: "",
+    categoryIds: [] as string[],
     tagIds: [] as string[],
     wholesalePrice: "", // Added wholesalePrice
     wholesaleMinQty: "", // Added wholesaleMinQty
@@ -91,7 +91,9 @@ export default function AdminProductsPage() {
       costPrice: product.costPrice || "",
       sku: product.sku,
       brandId: product.brandId,
-      categoryId: product.categoryId,
+      categoryIds: product.categories
+        ? product.categories.map((c: any) => c.id)
+        : [],
       tagIds: product.tags.map((tag: any) => tag.id),
       wholesalePrice: product.wholesalePrice || "", // Populate wholesalePrice
       wholesaleMinQty: product.wholesaleMinQty || "", // Populate wholesaleMinQty
@@ -215,7 +217,7 @@ export default function AdminProductsPage() {
       formData.append("costPrice", form.costPrice.toString());
       formData.append("sku", form.sku);
       formData.append("brandId", form.brandId);
-      formData.append("categoryId", form.categoryId);
+      formData.append("categoryIds", JSON.stringify(form.categoryIds));
       formData.append("tagIds", JSON.stringify(form.tagIds));
       formData.append("wholesalePrice", form.wholesalePrice.toString()); // Add wholesalePrice
       formData.append("wholesaleMinQty", form.wholesaleMinQty.toString()); // Add wholesaleMinQty
@@ -253,7 +255,7 @@ export default function AdminProductsPage() {
           costPrice: "",
           sku: "",
           brandId: "",
-          categoryId: "",
+          categoryIds: [],
           tagIds: [],
           wholesalePrice: "",
           wholesaleMinQty: "",
@@ -414,19 +416,36 @@ export default function AdminProductsPage() {
                   </option>
                 ))}
               </select>
-              <select
-                name="categoryId"
-                value={form.categoryId}
-                onChange={handleFormChange}
-                className="border p-2 rounded"
-                required>
-                <option value="">{t("dialog.selectCategory")}</option>
+              <div className="border p-2 rounded max-h-40 overflow-y-auto col-span-2">
                 {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
+                  <label
+                    key={c.id}
+                    className="inline-flex items-center mr-4 mb-2">
+                    <input
+                      type="checkbox"
+                      value={c.id}
+                      checked={form.categoryIds.includes(c.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setForm((prev) => ({
+                            ...prev,
+                            categoryIds: [...prev.categoryIds, c.id],
+                          }));
+                        } else {
+                          setForm((prev) => ({
+                            ...prev,
+                            categoryIds: prev.categoryIds.filter(
+                              (id) => id !== c.id
+                            ),
+                          }));
+                        }
+                      }}
+                      className="mr-2"
+                    />
                     {c.enName}
-                  </option>
+                  </label>
                 ))}
-              </select>
+              </div>
               <textarea
                 name="enDesc"
                 value={form.enDesc}
@@ -637,7 +656,13 @@ export default function AdminProductsPage() {
                     <TableCell>{product.enName}</TableCell>
                     <TableCell>{product.sku}</TableCell>
                     <TableCell>{product.brand?.enName}</TableCell>
-                    <TableCell>{product.category?.enName}</TableCell>
+                    <TableCell>
+                      {product.categories && product.categories.length > 0
+                        ? product.categories
+                            .map((c: any) => c.enName)
+                            .join(", ")
+                        : "-"}
+                    </TableCell>
                     <TableCell>₮{product.price}</TableCell>
                     <TableCell>
                       {product.salePercent

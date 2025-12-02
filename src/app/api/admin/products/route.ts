@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       where: { active: true },
       include: {
         brand: true,
-        category: true,
+        categories: true,
         variants: {
           where: { active: true },
           include: {
@@ -60,7 +60,9 @@ export async function POST(request: NextRequest) {
     const costPrice = parseFloat(formData.get("costPrice") as string); // Added costPrice
     const sku = formData.get("sku") as string;
     const brandId = formData.get("brandId") as string;
-    const categoryId = formData.get("categoryId") as string;
+    // categoryIds JSON string => parse (array of category ids)
+    const categoryIdsStr = formData.get("categoryIds") as string;
+    const categoryIds = categoryIdsStr ? JSON.parse(categoryIdsStr) : [];
 
     // Tags JSON string => parse
     const tagIdsStr = formData.get("tagIds") as string;
@@ -105,7 +107,7 @@ export async function POST(request: NextRequest) {
 
     // Assign uploaded image URLs array back to variants
     const variantsCreate = variantsData.map((v, i) => ({
-      colorId: v.colorId || null, // <-- explicitly set null if falsy
+      colorId: v.colorId || null,
       sizeId: v.sizeId || null,
       image: uploadedImageUrlsArr[i], // array of image URLs
       stock: v.stock,
@@ -121,7 +123,9 @@ export async function POST(request: NextRequest) {
         costPrice, // Added costPrice
         sku,
         brandId,
-        categoryId,
+        categories: {
+          connect: categoryIds.map((id: string) => ({ id })),
+        },
         tags: {
           connect: tagIds.map((id: string) => ({ id })),
         },
@@ -131,7 +135,7 @@ export async function POST(request: NextRequest) {
       },
       include: {
         brand: true,
-        category: true,
+        categories: true,
         tags: true,
         variants: true,
       },
@@ -174,7 +178,8 @@ export async function PUT(request: NextRequest) {
     const costPrice = parseFloat(formData.get("costPrice") as string); // Added costPrice
     const sku = formData.get("sku") as string;
     const brandId = formData.get("brandId") as string;
-    const categoryId = formData.get("categoryId") as string;
+    const categoryIdsStr = formData.get("categoryIds") as string;
+    const categoryIds = categoryIdsStr ? JSON.parse(categoryIdsStr) : [];
 
     // Parse tags and variants JSON strings
     const tagIdsStr = formData.get("tagIds") as string;
@@ -235,7 +240,11 @@ export async function PUT(request: NextRequest) {
         costPrice, // Added costPrice
         sku,
         brandId,
-        categoryId,
+        // categories: replace existing with provided set
+        categories: {
+          set: [],
+          connect: categoryIds.map((id: string) => ({ id })),
+        },
         tags: {
           set: [],
           connect: tagIds.map((tagId: string) => ({ id: tagId })),
@@ -247,7 +256,7 @@ export async function PUT(request: NextRequest) {
       },
       include: {
         brand: true,
-        category: true,
+        categories: true,
         tags: true,
         variants: true,
       },

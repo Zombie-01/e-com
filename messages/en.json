@@ -67,6 +67,21 @@
     "continue": "Continue",
     "clear": "Clear cart",
     "register": "Create eBarimt Register",
+    "noAddressDialog": {
+      "title": "No address found",
+      "message": "You don't have any saved shipping addresses. Please add one in your profile.",
+      "confirm": "Go to Profile"
+    },
+    "invoiceType": {
+      "title": "Select Invoice Type",
+      "message": "Would you like a personal or company invoice?",
+      "personal": "Personal Invoice",
+      "company": "Company Invoice"
+    },
+    "orderSummary": {
+      "useBonus": "Use bonus",
+      "yourBonus": "Your bonus"
+    },
     "subtotal": "Subtotal",
     "shipping": "Shipping",
     "summary": "Order Summary"

@@ -68,7 +68,7 @@ export async function DELETE(request: NextRequest) {
     // Check for active products with this category
     const activeProductsCount = await prisma.product.count({
       where: {
-        categoryId: id,
+        categories: { some: { id } },
         active: true,
       },
     });

@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { urlPath } = await uploadFileToPublicUploads(file);
+      const { urlPath } = await uploadFileToPublicUploads(file);
     console.log(urlPath);
 
     const newBanner = await prisma.banner.create({

@@ -26,13 +26,21 @@ interface Category {
   enName: string;
 }
 
+interface Tag {
+  id: string;
+  mnName: string;
+  enName: string;
+}
+
 export default function ProductFilters({
   brands,
   categories,
+  tags,
   locale,
 }: {
   brands: Brand[];
   categories: Category[];
+  tags: Tag[];
   locale: string;
 }) {
   const router = useRouter();
@@ -48,6 +56,9 @@ export default function ProductFilters({
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     params.get("category")?.split(",") || []
   );
+  const [selectedTags, setSelectedTags] = useState<string[]>(
+    params.get("tags")?.split(",") || []
+  );
 
   const applyFilters = () => {
     const params = new URLSearchParams();
@@ -58,6 +69,7 @@ export default function ProductFilters({
       params.set("brand", selectedBrands.join(","));
     if (selectedCategories.length > 0)
       params.set("category", selectedCategories.join(","));
+    if (selectedTags.length > 0) params.set("tags", selectedTags.join(","));
 
     router.push(`/${locale}/products?${params.toString()}`);
   };
@@ -67,6 +79,7 @@ export default function ProductFilters({
     setMaxPrice("");
     setSelectedBrands([]);
     setSelectedCategories([]);
+    setSelectedTags([]);
     router.push(`/${locale}/products`);
   };
 
@@ -146,6 +159,33 @@ export default function ProductFilters({
                 />
                 <Label htmlFor={category.id} className="text-sm">
                   {locale === "mn" ? category.mnName : category.enName}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Tags */}
+        <div>
+          <Label className="text-sm font-medium">{t("tags")}</Label>
+          <div className="space-y-2 mt-2 max-h-40 overflow-y-auto">
+            {tags.map((tag) => (
+              <div key={tag.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`tag_${tag.id}`}
+                  checked={selectedTags.includes(tag.id)}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setSelectedTags([...selectedTags, tag.id]);
+                    } else {
+                      setSelectedTags(
+                        selectedTags.filter((id) => id !== tag.id)
+                      );
+                    }
+                  }}
+                />
+                <Label htmlFor={`tag_${tag.id}`} className="text-sm">
+                  {locale === "mn" ? tag.mnName : tag.enName}
                 </Label>
               </div>
             ))}

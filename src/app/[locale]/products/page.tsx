@@ -7,11 +7,28 @@ async function getProducts(searchParams: any) {
   const where: any = {};
 
   if (searchParams.category) {
-    where.categoryId = searchParams.category;
+    const categoryIds = String(searchParams.category)
+      .split(",")
+      .filter(Boolean);
+    if (categoryIds.length === 1) {
+      where.categories = { some: { id: categoryIds[0] } };
+    } else if (categoryIds.length > 1) {
+      where.OR = categoryIds.map((c: string) => ({
+        categories: { some: { id: c } },
+      }));
+    }
   }
 
   if (searchParams.brand) {
     where.brandId = searchParams.brand;
+  }
+
+  if (searchParams.tags) {
+    const tagIds = String(searchParams.tags).split(",").filter(Boolean);
+    if (tagIds.length > 0) {
+      // match products that have any of the selected tags
+      where.tags = { some: { id: { in: tagIds } } };
+    }
   }
 
   if (searchParams.minPrice || searchParams.maxPrice) {
@@ -26,7 +43,8 @@ async function getProducts(searchParams: any) {
     where: { ...where, active: true },
     include: {
       brand: true,
-      category: true,
+      categories: true,
+      tags: true,
       variants: {
         include: {
           color: true,
@@ -39,12 +57,13 @@ async function getProducts(searchParams: any) {
 }
 
 async function getFilterData() {
-  const [brands, categories] = await Promise.all([
+  const [brands, categories, tags] = await Promise.all([
     prisma.brand.findMany(),
     prisma.category.findMany({ where: { active: true } }),
+    prisma.tag.findMany(),
   ]);
 
-  return { brands, categories };
+  return { brands, categories, tags };
 }
 
 export default async function ProductsPage({
@@ -71,6 +90,7 @@ export default async function ProductsPage({
           <ProductFilters
             brands={filterData.brands}
             categories={filterData.categories}
+            tags={filterData.tags}
             locale={locale}
           />
         </aside>

@@ -8,7 +8,10 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { InvoiceModal } from "@/src/components/InvoiceModal"; // Adjust path
+import { InvoiceModal } from "@/src/components/InvoiceModal";
+import CompanyInvoiceModal, {
+  CompanyInvoiceData,
+} from "@/src/components/CompanyInvoiceModal";
 import {
   Dialog,
   DialogContent,
@@ -32,7 +35,14 @@ export default function CartPage() {
   }>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [addressDialogOpen, setAddressDialogOpen] = useState(false); // Address dialog state
+  const [addressDialogOpen, setAddressDialogOpen] = useState(false);
+  const [companyInvoiceOpen, setCompanyInvoiceOpen] = useState(false);
+  const [invoiceType, setInvoiceType] = useState<"personal" | "company" | null>(
+    null
+  );
+  const [companyData, setCompanyData] = useState<CompanyInvoiceData | null>(
+    null
+  );
   const [invoiceReceiverCode, setInvoiceReceiverCode] = useState("");
   const [ebarimtReg, setEbarimtReg] = useState("");
   const [useBonus, setUseBonus] = useState(false);
@@ -49,8 +59,14 @@ export default function CartPage() {
   useEffect(() => {
     if (session?.user) {
       fetch("/api/user/address")
-        .then((res) => res.json())
-        .then((data) => setAddresses(data))
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch addresses");
+          return res.json();
+        })
+        .then((data) => {
+          // Ensure we set an array (API returns array)
+          setAddresses(Array.isArray(data) ? data : []);
+        })
         .catch((err) => console.error("Failed to fetch addresses:", err));
     }
   }, [session]);
@@ -69,6 +85,8 @@ export default function CartPage() {
           userId: session.user.id,
           transactionId: "0",
           total: totalAfterBonus,
+          invoiceType,
+          companyData,
         }),
       });
 
@@ -95,8 +113,54 @@ export default function CartPage() {
       return;
     }
 
+    // Show invoice type selection
+    setInvoiceType(null);
+  }
+
+  async function proceedToPayment() {
+    if (invoiceType === "company") {
+      if (!companyData) {
+        setCompanyInvoiceOpen(true);
+        return;
+      }
+
+      try {
+        // Call company invoice API
+        const res = await fetch("/api/user/companyinvoice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            companyName: companyData.companyName,
+            companyRegister: companyData.companyRegister,
+            phoneNumber: companyData.phoneNumber,
+            email: companyData.email,
+            amount: totalAfterBonus,
+            invoiceNumber: `${Date.now()}`,
+            items,
+            addressId: addresses[0]?.id || null,
+          }),
+        });
+
+        if (!res.ok) throw new Error("Failed to create company invoice");
+
+        const invoiceData = await res.json();
+
+        setInvoice({
+          invoice_id: invoiceData.invoice_id,
+          qr_image: invoiceData.qr_image,
+          qPay_shortUrl: invoiceData.qPay_shortUrl,
+          token: invoiceData.token,
+        });
+        setModalOpen(true);
+        return;
+      } catch (error) {
+        console.error(error);
+        alert("Failed to create company invoice.");
+        return;
+      }
+    }
+
     try {
-      // 1. Create transaction and get invoice info
       const res = await fetch("/api/user/transactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -106,6 +170,8 @@ export default function CartPage() {
           invoiceReceiverCode: invoiceReceiverCode || "1",
           ebarimtReg,
           items,
+          invoiceType,
+          companyData,
         }),
       });
 
@@ -152,19 +218,21 @@ export default function CartPage() {
           <div className="bg-white rounded-2xl p-6 shadow-lg h-fit">
             <h3 className="text-xl font-semibold mb-4">{t("summary")}</h3>
 
-            {/* New inputs for invoiceReceiverCode and ebarimtReg */}
-            <div className="mb-4 space-y-2">
-              <label className="block text-sm font-medium text-gray-700 mt-2 mb-1">
-                {t("register")}
-              </label>
-              <input
-                type="text"
-                className="w-full border rounded px-3 py-2"
-                value={invoiceReceiverCode}
-                onChange={(e) => setInvoiceReceiverCode(e.target.value)}
-                placeholder={t("register")}
-              />
-            </div>
+            {/* Personal Invoice Section */}
+            {invoiceType === "company" && (
+              <div className="mb-4 space-y-2">
+                <label className="block text-sm font-medium text-gray-700 mt-2 mb-1">
+                  {t("register")}
+                </label>
+                <input
+                  type="text"
+                  className="w-full border rounded px-3 py-2"
+                  value={invoiceReceiverCode}
+                  onChange={(e) => setInvoiceReceiverCode(e.target.value)}
+                  placeholder={t("register")}
+                />
+              </div>
+            )}
 
             {/* Bonus field and checkbox */}
             <div className="mb-4 space-y-2">
@@ -176,10 +244,10 @@ export default function CartPage() {
                   disabled={userBonus <= 0}
                   className="mr-2"
                 />
-                Use bonus
+                {t("orderSummary.useBonus")}
               </label>
               <div className="text-sm text-gray-600 mt-1">
-                Your bonus: ₮{userBonus.toLocaleString()}
+                {t("orderSummary.yourBonus")}: ₮{userBonus.toLocaleString()}
               </div>
             </div>
 
@@ -194,7 +262,7 @@ export default function CartPage() {
               </div>
               {useBonus && userBonus > 0 && (
                 <div className="flex justify-between text-blue-600">
-                  <span>Bonus</span>
+                  <span>{t("orderSummary.useBonus")}</span>
                   <span>-₮{userBonus.toLocaleString()}</span>
                 </div>
               )}
@@ -216,6 +284,33 @@ export default function CartPage() {
         </div>
       </div>
 
+      {/* Invoice Type Selection Dialog */}
+      <Dialog
+        open={invoiceType === null && items.length > 0}
+        onOpenChange={() => {}}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("invoiceType.title")}</DialogTitle>
+          </DialogHeader>
+          <p className="mb-4">{t("invoiceType.message")}</p>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setInvoiceType("personal");
+              }}>
+              {t("invoiceType.personal")}
+            </Button>
+            <Button
+              onClick={() => {
+                setInvoiceType("company");
+              }}>
+              {t("invoiceType.company")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Address Dialog */}
       <Dialog open={addressDialogOpen} onOpenChange={setAddressDialogOpen}>
         <DialogContent>
@@ -234,6 +329,26 @@ export default function CartPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Company Invoice Modal */}
+      <CompanyInvoiceModal
+        isOpen={companyInvoiceOpen}
+        onClose={() => setCompanyInvoiceOpen(false)}
+        onSubmit={(data) => {
+          setCompanyData(data);
+          setCompanyInvoiceOpen(false);
+          proceedToPayment();
+        }}
+      />
+
+      {/* Payment Modal */}
+      {invoiceType && (
+        <div className="flex justify-center mt-4">
+          <Button onClick={proceedToPayment} size="lg">
+            Proceed to Payment
+          </Button>
+        </div>
+      )}
 
       <InvoiceModal
         invoice={invoice as any}
