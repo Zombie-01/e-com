@@ -61,12 +61,6 @@ export const Footer = ({ menuItems = [], bottomLinks = [] }: FooterProps) => {
               <Link href="#" aria-label="Facebook">
                 <Facebook />
               </Link>
-              <Link href="#" aria-label="Twitter">
-                <Twitter />
-              </Link>
-              <Link href="#" aria-label="YouTube">
-                <Youtube />
-              </Link>
             </div>
           </div>
           {/* "Миний бүртгэл" */}
@@ -92,26 +86,11 @@ export const Footer = ({ menuItems = [], bottomLinks = [] }: FooterProps) => {
           </div>
           {/* "GoldenPen.mn" */}
           <div>
-            <h3 className="mb-3 font-semibold text-lg">GoldenPen.mn</h3>
+            <h3 className="mb-3 font-semibold text-lg">Orchid.mn</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
                 <Link href="/products" className="hover:underline">
                   Брэндүүд
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:underline">
-                  Холбогдох
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:underline">
-                  Бидний тухай
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:underline">
-                  Үйлчилгээний нөхцөл
                 </Link>
               </li>
             </ul>

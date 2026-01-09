@@ -4,16 +4,16 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/src/lib/auth";
 import AdminNavbar from "@/src/components/AdminNavbar";
 
-export default async function AdminLayout({
+export default async function AdminProtectedLayout({
   children,
-  params: { locale },
 }: {
   children: ReactNode;
-  params: { locale: string };
 }) {
   const session = await getServerSession(authOptions);
+
+  // Админ биш бол login руу явуулна
   if (!session || session.user.role !== "ADMIN") {
-    redirect("/auth/signin");
+    redirect("/admin/auth/signin");
   }
 
   return (

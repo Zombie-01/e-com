@@ -1,25 +1,15 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import SessionWrapper from "@/src/components/SessionWrapper";
+
 
 const inter = Inter({ subsets: ["latin"] });
+
 export const metadata: Metadata = {
   title: "Orchid - Office Supplies & Equipment",
   description:
-    "Premium office goods and supplies for a modern workspace. Find quality office products with excellent service.",
-  keywords: [
-    "office supplies",
-    "office equipment",
-    "office goods",
-    "stationery",
-    "office furniture",
-    "оффис бараа",
-    "оффисын хэрэгсэл",
-    "оффис тоног төхөөрөмж",
-    "ажлын хэрэгсэл",
-    "ажлын орчин",
-    "орчин үеийн дизайн",
-  ].join(", "),
+    "Premium office goods and supplies for a modern workspace.",
   alternates: {
     canonical: "https://orchid.mn/",
     languages: {
@@ -29,14 +19,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html>
-      <body className={inter.className}>{children}</body>
+    <html lang="mn">
+      <body className={inter.className}>
+        <SessionWrapper>
+          {children}
+        </SessionWrapper>
+      </body>
     </html>
   );
 }

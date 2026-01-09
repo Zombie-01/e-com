@@ -75,7 +75,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
     if (!invoice) return;
     try {
       const res = await fetch(
-        `/api/user/check-invoice?invoice_id=${invoice.invoice_id}&token=${token}`
+        `/api/user/check?invoice_id=${invoice.invoice_id}&token=${token}`
       );
       const data = await res.json();
       if (data.status === "CLOSED") {

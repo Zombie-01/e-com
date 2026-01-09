@@ -27,7 +27,6 @@ export default function SignUpPage({
     password: "",
     phone: "",
     confirmPassword: "",
-    address: "", // Added address field
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -55,7 +54,6 @@ export default function SignUpPage({
           email: formData.email,
           password: formData.password,
           phone: formData.phone,
-          address: formData.address, // Include address in the request
         }),
       });
 
@@ -214,26 +212,6 @@ export default function SignUpPage({
                   onChange={handleChange}
                   className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   placeholder={t("confirm_your_password")}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label
-                htmlFor="address"
-                className="text-sm font-medium text-gray-700">
-                {t("address")}
-              </Label>
-              <div className="relative">
-                <Input
-                  id="address"
-                  name={t("address")}
-                  type="text"
-                  value={formData.address}
-                  onChange={handleChange}
-                  className="pl-3 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                  placeholder={t("enter_address")}
                   required
                 />
               </div>

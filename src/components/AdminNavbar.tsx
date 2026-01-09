@@ -3,50 +3,48 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/src/lib/utils";
-import { useTranslations } from "next-intl";
 
-export default function AdminNavbar({ locale }: { locale: string }) {
-  const t = useTranslations("");
+export default function AdminNavbar() {
   const adminMenuItems = [
     {
-      href: `/${locale}/admin`,
-      label: t("admin.dashboard"),
-      description: t("admin.dashboardDesc"),
+      href: `/admin`,
+      label: "admin dashboard",
+      description: "admin dashboardDesc",
     },
     {
       href: "/admin/brands",
-      label: t("admin.brands"),
-      desc: t("admin.brandsDesc"),
+      label: "admin brands",
+      desc: "admin brandsDesc",
     },
     {
-      href: `/${locale}/admin/products`,
-      label: t("admin.products"),
-      description: t("admin.productsDesc"),
+      href: `/admin/products`,
+      label: "admin products",
+      description: "admin productsDesc",
     },
     {
-      href: `/${locale}/admin/orders`,
-      label: t("admin.orders"),
-      description: t("admin.ordersDesc"),
+      href: `/admin/orders`,
+      label:  "admin orders",
+      description: "admin.ordersDesc",
     },
     {
-      href: `/${locale}/admin/users`,
-      label: t("admin.users"),
-      description: t("admin.usersDesc"),
+      href: `/admin/users`,
+      label:  "admin users" ,
+      description:  "admin usersDesc" ,
     },
     {
-      href: `/${locale}/admin/categories`,
-      label: t("admin.categories"),
-      description: t("admin.categoriesDesc"),
+      href: `/admin/categories`,
+      label:  "admin categories" ,
+      description:  "admin categoriesDesc" ,
     },
     {
-      href: `/${locale}/admin/tags`,
-      label: t("admin.tags"),
-      description: t("admin.tagsDesc"),
+      href: `/admin/tags`,
+      label:  "admin tags" ,
+      description:  "admin.tagsDesc" ,
     },
     {
-      href: `/${locale}/admin/settings`,
-      label: t("admin.settings"),
-      description: t("admin.settingsDesc"),
+      href: `/admin/settings`,
+      label:  "admin settings" ,
+      description: "admin settingsDesc",
     },
   ];
 
@@ -56,7 +54,7 @@ export default function AdminNavbar({ locale }: { locale: string }) {
   return (
     <nav className="sticky hidden md:block top-0 z-40 w-full border-b bg-white/90 backdrop-blur">
       <div className="container mx-auto px-4 h-14 flex items-center gap-4">
-        <Link href={`/${locale}`} className="font-bold text-lg">
+        <Link href={`/admin`} className="font-bold text-lg">
           ORCHID Admin
         </Link>
         <div className="flex items-center gap-2 flex-wrap">

@@ -82,25 +82,24 @@ const ChartCard = ({
 );
 
 export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
-  const t = useTranslations("admin");
 
   const statCards = [
     {
-      title: t("revenue"),
+      title: "revenue",
       value: `$${stats.totalRevenue.toLocaleString()}`,
       Icon: DollarSign,
       color: "text-green-600",
       bgColor: "bg-green-100",
     },
     {
-      title: t("revenue"),
+      title: "revenue",
       value: `$${(stats.totalCost ?? 0).toLocaleString()}`,
       Icon: DollarSign,
       color: "text-red-600",
       bgColor: "bg-red-100",
     },
     {
-      title: t("margin"),
+      title: "margin",
       value: `$${(
         stats.margin ?? stats.totalRevenue - (stats.totalCost ?? 0)
       ).toLocaleString()}`,
@@ -109,21 +108,21 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
       bgColor: "bg-yellow-100",
     },
     {
-      title: t("orders"),
+      title: "orders",
       value: stats.totalOrders.toLocaleString(),
       Icon: ShoppingBag,
       color: "text-blue-600",
       bgColor: "bg-blue-100",
     },
     {
-      title: t("products"),
+      title: "products",
       value: stats.totalProducts.toLocaleString(),
       Icon: Package,
       color: "text-purple-600",
       bgColor: "bg-purple-100",
     },
     {
-      title: t("users"),
+      title: "users",
       value: stats.totalUsers.toLocaleString(),
       Icon: Users,
       color: "text-orange-600",
@@ -135,52 +134,52 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
     {
       href: "/admin/products",
       icon: Package,
-      label: t("products"),
-      desc: t("productsDesc"),
+      label: "products",
+      desc: "productsDesc",
     },
     {
       href: "/admin/brands",
       icon: Package,
-      label: t("brands"),
-      desc: t("brandsDesc"),
+      label: "brands",
+      desc: "brandsDesc",
     },
     {
       href: "/admin/tags",
       icon: Package,
-      label: t("tags"),
-      desc: t("tagsDesc"),
+      label: "tags",
+      desc: "tagsDesc",
     },
     {
       href: "/admin/categories",
       icon: Package,
-      label: t("categories"),
-      desc: t("categoriesDesc"),
+      label: "categories",
+      desc: "categoriesDesc",
     },
     {
       href: "/admin/orders",
       icon: ShoppingBag,
-      label: t("orders"),
-      desc: t("ordersDesc"),
+      label: "orders",
+      desc: "ordersDesc",
     },
     {
       href: "/admin/users",
       icon: Users,
-      label: t("users"),
-      desc: t("usersDesc"),
+      label:  "users" ,
+      desc:  "usersDesc" ,
     },
     {
       href: "/admin/settings",
       icon: Eye,
-      label: t("settings"),
-      desc: t("settingsDesc"),
+      label:  "settings" ,
+      desc:  "settingsDesc" ,
     },
   ];
 
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-3xl font-bold text-gray-900">{t("title")}</h1>
-        <p className="text-gray-600 mt-2">{t("subtitle")}</p>
+        <h1 className="text-3xl font-bold text-gray-900">Гарчиг</h1>
+        <p className="text-gray-600 mt-2">Дэд гарчиг</p>
       </header>
 
       {/* Stats Grid */}
@@ -199,7 +198,7 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
 
       {/* Business Analytics Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        <ChartCard title={t("revenueTrend")}>
+        <ChartCard title="Орлого">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={stats.revenueTrend ?? []}>
               <XAxis dataKey="month" />
@@ -209,7 +208,7 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title={t("costTrend")}>
+        <ChartCard title="Зарлаг">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={stats.costTrend ?? []}>
               <XAxis dataKey="month" />
@@ -219,7 +218,7 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title={t("marginTrend")}>
+        <ChartCard title="Маржин тренд">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={stats.marginTrend ?? []}>
               <XAxis dataKey="month" />
@@ -230,7 +229,7 @@ export default function AdminDashboard({ stats }: { stats: DashboardStats }) {
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title={t("productStockDistribution")}>
+        <ChartCard title="Бүтээгдэхүүний хуваарилалт">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie

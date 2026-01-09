@@ -7,14 +7,26 @@ import { Button } from "@/src/components/ui/button";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import React, { useState, useEffect } from "react";
-import { InvoiceModal } from "@/src/components/InvoiceModal"; // Adjust path
+import { useRouter } from "next/navigation";
+import { InvoiceModal } from "@/src/components/InvoiceModal";
+import CompanyInvoiceModal, {
+  CompanyInvoiceData,
+} from "@/src/components/CompanyInvoiceModal";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/src/components/ui/dialog";
 
 export default function CartPage() {
   const t = useTranslations("cart");
   const { items, getTotalPrice, clearCart } = useCartStore();
-
   const { data: session } = useSession();
+  const router = useRouter();
 
+  const [addresses, setAddresses] = useState<any[]>([]);
   const [invoice, setInvoice] = useState<null | {
     invoice_id: string;
     qr_image: string;
@@ -23,13 +35,18 @@ export default function CartPage() {
   }>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
-
+  const [addressDialogOpen, setAddressDialogOpen] = useState(false);
+  const [companyInvoiceOpen, setCompanyInvoiceOpen] = useState(false);
+  const [invoiceType, setInvoiceType] = useState<"personal" | "company" | null>(
+    null
+  );
+  const [companyData, setCompanyData] = useState<CompanyInvoiceData | null>(
+    null
+  );
   const [invoiceReceiverCode, setInvoiceReceiverCode] = useState("");
   const [ebarimtReg, setEbarimtReg] = useState("");
-  // Bonus state
   const [useBonus, setUseBonus] = useState(false);
 
-  // Calculate prices
   const subtotal = getTotalPrice();
   const shipping = 6000;
   const userBonus = session?.user?.bonus ?? 0;
@@ -38,6 +55,15 @@ export default function CartPage() {
     useBonus && userBonus > 0
       ? Math.max(totalBeforeBonus - userBonus, 0)
       : totalBeforeBonus;
+
+  useEffect(() => {
+    if (session?.user) {
+      fetch("/api/user/addresses")
+        .then((res) => res.json())
+        .then((data) => setAddresses(data))
+        .catch((err) => console.error("Failed to fetch addresses:", err));
+    }
+  }, [session]);
 
   // Called when modal detects payment success
   async function handlePaymentSuccess() {
@@ -52,7 +78,9 @@ export default function CartPage() {
           items,
           userId: session.user.id,
           transactionId: "0",
-          total: getTotalPrice() + 6000, // Add shipping
+          total: totalAfterBonus,
+          invoiceType,
+          companyData,
         }),
       });
 
@@ -73,8 +101,60 @@ export default function CartPage() {
       return;
     }
 
+    if (addresses.length === 0) {
+      // Open the address dialog if no addresses exist
+      setAddressDialogOpen(true);
+      return;
+    }
+
+    // Show invoice type selection
+    setInvoiceType(null);
+  }
+
+  async function proceedToPayment() {
+    if (invoiceType === "company") {
+      if (!companyData) {
+        setCompanyInvoiceOpen(true);
+        return;
+      }
+
+      try {
+        // Call company invoice API
+        const res = await fetch("/api/user/companyinvoice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            companyName: companyData.companyName,
+            companyRegister: companyData.companyRegister,
+            phoneNumber: companyData.phoneNumber,
+            email: companyData.email,
+            amount: totalAfterBonus,
+            invoiceNumber: `${Date.now()}`,
+            items,
+            addressId: addresses[0]?.id || null,
+          }),
+        });
+
+        if (!res.ok) throw new Error("Failed to create company invoice");
+
+        const invoiceData = await res.json();
+
+        setInvoice({
+          invoice_id: invoiceData.invoice_id,
+          qr_image: invoiceData.qr_image,
+          qPay_shortUrl: invoiceData.qPay_shortUrl,
+          token: invoiceData.token,
+        });
+        setModalOpen(true);
+        return;
+      } catch (error) {
+        console.error(error);
+        alert("Failed to create company invoice.");
+        return;
+      }
+    }
+
     try {
-      // 1. Create transaction and get invoice info
       const res = await fetch("/api/user/transactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -84,6 +164,8 @@ export default function CartPage() {
           invoiceReceiverCode: invoiceReceiverCode || "1",
           ebarimtReg,
           items,
+          invoiceType,
+          companyData,
         }),
       });
 
@@ -130,19 +212,21 @@ export default function CartPage() {
           <div className="bg-white rounded-2xl p-6 shadow-lg h-fit">
             <h3 className="text-xl font-semibold mb-4">{t("summary")}</h3>
 
-            {/* New inputs for invoiceReceiverCode and ebarimtReg */}
-            <div className="mb-4 space-y-2">
-              <label className="block text-sm font-medium text-gray-700 mt-2 mb-1">
-                {t("register")}
-              </label>
-              <input
-                type="text"
-                className="w-full border rounded px-3 py-2"
-                value={invoiceReceiverCode}
-                onChange={(e) => setInvoiceReceiverCode(e.target.value)}
-                placeholder={t("register")}
-              />
-            </div>
+            {/* Personal Invoice Section */}
+            {invoiceType === "personal" && (
+              <div className="mb-4 space-y-2">
+                <label className="block text-sm font-medium text-gray-700 mt-2 mb-1">
+                  {t("register")}
+                </label>
+                <input
+                  type="text"
+                  className="w-full border rounded px-3 py-2"
+                  value={invoiceReceiverCode}
+                  onChange={(e) => setInvoiceReceiverCode(e.target.value)}
+                  placeholder={t("register")}
+                />
+              </div>
+            )}
 
             {/* Bonus field and checkbox */}
             <div className="mb-4 space-y-2">
@@ -194,20 +278,84 @@ export default function CartPage() {
         </div>
       </div>
 
+      {/* Invoice Type Selection Dialog */}
+      <Dialog
+        open={invoiceType === null && items.length > 0}
+        onOpenChange={() => {}}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Select Invoice Type</DialogTitle>
+          </DialogHeader>
+          <p className="mb-4">Would you like a personal or company invoice?</p>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setInvoiceType("personal");
+              }}>
+              Personal Invoice
+            </Button>
+            <Button
+              onClick={() => {
+                setInvoiceType("company");
+              }}>
+              Company Invoice
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Address Dialog */}
+      <Dialog open={addressDialogOpen} onOpenChange={setAddressDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("noAddressDialog.title")}</DialogTitle>
+          </DialogHeader>
+          <p>{t("noAddressDialog.message")}</p>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                setAddressDialogOpen(false);
+                router.push("/profile");
+              }}>
+              {t("noAddressDialog.confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Company Invoice Modal */}
+      <CompanyInvoiceModal
+        isOpen={companyInvoiceOpen}
+        onClose={() => setCompanyInvoiceOpen(false)}
+        onSubmit={(data) => {
+          setCompanyData(data);
+          setCompanyInvoiceOpen(false);
+          proceedToPayment();
+        }}
+      />
+
+      {/* Payment Modal */}
+      {invoiceType && (
+        <div className="flex justify-center mt-4">
+          <Button onClick={proceedToPayment} size="lg">
+            Proceed to Payment
+          </Button>
+        </div>
+      )}
+
       <InvoiceModal
         invoice={invoice as any}
         isOpen={modalOpen}
         token={invoice?.token}
         onClose={() => {
           setModalOpen(false);
-
           setInvoice(null);
         }}
         onEnd={() => {
           handlePaymentSuccess();
         }}
         amount={totalAfterBonus.toFixed(0)}
-        // Add other props if needed
       />
     </>
   );

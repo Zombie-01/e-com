@@ -497,6 +497,7 @@ export default function ProfilePage() {
                             body: JSON.stringify(address),
                           });
                           const added = await res.json();
+                          setIsAddingAddress(false);
                         }}
                       />
                     </DialogContent>

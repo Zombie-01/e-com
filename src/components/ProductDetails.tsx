@@ -65,7 +65,9 @@ interface Product {
   category: Category;
   tags: Tag[];
   variants: Variant[];
-  salePercent?: number; // 👈 add this
+  salePercent?: number;
+  wholesalePrice?: number; // ✅ add this
+  wholesaleMinQty?: number; // ✅ add this
 }
 
 interface ProductDetailsProps {
@@ -73,7 +75,10 @@ interface ProductDetailsProps {
   locale: "mn" | "en";
 }
 
-export default function ProductDetails({ product, locale }: ProductDetailsProps) {
+export default function ProductDetails({
+  product,
+  locale,
+}: ProductDetailsProps) {
   const t = useTranslations("products");
   const { addItem } = useCartStore();
 
@@ -93,13 +98,23 @@ export default function ProductDetails({ product, locale }: ProductDetailsProps)
   const initialVariant =
     findVariant(initialColor?.id, initialSize?.id) || product?.variants[0];
 
-  const [selectedColor, setSelectedColor] = useState<Color | undefined>(initialColor);
-  const [selectedSize, setSelectedSize] = useState<Size | undefined>(initialSize);
-  const [selectedVariant, setSelectedVariant] = useState<Variant>(initialVariant);
+  const [selectedColor, setSelectedColor] = useState<Color | undefined>(
+    initialColor
+  );
+  const [selectedSize, setSelectedSize] = useState<Size | undefined>(
+    initialSize
+  );
+  const [selectedVariant, setSelectedVariant] =
+    useState<Variant>(initialVariant);
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
     initialVariant?.image?.[0] || allImages[0]
   );
   const [quantity, setQuantity] = useState(1);
+
+  const hasSale = !!product.salePercent && product.salePercent > 0;
+  const salePrice = hasSale
+    ? Math.round(product.price * (1 - product.salePercent! / 100))
+    : product.price;
 
   useEffect(() => {
     if (!selectedColor || !selectedSize) {
@@ -117,21 +132,32 @@ export default function ProductDetails({ product, locale }: ProductDetailsProps)
 
   const handleAddToCart = () => {
     if (!selectedVariant || selectedVariant.stock < quantity) {
-      console.error("Cannot add to cart: variant not selected or insufficient stock.");
+      console.error(
+        "Cannot add to cart: variant not selected or insufficient stock."
+      );
       return;
     }
 
     const hasSale = !!product.salePercent && product.salePercent > 0;
-    const finalPrice = hasSale
+    const isWholesale =
+      product.wholesalePrice &&
+      product.wholesaleMinQty &&
+      quantity >= product.wholesaleMinQty;
+
+    // Calculate sale price (if applicable)
+    const salePrice = hasSale
       ? Math.round(product.price * (1 - product.salePercent! / 100))
       : product.price;
+
+    // Determine final price (wholesale overrides sale price)
+    const finalPrice = isWholesale ? product.wholesalePrice! : salePrice;
 
     addItem({
       id: product.id,
       productId: product.id,
       variantId: selectedVariant.id,
       name: locale === "mn" ? product.mnName : product.enName,
-      price: finalPrice, // 👈 use sale price in cart
+      price: Number(finalPrice), // Use the calculated final price
       quantity,
       image: selectedVariant.image?.[0] || "",
       color: selectedVariant?.color,
@@ -141,10 +167,6 @@ export default function ProductDetails({ product, locale }: ProductDetailsProps)
   };
 
   // ✅ Calculate sale price
-  const hasSale = !!product.salePercent && product.salePercent > 0;
-  const salePrice = hasSale
-    ? Math.round(product.price * (1 - product.salePercent! / 100))
-    : product.price;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -180,11 +202,12 @@ export default function ProductDetails({ product, locale }: ProductDetailsProps)
                   selectedImage === img
                     ? "border-blue-500"
                     : "border-gray-200 hover:border-gray-300"
-                }`}
-              >
+                }`}>
                 <Image
                   src={img}
-                  alt={`${locale === "mn" ? product.mnName : product.enName} ${idx + 1}`}
+                  alt={`${locale === "mn" ? product.mnName : product.enName} ${
+                    idx + 1
+                  }`}
                   fill
                   className="object-cover"
                 />
@@ -209,8 +232,7 @@ export default function ProductDetails({ product, locale }: ProductDetailsProps)
             <p
               className={`text-2xl font-bold ${
                 hasSale ? "text-red-600" : "text-blue-600"
-              }`}
-            >
+              }`}>
               ₮{salePrice.toLocaleString()}
             </p>
             {hasSale && (
@@ -227,6 +249,14 @@ export default function ProductDetails({ product, locale }: ProductDetailsProps)
             {locale === "mn" ? product.mnDesc : product.enDesc}
           </p>
         </div>
+        {/* Wholesale Info */}
+        {product.wholesalePrice && product.wholesaleMinQty && (
+          <p className="text-sm text-gray-500 mt-1">
+            {t("wholesalePrice") || "Wholesale:"} ₮
+            {product.wholesalePrice.toLocaleString()} ({t("minQty") || "Min:"}{" "}
+            {product.wholesaleMinQty}+)
+          </p>
+        )}
 
         {/* Color selector */}
         {product.variants.some((v) => v.color != null) && (
@@ -285,8 +315,7 @@ export default function ProductDetails({ product, locale }: ProductDetailsProps)
                       selectedSize?.id === variant.size!.id
                         ? "border-blue-500 bg-blue-50 text-blue-600"
                         : "border-gray-300 hover:border-gray-400"
-                    }`}
-                  >
+                    }`}>
                     {variant.size!.name}
                   </button>
                 ))}
@@ -299,21 +328,21 @@ export default function ProductDetails({ product, locale }: ProductDetailsProps)
           <div>
             <label
               htmlFor="quantity"
-              className="text-sm font-medium text-gray-900 mb-2 block"
-            >
+              className="text-sm font-medium text-gray-900 mb-2 block">
               {t("quantity")}
             </label>
             <select
               id="quantity"
               value={quantity}
               onChange={(e) => setQuantity(Number(e.target.value))}
-              className="border border-gray-300 rounded-md px-3 py-2"
-            >
-              {[...Array(Math.min(selectedVariant?.stock || 0, 10))].map((_, i) => (
-                <option key={i + 1} value={i + 1}>
-                  {i + 1}
-                </option>
-              ))}
+              className="border border-gray-300 rounded-md px-3 py-2">
+              {[...Array(Math.min(selectedVariant?.stock || 0, 10))].map(
+                (_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}
+                  </option>
+                )
+              )}
             </select>
           </div>
 
@@ -321,8 +350,7 @@ export default function ProductDetails({ product, locale }: ProductDetailsProps)
             onClick={handleAddToCart}
             disabled={!selectedVariant || selectedVariant.stock < quantity}
             size="lg"
-            className="w-full"
-          >
+            className="w-full">
             {selectedVariant && selectedVariant.stock > 0
               ? t("add_to_cart")
               : t("out_of_stock")}
@@ -332,7 +360,9 @@ export default function ProductDetails({ product, locale }: ProductDetailsProps)
         {/* Tags */}
         {product.tags.length > 0 && (
           <div>
-            <h3 className="text-sm font-medium text-gray-900 mb-3">{t("tags")}</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-3">
+              {t("tags")}
+            </h3>
             <div className="flex flex-wrap gap-2">
               {product.tags.map((tag) => (
                 <Badge key={tag.id} variant="secondary">

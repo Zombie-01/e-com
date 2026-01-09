@@ -1,15 +1,32 @@
-import createMiddleware from 'next-intl/middleware';
-import { routing } from './i18n/routing';
+import createMiddleware from "next-intl/middleware";
+import { getToken } from "next-auth/jwt";
+import { NextResponse, NextRequest } from "next/server";
+import { routing } from "./i18n/routing";
 
-export default createMiddleware({
+const intlMiddleware = createMiddleware({
   locales: routing.locales,
   defaultLocale: routing.defaultLocale,
-  localePrefix: routing.localePrefix
+  localePrefix: routing.localePrefix,
 });
 
+export default async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  const intlResponse = intlMiddleware(req);
+
+  if (pathname.startsWith("/admin")) {
+    const token = await getToken({ req });
+
+    if (!token || token.role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/admin/auth", req.url));
+    }
+  }
+
+  return intlResponse;
+}
+
 export const config = {
-  // Match all pathnames except for:
-  // - /api, /trpc, /_next, /_vercel
-  // - files with a dot in the name (e.g., favicon.ico)
-  matcher: ['/((?!api|trpc|_next|_vercel|.*\\..*).*)']
+  matcher: [
+    '/((?!admin|api|trpc|_next|_vercel|.*\\..*).*)'
+  ]
 };

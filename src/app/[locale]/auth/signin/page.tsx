@@ -47,7 +47,7 @@ export default function SignInPage({
       } else {
         const session = await getSession();
         if (session?.user?.role === "ADMIN") {
-          router.push(`/${locale}/admin`);
+          router.push(`/admin`);
         } else {
           router.push(`/${locale}`);
         }

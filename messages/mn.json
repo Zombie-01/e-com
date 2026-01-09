@@ -54,7 +54,9 @@
     "size": "Хэмжээ",
     "quantity": "Тоо хэмжээ",
     "add_to_cart": "Сагсанд нэмэх",
-    "out_of_stock": "Хадгалагдаагүй"
+    "out_of_stock": "Хадгалагдаагүй",
+    "wholesaleMinQty": "Бөөний хамгийн бага тоо",
+    "wholesalePrice": "Бөөний үнэ"
   },
   "cart": {
     "title": "Худалдан Авах Сагс",
@@ -431,7 +433,9 @@
       "addVariant": "Сонголт нэмэх",
       "createButton": "Бүтээгдэхүүн үүсгэх",
       "updateButton": "Бүтээгдэхүүн шинэчлэх",
-      "viewButton": "Харах"
+      "viewButton": "Харах",
+      "wholesaleMinQty": "Бөөний хамгийн бага тоо",
+      "wholesalePrice": "Бөөний үнэ"
     },
     "preview": {
       "title": "Бүтээгдэхүүний урьдчилан харах",
