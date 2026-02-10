@@ -166,7 +166,7 @@ export default function AdminProductsPage() {
   const handleFormChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -181,7 +181,7 @@ export default function AdminProductsPage() {
   // Allow multiple images per variant
   const handleVariantImageChange = (
     variantIdx: number,
-    files: FileList | null
+    files: FileList | null,
   ) => {
     const updatedImages = [...variantImages];
     updatedImages[variantIdx] = files ? Array.from(files) : [];
@@ -193,7 +193,7 @@ export default function AdminProductsPage() {
     const updatedImages = [...variantImages];
     if (updatedImages[variantIdx]) {
       updatedImages[variantIdx] = updatedImages[variantIdx]!.filter(
-        (_, i) => i !== imgIdx
+        (_, i) => i !== imgIdx,
       );
       setVariantImages(updatedImages);
     }
@@ -236,7 +236,7 @@ export default function AdminProductsPage() {
         {
           method: editingProduct ? "PUT" : "POST",
           body: formData,
-        }
+        },
       );
 
       if (res.ok) {
@@ -317,8 +317,8 @@ export default function AdminProductsPage() {
 
   const filteredProducts = products.filter((p) =>
     [p.enName, p.mnName, p.sku].some((field: string) =>
-      field.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+      field.toLowerCase().includes(searchTerm.toLowerCase()),
+    ),
   );
 
   if (status === "loading" || loading) return <p className="p-4">Loading...</p>;
@@ -472,127 +472,214 @@ export default function AdminProductsPage() {
               ))}
             </div>
 
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setExpandVariants(!expandVariants)}>
-              {expandVariants ? (
-                <ChevronUp className="w-4 h-4" />
-              ) : (
-                <ChevronDown className="w-4 h-4" />
-              )}{" "}
-              "dialog.variants"
-            </Button>
+            {/* First Variant - Always Visible */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-2 border p-3 rounded">
+                <select
+                  value={form.variants[0].colorId}
+                  onChange={(e) =>
+                    handleVariantChange(0, "colorId", e.target.value)
+                  }
+                  className="border p-2">
+                  <option value="">"dialog.color"</option>
+                  {colors.map((c) => (
+                    <option
+                      key={c.id}
+                      value={c.id}
+                      style={{ background: c?.hex }}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={form.variants[0].sizeId}
+                  onChange={(e) =>
+                    handleVariantChange(0, "sizeId", e.target.value)
+                  }
+                  className="border p-2">
+                  <option value="">"dialog.size"</option>
+                  {sizes.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+                <Input
+                  type="number"
+                  value={form.variants[0].stock}
+                  onChange={(e) =>
+                    handleVariantChange(0, "stock", parseInt(e.target.value))
+                  }
+                  placeholder="dialog.stock"
+                  min={0}
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => {
+                    handleVariantImageChange(0, e.target.files);
+                  }}
+                  className="border p-2"
+                />
+                {/* Preview and remove images for first variant */}
+                {variantImages[0] &&
+                  variantImages[0]!.map((file, imgIdx) => (
+                    <div key={imgIdx} className="inline-block mr-2 relative">
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt="Preview"
+                        className="w-16 h-16 object-cover rounded"
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        className="absolute top-0 right-0"
+                        onClick={() => handleRemoveVariantImage(0, imgIdx)}
+                        title="Remove image">
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  ))}
+              </div>
+            </div>
 
-            {expandVariants && (
-              <div className="space-y-4">
-                {form.variants.map((variant, idx) => (
-                  <div
-                    key={idx}
-                    className="grid grid-cols-2 gap-2 border p-3 rounded">
-                    <select
-                      value={variant.colorId}
-                      onChange={(e) =>
-                        handleVariantChange(idx, "colorId", e.target.value)
-                      }
-                      className="border p-2">
-                      <option value="">"dialog.color"</option>
-                      {colors.map((c) => (
-                        <option
-                          key={c.id}
-                          value={c.id}
-                          style={{ background: c?.hex }}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      value={variant.sizeId}
-                      onChange={(e) =>
-                        handleVariantChange(idx, "sizeId", e.target.value)
-                      }
-                      className="border p-2">
-                      <option value="">"dialog.size"</option>
-                      {sizes.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.name}
-                        </option>
-                      ))}
-                    </select>
-                    <Input
-                      type="number"
-                      value={variant.stock}
-                      onChange={(e) =>
-                        handleVariantChange(
-                          idx,
-                          "stock",
-                          parseInt(e.target.value)
-                        )
-                      }
-                      placeholder="dialog.stock"
-                      min={0}
-                    />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={(e) => {
-                        handleVariantImageChange(idx, e.target.files);
-                      }}
-                      className="border p-2"
-                    />
-                    {/* Preview and remove images */}
-                    {variantImages[idx] &&
-                      variantImages[idx]!.map((file, imgIdx) => (
-                        <div
-                          key={imgIdx}
-                          className="inline-block mr-2 relative">
-                          <img
-                            src={URL.createObjectURL(file)}
-                            alt="Preview"
-                            className="w-16 h-16 object-cover rounded"
-                          />
-                          <Button
-                            type="button"
-                            size="icon"
-                            variant="ghost"
-                            className="absolute top-0 right-0"
-                            onClick={() =>
-                              handleRemoveVariantImage(idx, imgIdx)
-                            }
-                            title="Remove image">
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                          </Button>
-                        </div>
-                      ))}
-                  </div>
-                ))}
+            {/* Additional Variants - Expandable */}
+            {form.variants.length > 1 && (
+              <>
                 <Button
                   type="button"
-                  onClick={() =>
-                    setForm({
-                      ...form,
-                      variants: [
-                        ...form.variants,
-                        { colorId: "", sizeId: "", stock: 0, image: [] },
-                      ],
-                    })
-                  }
                   variant="outline"
-                  className="flex items-center">
-                  <Plus className="w-4 h-4 mr-2" /> {/* PLUS icon */}
-                  "dialog.addVariant"
+                  onClick={() => setExpandVariants(!expandVariants)}>
+                  {expandVariants ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}{" "}
+                  "dialog.variants" ({form.variants.length - 1} more)
                 </Button>
-              </div>
+
+                {expandVariants && (
+                  <div className="space-y-4">
+                    {form.variants.map((variant, idx) => {
+                      if (idx === 0) return null;
+                      return (
+                        <div
+                          key={idx}
+                          className="grid grid-cols-2 gap-2 border p-3 rounded">
+                          <select
+                            value={variant.colorId}
+                            onChange={(e) =>
+                              handleVariantChange(
+                                idx,
+                                "colorId",
+                                e.target.value,
+                              )
+                            }
+                            className="border p-2">
+                            <option value="">"dialog.color"</option>
+                            {colors.map((c) => (
+                              <option
+                                key={c.id}
+                                value={c.id}
+                                style={{ background: c?.hex }}>
+                                {c.name}
+                              </option>
+                            ))}
+                          </select>
+                          <select
+                            value={variant.sizeId}
+                            onChange={(e) =>
+                              handleVariantChange(idx, "sizeId", e.target.value)
+                            }
+                            className="border p-2">
+                            <option value="">"dialog.size"</option>
+                            {sizes.map((s) => (
+                              <option key={s.id} value={s.id}>
+                                {s.name}
+                              </option>
+                            ))}
+                          </select>
+                          <Input
+                            type="number"
+                            value={variant.stock}
+                            onChange={(e) =>
+                              handleVariantChange(
+                                idx,
+                                "stock",
+                                parseInt(e.target.value),
+                              )
+                            }
+                            placeholder="dialog.stock"
+                            min={0}
+                          />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={(e) => {
+                              handleVariantImageChange(idx, e.target.files);
+                            }}
+                            className="border p-2"
+                          />
+                          {/* Preview and remove images */}
+                          {variantImages[idx] &&
+                            variantImages[idx]!.map((file, imgIdx) => (
+                              <div
+                                key={imgIdx}
+                                className="inline-block mr-2 relative">
+                                <img
+                                  src={URL.createObjectURL(file)}
+                                  alt="Preview"
+                                  className="w-16 h-16 object-cover rounded"
+                                />
+                                <Button
+                                  type="button"
+                                  size="icon"
+                                  variant="ghost"
+                                  className="absolute top-0 right-0"
+                                  onClick={() =>
+                                    handleRemoveVariantImage(idx, imgIdx)
+                                  }
+                                  title="Remove image">
+                                  <Trash2 className="w-4 h-4 text-red-500" />
+                                </Button>
+                              </div>
+                            ))}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
             )}
+
+            {/* Add Variant Button - Always Visible */}
+            <Button
+              type="button"
+              onClick={() =>
+                setForm({
+                  ...form,
+                  variants: [
+                    ...form.variants,
+                    { colorId: "", sizeId: "", stock: 0, image: [] },
+                  ],
+                })
+              }
+              variant="outline"
+              className="flex items-center">
+              <Plus className="w-4 h-4 mr-2" /> {/* PLUS icon */}
+              "dialog.addVariant"
+            </Button>
 
             <DialogFooter>
               <Button type="submit" disabled={submitting}>
                 {submitting
                   ? "..."
                   : editingProduct
-                  ? "dialog.updateButton"
-                  : "dialog.createButton"}
+                    ? "dialog.updateButton"
+                    : "dialog.createButton"}
               </Button>
             </DialogFooter>
           </form>
@@ -602,9 +689,7 @@ export default function AdminProductsPage() {
       {/* Products Table */}
       <Card>
         <CardHeader>
-          <CardTitle>
-            ("title") ({products.length})
-          </CardTitle>
+          <CardTitle>("title") ({products.length})</CardTitle>
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <Input
@@ -640,8 +725,7 @@ export default function AdminProductsPage() {
                     <TableCell>
                       {product.salePercent
                         ? `${product.salePercent}%`
-                        : "noSale"
-                        }
+                        : "noSale"}
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
@@ -731,15 +815,13 @@ export default function AdminProductsPage() {
                 <strong>preview.sku:</strong> {previewProduct.sku}
               </p>
               <p>
-                <strong> preview.description :</strong>{" "}
-                {previewProduct.enDesc}
+                <strong> preview.description :</strong> {previewProduct.enDesc}
               </p>
               <p>
                 <strong> preview.price :</strong> ₮{previewProduct.price}
               </p>
               <p>
-                <strong>Cost Price :</strong> ₮
-                {previewProduct.costPrice}
+                <strong>Cost Price :</strong> ₮{previewProduct.costPrice}
               </p>
               <p>
                 <strong>preview.tags :</strong>{" "}

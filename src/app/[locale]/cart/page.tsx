@@ -35,7 +35,7 @@ export default function CartPage() {
   }>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [addressDialogOpen, setAddressDialogOpen] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState<"invoice-type" | "info" | "review" | null>(null);
   const [companyInvoiceOpen, setCompanyInvoiceOpen] = useState(false);
   const [invoiceType, setInvoiceType] = useState<"personal" | "company" | null>(
     null
@@ -77,7 +77,7 @@ export default function CartPage() {
         body: JSON.stringify({
           items,
           userId: session.user.id,
-          transactionId: "0",
+          transactionId: invoice?.invoice_id || "0",
           total: totalAfterBonus,
           invoiceType,
           companyData,
@@ -87,6 +87,12 @@ export default function CartPage() {
       if (!orderRes.ok) throw new Error("Order creation failed");
 
       clearCart();
+      // Reset checkout state
+      setCheckoutStep(null);
+      setInvoiceType(null);
+      setCompanyData(null);
+      setInvoiceReceiverCode("");
+      setUseBonus(false);
       alert("Order placed successfully!");
       window.location.href = "/profile";
     } catch (error) {
@@ -102,22 +108,52 @@ export default function CartPage() {
     }
 
     if (addresses.length === 0) {
-      // Open the address dialog if no addresses exist
-      setAddressDialogOpen(true);
+      alert("Please add a delivery address in your profile first.");
+      router.push("/profile");
       return;
     }
 
-    // Show invoice type selection
-    setInvoiceType(null);
+    // Start checkout flow: step 1 - select invoice type
+    setCheckoutStep("invoice-type");
+  }
+
+  function handleInvoiceTypeSelected(type: "personal" | "company") {
+    setInvoiceType(type);
+    if (type === "company") {
+      setCheckoutStep("info");
+      setCompanyInvoiceOpen(true);
+    } else {
+      setCheckoutStep("info");
+    }
+  }
+
+  function handleInfoComplete() {
+    // For personal invoice, invoiceReceiverCode can be optional
+    // For company invoice, companyData must be set
+    if (invoiceType === "company" && !companyData) {
+      alert("Please fill in company information");
+      return;
+    }
+    if (invoiceType === "personal" && !invoiceReceiverCode) {
+      alert("Please enter your register/ID number");
+      return;
+    }
+    
+    setCheckoutStep("review");
   }
 
   async function proceedToPayment() {
-    if (invoiceType === "company") {
-      if (!companyData) {
-        setCompanyInvoiceOpen(true);
-        return;
-      }
+    // Validate info is complete before proceeding
+    if (invoiceType === "company" && !companyData) {
+      alert("Please fill in company information first");
+      return;
+    }
+    if (invoiceType === "personal" && !invoiceReceiverCode) {
+      alert("Please enter your register/ID number");
+      return;
+    }
 
+    if (invoiceType === "company") {
       try {
         // Call company invoice API
         const res = await fetch("/api/user/companyinvoice", {
@@ -212,22 +248,6 @@ export default function CartPage() {
           <div className="bg-white rounded-2xl p-6 shadow-lg h-fit">
             <h3 className="text-xl font-semibold mb-4">{t("summary")}</h3>
 
-            {/* Personal Invoice Section */}
-            {invoiceType === "personal" && (
-              <div className="mb-4 space-y-2">
-                <label className="block text-sm font-medium text-gray-700 mt-2 mb-1">
-                  {t("register")}
-                </label>
-                <input
-                  type="text"
-                  className="w-full border rounded px-3 py-2"
-                  value={invoiceReceiverCode}
-                  onChange={(e) => setInvoiceReceiverCode(e.target.value)}
-                  placeholder={t("register")}
-                />
-              </div>
-            )}
-
             {/* Bonus field and checkbox */}
             <div className="mb-4 space-y-2">
               <label className="flex items-center mt-2">
@@ -278,9 +298,9 @@ export default function CartPage() {
         </div>
       </div>
 
-      {/* Invoice Type Selection Dialog */}
+      {/* Step 1: Invoice Type Selection Dialog */}
       <Dialog
-        open={invoiceType === null && items.length > 0}
+        open={checkoutStep === "invoice-type"}
         onOpenChange={() => {}}>
         <DialogContent>
           <DialogHeader>
@@ -291,13 +311,13 @@ export default function CartPage() {
             <Button
               variant="outline"
               onClick={() => {
-                setInvoiceType("personal");
+                handleInvoiceTypeSelected("personal");
               }}>
               Personal Invoice
             </Button>
             <Button
               onClick={() => {
-                setInvoiceType("company");
+                handleInvoiceTypeSelected("company");
               }}>
               Company Invoice
             </Button>
@@ -305,46 +325,157 @@ export default function CartPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Address Dialog */}
-      <Dialog open={addressDialogOpen} onOpenChange={setAddressDialogOpen}>
+      {/* Step 2: Personal Invoice Info Dialog */}
+      <Dialog
+        open={checkoutStep === "info" && invoiceType === "personal"}
+        onOpenChange={() => {}}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t("noAddressDialog.title")}</DialogTitle>
+            <DialogTitle>Personal Invoice Information</DialogTitle>
           </DialogHeader>
-          <p>{t("noAddressDialog.message")}</p>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t("register")}
+              </label>
+              <input
+                type="text"
+                className="w-full border rounded px-3 py-2"
+                value={invoiceReceiverCode}
+                onChange={(e) => setInvoiceReceiverCode(e.target.value)}
+                placeholder="Enter your register/ID number"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                E-barimtiin Register (optional)
+              </label>
+              <input
+                type="text"
+                className="w-full border rounded px-3 py-2"
+                value={ebarimtReg}
+                onChange={(e) => setEbarimtReg(e.target.value)}
+                placeholder="E-barimtiin Register"
+              />
+            </div>
+          </div>
           <DialogFooter>
             <Button
+              variant="outline"
               onClick={() => {
-                setAddressDialogOpen(false);
-                router.push("/profile");
+                setCheckoutStep("invoice-type");
+                setInvoiceType(null);
               }}>
-              {t("noAddressDialog.confirm")}
+              Back
+            </Button>
+            <Button onClick={handleInfoComplete}>
+              Continue
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Company Invoice Modal */}
+      {/* Company Invoice Modal for Step 2 */}
       <CompanyInvoiceModal
         isOpen={companyInvoiceOpen}
-        onClose={() => setCompanyInvoiceOpen(false)}
+        onClose={() => {
+          setCompanyInvoiceOpen(false);
+          setCheckoutStep("invoice-type");
+          setInvoiceType(null);
+        }}
         onSubmit={(data) => {
           setCompanyData(data);
           setCompanyInvoiceOpen(false);
-          proceedToPayment();
+          handleInfoComplete();
         }}
       />
 
-      {/* Payment Modal */}
-      {invoiceType && (
-        <div className="flex justify-center mt-4">
-          <Button onClick={proceedToPayment} size="lg">
-            Proceed to Payment
-          </Button>
-        </div>
-      )}
+      {/* Step 3: Review and Payment Dialog */}
+      <Dialog
+        open={checkoutStep === "review"}
+        onOpenChange={() => {}}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Review Order</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Invoice Type</p>
+              <p className="text-sm text-gray-600">
+                {invoiceType === "personal" ? "Personal Invoice" : "Company Invoice"}
+              </p>
+            </div>
 
-      <InvoiceModal
+            {invoiceType === "personal" && (
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Register Number</p>
+                <p className="text-sm text-gray-600">{invoiceReceiverCode}</p>
+              </div>
+            )}
+
+            {invoiceType === "company" && companyData && (
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Company Information</p>
+                <div className="text-sm text-gray-600 space-y-1">
+                  <p><strong>Name:</strong> {companyData.companyName}</p>
+                  <p><strong>Register:</strong> {companyData.companyRegister}</p>
+                  <p><strong>Phone:</strong> {companyData.phoneNumber}</p>
+                  <p><strong>Email:</strong> {companyData.email}</p>
+                </div>
+              </div>
+            )}
+
+            <hr />
+
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Subtotal</span>
+                <span>₮{subtotal.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span>Shipping</span>
+                <span>₮{(6000).toLocaleString()}</span>
+              </div>
+              {useBonus && userBonus > 0 && (
+                <div className="flex justify-between text-sm text-blue-600">
+                  <span>Bonus</span>
+                  <span>-₮{userBonus.toLocaleString()}</span>
+                </div>
+              )}
+              <hr />
+              <div className="flex justify-between font-semibold">
+                <span>Total</span>
+                <span>₮{totalAfterBonus.toLocaleString()}</span>
+              </div>
+            </div>
+
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={useBonus}
+                onChange={(e) => setUseBonus(e.target.checked)}
+                disabled={userBonus <= 0}
+                className="mr-2"
+              />
+              <span className="text-sm">Use bonus (₮{userBonus.toLocaleString()})</span>
+            </label>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCheckoutStep("info");
+              }}>
+              Back
+            </Button>
+            <Button onClick={proceedToPayment}>
+              Proceed to Payment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Payment Invoice Modal */}
         invoice={invoice as any}
         isOpen={modalOpen}
         token={invoice?.token}

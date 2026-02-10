@@ -1,11 +1,8 @@
 # 1. Install dependencies
 FROM node:18-alpine AS deps
 WORKDIR /app
-COPY package.json package-lock.json* yarn.lock* pnpm-lock.yaml* ./
-RUN if [ -f yarn.lock ]; then yarn install --frozen-lockfile; \
-    elif [ -f package-lock.json ]; then npm ci; \
-    else npm install; \
-    fi
+COPY package.json package-lock.json* ./ 
+RUN npm ci
 
 # 2. Build the app
 FROM node:18-alpine AS builder
