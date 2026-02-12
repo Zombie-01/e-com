@@ -35,13 +35,15 @@ export default function CartPage() {
   }>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [checkoutStep, setCheckoutStep] = useState<"invoice-type" | "info" | "review" | null>(null);
+  const [checkoutStep, setCheckoutStep] = useState<
+    "invoice-type" | "info" | "review" | null
+  >(null);
   const [companyInvoiceOpen, setCompanyInvoiceOpen] = useState(false);
   const [invoiceType, setInvoiceType] = useState<"personal" | "company" | null>(
-    null
+    null,
   );
   const [companyData, setCompanyData] = useState<CompanyInvoiceData | null>(
-    null
+    null,
   );
   const [invoiceReceiverCode, setInvoiceReceiverCode] = useState("");
   const [ebarimtReg, setEbarimtReg] = useState("");
@@ -138,7 +140,7 @@ export default function CartPage() {
       alert("Please enter your register/ID number");
       return;
     }
-    
+
     setCheckoutStep("review");
   }
 
@@ -299,9 +301,7 @@ export default function CartPage() {
       </div>
 
       {/* Step 1: Invoice Type Selection Dialog */}
-      <Dialog
-        open={checkoutStep === "invoice-type"}
-        onOpenChange={() => {}}>
+      <Dialog open={checkoutStep === "invoice-type"} onOpenChange={() => {}}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Select Invoice Type</DialogTitle>
@@ -368,9 +368,7 @@ export default function CartPage() {
               }}>
               Back
             </Button>
-            <Button onClick={handleInfoComplete}>
-              Continue
-            </Button>
+            <Button onClick={handleInfoComplete}>Continue</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -391,36 +389,50 @@ export default function CartPage() {
       />
 
       {/* Step 3: Review and Payment Dialog */}
-      <Dialog
-        open={checkoutStep === "review"}
-        onOpenChange={() => {}}>
+      <Dialog open={checkoutStep === "review"} onOpenChange={() => {}}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Review Order</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Invoice Type</p>
+              <p className="text-sm font-medium text-gray-700 mb-2">
+                Invoice Type
+              </p>
               <p className="text-sm text-gray-600">
-                {invoiceType === "personal" ? "Personal Invoice" : "Company Invoice"}
+                {invoiceType === "personal"
+                  ? "Personal Invoice"
+                  : "Company Invoice"}
               </p>
             </div>
 
             {invoiceType === "personal" && (
               <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">Register Number</p>
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  Register Number
+                </p>
                 <p className="text-sm text-gray-600">{invoiceReceiverCode}</p>
               </div>
             )}
 
             {invoiceType === "company" && companyData && (
               <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">Company Information</p>
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  Company Information
+                </p>
                 <div className="text-sm text-gray-600 space-y-1">
-                  <p><strong>Name:</strong> {companyData.companyName}</p>
-                  <p><strong>Register:</strong> {companyData.companyRegister}</p>
-                  <p><strong>Phone:</strong> {companyData.phoneNumber}</p>
-                  <p><strong>Email:</strong> {companyData.email}</p>
+                  <p>
+                    <strong>Name:</strong> {companyData.companyName}
+                  </p>
+                  <p>
+                    <strong>Register:</strong> {companyData.companyRegister}
+                  </p>
+                  <p>
+                    <strong>Phone:</strong> {companyData.phoneNumber}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {companyData.email}
+                  </p>
                 </div>
               </div>
             )}
@@ -457,7 +469,9 @@ export default function CartPage() {
                 disabled={userBonus <= 0}
                 className="mr-2"
               />
-              <span className="text-sm">Use bonus (₮{userBonus.toLocaleString()})</span>
+              <span className="text-sm">
+                Use bonus (₮{userBonus.toLocaleString()})
+              </span>
             </label>
           </div>
           <DialogFooter>
@@ -468,14 +482,13 @@ export default function CartPage() {
               }}>
               Back
             </Button>
-            <Button onClick={proceedToPayment}>
-              Proceed to Payment
-            </Button>
+            <Button onClick={proceedToPayment}>Proceed to Payment</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Payment Invoice Modal */}
+      <InvoiceModal
         invoice={invoice as any}
         isOpen={modalOpen}
         token={invoice?.token}
