@@ -1,7 +1,7 @@
-// next.config.js
-import createNextIntlPlugin from "next-intl/plugin.js"; // note the .js extension
+// next.config.js (CommonJS)
+const nextIntl = require("next-intl/plugin");
 
-const withNextIntl = createNextIntlPlugin();
+const withNextIntl = nextIntl();
 
 const nextConfig = {
   env: {
@@ -35,4 +35,4 @@ const nextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+module.exports = withNextIntl(nextConfig);
