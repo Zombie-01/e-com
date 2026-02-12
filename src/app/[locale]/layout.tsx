@@ -6,6 +6,10 @@ import { notFound } from "next/navigation";
 import { routing } from "@/src/i18n/routing";
 import { Footer } from "@/src/components/Footer";
 
+export function generateStaticParams() {
+  return [{ locale: "en" }, { locale: "mn" }];
+}
+
 export default async function LocaleLayout({
   children,
   params,

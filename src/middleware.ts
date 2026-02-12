@@ -6,27 +6,35 @@ import { routing } from "./i18n/routing";
 const intlMiddleware = createMiddleware({
   locales: routing.locales,
   defaultLocale: routing.defaultLocale,
-  localePrefix: routing.localePrefix,
+  localePrefix: routing.localePrefix
 });
 
 export default async function middleware(req: NextRequest) {
+  const response = intlMiddleware(req);
+
   const { pathname } = req.nextUrl;
 
-  const intlResponse = intlMiddleware(req);
+  // Locale-ийг хассан pathname авах
+  const pathnameWithoutLocale = pathname.replace(
+    /^\/(mn|en)/,
+    ''
+  );
 
-  if (pathname.startsWith("/admin")) {
+  if (pathnameWithoutLocale.startsWith('/admin')) {
     const token = await getToken({ req });
 
     if (!token || token.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/admin/auth", req.url));
+      return NextResponse.redirect(new URL('/admin/auth', req.url));
     }
   }
 
-  return intlResponse;
+  return response;
 }
 
 export const config = {
   matcher: [
-    '/((?!admin|api|trpc|_next|_vercel|.*\\..*).*)'
+    '/',
+    '/(mn|en)/:path*',
+    '/admin/:path*'
   ]
 };
