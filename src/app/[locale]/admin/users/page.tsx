@@ -56,7 +56,7 @@ export default function AdminUsersPage() {
   useEffect(() => {
     if (
       status === "unauthenticated" ||
-      (session && session.user.role !== "ADMIN")
+      (session && session.user?.role !== "ADMIN")
     ) {
       redirect("/auth/signin");
       return;
@@ -76,8 +76,8 @@ export default function AdminUsersPage() {
     try {
       const res = await fetch(
         `/api/admin/users?page=${pageNumber}&perPage=${perPage}&search=${encodeURIComponent(
-          search
-        )}`
+          search,
+        )}`,
       );
       if (res.ok) {
         const { data, pagination } = await res.json();
@@ -92,7 +92,7 @@ export default function AdminUsersPage() {
   };
 
   const handleFormChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -200,8 +200,8 @@ export default function AdminUsersPage() {
               {selectedUser
                 ? t("modal.userOrdersTitle", { name: selectedUser.name })
                 : form.id
-                ? t("modal.title", { type: "edit" })
-                : t("modal.title", { type: "add" })}
+                  ? t("modal.title", { type: "edit" })
+                  : t("modal.title", { type: "add" })}
             </DialogTitle>
           </DialogHeader>
           {selectedUser ? (
@@ -282,8 +282,8 @@ export default function AdminUsersPage() {
                       ? t("modal.buttons.updating")
                       : t("modal.buttons.creating")
                     : form.id
-                    ? t("modal.buttons.update")
-                    : t("modal.buttons.create")}
+                      ? t("modal.buttons.update")
+                      : t("modal.buttons.create")}
                 </Button>
               </DialogFooter>
             </form>

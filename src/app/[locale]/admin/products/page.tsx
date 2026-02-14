@@ -106,11 +106,10 @@ export default function AdminProductsPage() {
     setVariantImages(product.variants.map(() => null));
   };
 
- 
   useEffect(() => {
     if (
       status === "unauthenticated" ||
-      (session && session.user.role !== "ADMIN")
+      (session && session.user?.role !== "ADMIN")
     ) {
       redirect("/auth/signin");
     }
@@ -169,7 +168,7 @@ export default function AdminProductsPage() {
   const handleFormChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -184,7 +183,7 @@ export default function AdminProductsPage() {
   // Allow multiple images per variant
   const handleVariantImageChange = (
     variantIdx: number,
-    files: FileList | null
+    files: FileList | null,
   ) => {
     const updatedImages = [...variantImages];
     updatedImages[variantIdx] = files ? Array.from(files) : [];
@@ -196,7 +195,7 @@ export default function AdminProductsPage() {
     const updatedImages = [...variantImages];
     if (updatedImages[variantIdx]) {
       updatedImages[variantIdx] = updatedImages[variantIdx]!.filter(
-        (_, i) => i !== imgIdx
+        (_, i) => i !== imgIdx,
       );
       setVariantImages(updatedImages);
     }
@@ -239,7 +238,7 @@ export default function AdminProductsPage() {
         {
           method: editingProduct ? "PUT" : "POST",
           body: formData,
-        }
+        },
       );
 
       if (res.ok) {
@@ -320,8 +319,8 @@ export default function AdminProductsPage() {
 
   const filteredProducts = products.filter((p) =>
     [p.enName, p.mnName, p.sku].some((field: string) =>
-      field.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+      field.toLowerCase().includes(searchTerm.toLowerCase()),
+    ),
   );
 
   if (status === "loading" || loading) return <p className="p-4">Loading...</p>;
@@ -514,7 +513,7 @@ export default function AdminProductsPage() {
                         handleVariantChange(
                           idx,
                           "stock",
-                          parseInt(e.target.value)
+                          parseInt(e.target.value),
                         )
                       }
                       placeholder={t("dialog.stock")}
@@ -579,8 +578,8 @@ export default function AdminProductsPage() {
                 {submitting
                   ? "..."
                   : editingProduct
-                  ? t("dialog.updateButton")
-                  : t("dialog.createButton")}
+                    ? t("dialog.updateButton")
+                    : t("dialog.createButton")}
               </Button>
             </DialogFooter>
           </form>

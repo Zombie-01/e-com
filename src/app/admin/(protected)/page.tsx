@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
 import AdminDashboard from "@/src/components/admin/AdminDashboard";
+import type { Session } from "next-auth";
 
 async function getDashboardStats() {
   const [
@@ -37,7 +38,7 @@ async function getDashboardStats() {
   // Calculate total cost price for all products
   const totalCost = products.reduce(
     (sum: any, p: any) => sum + (p.costPrice ?? 0),
-    0
+    0,
   );
   const margin = (totalRevenue._sum.amount || 0) - totalCost;
 
@@ -106,9 +107,11 @@ async function getDashboardStats() {
 }
 
 export default async function AdminPage() {
-  const session = await getServerSession(authOptions);
+  const session = (await getServerSession(
+    authOptions,
+  )) as any as Session | null;
 
-  if (!session || session.user.role !== "ADMIN") {
+  if (!session || session.user?.role !== "ADMIN") {
     redirect("/auth/signin");
   }
 

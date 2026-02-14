@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
 
 // 🔐 Middleware to validate admin
 async function requireAdmin(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
+  const session = (await getServerSession(authOptions)) as any;
+  if (!session || session?.user.role !== "ADMIN") {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   return session;
@@ -57,7 +57,7 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     return NextResponse.json(
       { message: "Failed to update brand", error },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -72,7 +72,7 @@ export async function DELETE(request: NextRequest) {
     if (!id) {
       return NextResponse.json(
         { message: "Missing brand ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -90,7 +90,7 @@ export async function DELETE(request: NextRequest) {
           message:
             "Cannot deactivate brand: there are active products under this brand.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -113,13 +113,13 @@ export async function DELETE(request: NextRequest) {
       // Foreign key constraint failed
       return NextResponse.json(
         { message: "Cannot delete brand: it is referenced by other data." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     return NextResponse.json(
       { message: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

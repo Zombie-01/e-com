@@ -107,7 +107,7 @@ export default function AdminProductsPage() {
   useEffect(() => {
     if (
       status === "unauthenticated" ||
-      (session && session.user.role !== "ADMIN")
+      (session && session.user?.role !== "ADMIN")
     ) {
       redirect("/auth/signin");
     }

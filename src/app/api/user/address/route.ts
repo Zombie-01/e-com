@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
 
 // GET all addresses
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = (await getServerSession(authOptions)) as any;
   if (!session)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
 
 // POST new address
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = (await getServerSession(authOptions)) as any;
   if (!session)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

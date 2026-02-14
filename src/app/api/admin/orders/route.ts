@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
 import { sendEmail } from "@/src/lib/email";
+import type { Session } from "next-auth";
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
+  const session = (await getServerSession(
+    authOptions,
+  )) as any as Session | null;
+  if (!session || session.user?.role !== "ADMIN") {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -44,7 +47,7 @@ export async function GET(request: NextRequest) {
     if (page < 1 || perPage < 1) {
       return NextResponse.json(
         { message: "Invalid pagination parameters" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -85,7 +88,7 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching orders:", error);
     return NextResponse.json(
       { message: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -99,8 +102,10 @@ enum OrderStatus {
 }
 
 export async function PUT(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
+  const session = (await getServerSession(
+    authOptions,
+  )) as any as Session | null;
+  if (!session || session.user?.role !== "ADMIN") {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -111,7 +116,7 @@ export async function PUT(request: NextRequest) {
     if (!orderId || !status || !(status in OrderStatus)) {
       return NextResponse.json(
         { message: "Invalid orderId or status" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -144,7 +149,7 @@ export async function PUT(request: NextRequest) {
     console.error("Error updating order status:", error);
     return NextResponse.json(
       { message: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

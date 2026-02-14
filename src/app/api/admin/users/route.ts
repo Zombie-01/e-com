@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
 import { Prisma } from "@prisma/client";
+import type { Session } from "next-auth";
 
 // Create user
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
+  const session = (await getServerSession(
+    authOptions,
+  )) as any as Session | null;
+  if (!session || session.user?.role !== "ADMIN") {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const data = await request.json();
@@ -24,8 +27,10 @@ export async function POST(request: NextRequest) {
 
 // Get all users
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
+  const session = (await getServerSession(
+    authOptions,
+  )) as any as Session | null;
+  if (!session || session.user?.role !== "ADMIN") {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -38,7 +43,7 @@ export async function GET(request: NextRequest) {
     if (page < 1 || perPage < 1) {
       return NextResponse.json(
         { message: "Invalid pagination parameters" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -80,14 +85,14 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching users:", error);
     return NextResponse.json(
       { message: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 // Update user
 export async function PUT(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = (await getServerSession(authOptions)) as any;
 
   const data = await request.json();
   if (!data.id) {
@@ -106,8 +111,8 @@ export async function PUT(request: NextRequest) {
 
 // Delete user
 export async function DELETE(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
+  const session = (await getServerSession(authOptions)) as any;
+  if (!session || session?.user.role !== "ADMIN") {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const id = request.nextUrl.searchParams.get("id");

@@ -42,7 +42,7 @@ export default function AdminTagsPage() {
   useEffect(() => {
     if (
       status === "unauthenticated" ||
-      (session && session.user.role !== "ADMIN")
+      (session && session.user?.role !== "ADMIN")
     ) {
       redirect("/auth/signin");
     }
@@ -70,7 +70,7 @@ export default function AdminTagsPage() {
   const filteredTags = tags?.filter(
     (tag: any) =>
       tag.enName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tag.mnName.toLowerCase().includes(searchTerm.toLowerCase())
+      tag.mnName.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {

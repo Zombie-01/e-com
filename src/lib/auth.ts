@@ -1,12 +1,13 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import type { AuthConfig } from "@auth/core";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/src/lib/prisma";
 import bcrypt from "bcryptjs";
 
-export const authOptions: NextAuthOptions = {
+export const authOptions: AuthConfig = {
   adapter: PrismaAdapter(prisma),
   providers: [
     // Email + Password credentials provider
@@ -25,7 +26,10 @@ export const authOptions: NextAuthOptions = {
 
         if (!user || !user.password) return null;
 
-        const isValid = await bcrypt.compare(credentials.password, user.password);
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.password,
+        );
         if (!isValid) return null;
 
         return {
@@ -60,17 +64,17 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account, profile }) {
       if (!user.email) return false;
 
-  await prisma.user.upsert({
-    where: { email: user.email },
-    update: {},
-    create: {
-      email: user.email,
-      name: user.name || null,
-      bonus: 0,
-      phone: null,
-      role: "USER",   // 👈 заавал нэм
-    },
-  });
+      await prisma.user.upsert({
+        where: { email: user.email },
+        update: {},
+        create: {
+          email: user.email,
+          name: user.name || null,
+          bonus: 0,
+          phone: null,
+          role: "USER", // 👈 заавал нэм
+        },
+      });
 
       return true;
     },
@@ -86,7 +90,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.sub!;
-        session.user.role = (token as any).role as string;
+        session.user.role = `${(token as any).role}` || "USER";
       }
       return session;
     },
@@ -103,6 +107,6 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/signin",
     newUser: "/auth/signup",
   },
-}
+};
 
 export default NextAuth(authOptions);

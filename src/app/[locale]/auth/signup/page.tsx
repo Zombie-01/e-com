@@ -16,11 +16,12 @@ import {
 import { Alert, AlertDescription } from "@/src/components/ui/alert";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 
-export default function SignUpPage({
-  params: { locale },
+export default async function SignUpPage({
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -60,8 +61,8 @@ export default function SignUpPage({
       if (response.ok) {
         router.push(
           `/${locale}/auth/signin?message=${encodeURIComponent(
-            t("account_created_successfully")
-          )}`
+            t("account_created_successfully"),
+          )}`,
         );
       } else {
         const data = await response.json();

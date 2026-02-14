@@ -49,7 +49,7 @@ export default function SiteSettingsPage() {
   useEffect(() => {
     if (
       status === "unauthenticated" ||
-      (session && session.user.role !== "ADMIN")
+      (session && session.user?.role !== "ADMIN")
     ) {
       redirect("/auth/signin");
     }
@@ -157,7 +157,7 @@ export default function SiteSettingsPage() {
     titleKey: string,
     type: "banner" | "color" | "size",
     data: any[],
-    keys: string[]
+    keys: string[],
   ) => (
     <Card className="mb-8">
       <CardHeader className="flex justify-between items-center">
@@ -309,8 +309,8 @@ export default function SiteSettingsPage() {
                     ? t("modal.buttons.updating")
                     : t("modal.buttons.creating")
                   : form.id
-                  ? t("modal.buttons.update")
-                  : t("modal.buttons.create")}
+                    ? t("modal.buttons.update")
+                    : t("modal.buttons.create")}
               </Button>
             </DialogFooter>
           </form>

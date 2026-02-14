@@ -64,7 +64,7 @@ export default function AdminCategoriesPage() {
   useEffect(() => {
     if (
       status === "unauthenticated" ||
-      (session && session.user.role !== "ADMIN")
+      (session && session.user?.role !== "ADMIN")
     ) {
       redirect("/auth/signin");
       return;
@@ -78,11 +78,11 @@ export default function AdminCategoriesPage() {
   const filteredCategories = categories?.filter(
     (category: any) =>
       category.enName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      category.mnName.toLowerCase().includes(searchTerm.toLowerCase())
+      category.mnName.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleFormChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -206,8 +206,8 @@ export default function AdminCategoriesPage() {
                     ? t("modal.buttons.updating")
                     : t("modal.buttons.creating")
                   : form.id
-                  ? t("modal.buttons.update")
-                  : t("modal.buttons.create")}
+                    ? t("modal.buttons.update")
+                    : t("modal.buttons.create")}
               </Button>
             </DialogFooter>
           </form>

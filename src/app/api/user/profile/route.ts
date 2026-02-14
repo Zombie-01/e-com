@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
 
 // GET profile
 export async function GET() {
-  const session = await getServerSession(authOptions);
+  const session = (await getServerSession(authOptions)) as any;
   if (!session?.user?.email) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
@@ -24,7 +24,7 @@ export async function GET() {
 
 // PUT profile
 export async function PUT(req: Request) {
-  const session = await getServerSession(authOptions);
+  const session = (await getServerSession(authOptions)) as any;
   if (!session?.user?.email) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
@@ -46,7 +46,7 @@ export async function PUT(req: Request) {
     console.error(error);
     return NextResponse.json(
       { message: "Error updating profile" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

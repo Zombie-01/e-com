@@ -62,7 +62,7 @@ export default function AdminCategoriesPage() {
   useEffect(() => {
     if (
       status === "unauthenticated" ||
-      (session && session.user.role !== "ADMIN")
+      (session && session.user?.role !== "ADMIN")
     ) {
       redirect("/auth/signin");
       return;
@@ -76,11 +76,11 @@ export default function AdminCategoriesPage() {
   const filteredCategories = categories?.filter(
     (category: any) =>
       category.enName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      category.mnName.toLowerCase().includes(searchTerm.toLowerCase())
+      category.mnName.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleFormChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -140,9 +140,7 @@ export default function AdminCategoriesPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            pageTitle
-          </h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">pageTitle</h1>
           <p className="text-gray-600">pageDescription</p>
         </div>
         <Button
@@ -160,12 +158,8 @@ export default function AdminCategoriesPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {form.id
-                ? "CATEGORY засах"
-                : "CATEGORY нэмэх"
-              }
+              {form.id ? "CATEGORY засах" : "CATEGORY нэмэх"}
             </DialogTitle>
-
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
@@ -217,9 +211,7 @@ export default function AdminCategoriesPage() {
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>
-              Card Title ({categories?.length || 0})
-            </CardTitle>
+            <CardTitle>Card Title ({categories?.length || 0})</CardTitle>
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
@@ -249,9 +241,8 @@ export default function AdminCategoriesPage() {
                   <TableCell>
                     {category.parentId
                       ? categories.find((cat) => cat.id === category.parentId)
-                        ?.enName || "-"
-                      : "noParentDisplay"
-                    }
+                          ?.enName || "-"
+                      : "noParentDisplay"}
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">

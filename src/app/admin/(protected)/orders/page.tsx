@@ -27,10 +27,15 @@ export default function AdminOrdersPage() {
   const [page, setPage] = useState(1);
   const [perPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
-  const [expandedOrderIds, setExpandedOrderIds] = useState<Set<string>>(new Set());
+  const [expandedOrderIds, setExpandedOrderIds] = useState<Set<string>>(
+    new Set(),
+  );
 
   useEffect(() => {
-    if (status === "unauthenticated" || (session && session.user.role !== "ADMIN")) {
+    if (
+      status === "unauthenticated" ||
+      (session && session.user?.role !== "ADMIN")
+    ) {
       redirect("/auth/signin");
       return;
     }
@@ -43,7 +48,9 @@ export default function AdminOrdersPage() {
   const fetchOrders = async (pageNumber: number) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/orders?page=${pageNumber}&perPage=${perPage}`);
+      const res = await fetch(
+        `/api/admin/orders?page=${pageNumber}&perPage=${perPage}`,
+      );
       if (res.ok) {
         const { data, pagination } = await res.json();
         setOrders(data);
@@ -100,7 +107,10 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
+  const handleStatusChange = async (
+    orderId: string,
+    newStatus: OrderStatus,
+  ) => {
     try {
       const res = await fetch("/api/admin/orders", {
         method: "PUT",
@@ -114,8 +124,8 @@ export default function AdminOrdersPage() {
 
       setOrders((prev) =>
         prev.map((order) =>
-          order.id === orderId ? { ...order, status: newStatus } : order
-        )
+          order.id === orderId ? { ...order, status: newStatus } : order,
+        ),
       );
     } catch (error) {
       console.error("Error updating status:", error);
@@ -141,22 +151,23 @@ export default function AdminOrdersPage() {
               key={order.id}
               className="cursor-pointer border hover:shadow-md transition"
               onClick={() => toggleExpand(order.id)}
-              title="Click to expand"
-            >
+              title="Click to expand">
               <CardHeader>
                 <CardTitle className="flex justify-between items-center">
                   <span>Order ID: {order.id}</span>
 
                   <select
                     className={`px-2 py-1 text-xs rounded cursor-pointer ${getStatusBadgeColor(
-                      order.status
+                      order.status,
                     )}`}
                     value={order.status}
                     onClick={(e) => e.stopPropagation()}
                     onChange={(e) =>
-                      handleStatusChange(order.id, e.target.value as OrderStatus)
-                    }
-                  >
+                      handleStatusChange(
+                        order.id,
+                        e.target.value as OrderStatus,
+                      )
+                    }>
                     {Object.values(OrderStatus).map((status) => (
                       <option key={status} value={status}>
                         {getStatusLabel(status)}
@@ -167,22 +178,37 @@ export default function AdminOrdersPage() {
               </CardHeader>
 
               <CardContent className="space-y-2">
-                <div><strong>User Email:</strong> {order.user?.email || "N/A"}</div>
-                <div><strong>User Name:</strong> {order.user?.name || "N/A"}</div>
-                <div><strong>Phone:</strong> {order.user?.addresses?.[0]?.phone || "N/A"}</div>
-                <div><strong>Total:</strong> ₮{order.total.toLocaleString()}</div>
-                <div><strong>Created At:</strong> {new Date(order.createdAt).toLocaleString()}</div>
+                <div>
+                  <strong>User Email:</strong> {order.user?.email || "N/A"}
+                </div>
+                <div>
+                  <strong>User Name:</strong> {order.user?.name || "N/A"}
+                </div>
+                <div>
+                  <strong>Phone:</strong>{" "}
+                  {order.user?.addresses?.[0]?.phone || "N/A"}
+                </div>
+                <div>
+                  <strong>Total:</strong> ₮{order.total.toLocaleString()}
+                </div>
+                <div>
+                  <strong>Created At:</strong>{" "}
+                  {new Date(order.createdAt).toLocaleString()}
+                </div>
 
                 {expandedOrderIds.has(order.id) && (
                   <div className="mt-4 space-y-4 border-t pt-4">
-
                     {/* Delivery Details */}
                     <div>
-                      <h3 className="font-semibold text-lg mb-2">Delivery Details</h3>
+                      <h3 className="font-semibold text-lg mb-2">
+                        Delivery Details
+                      </h3>
 
                       <div>
                         <strong>Option:</strong>{" "}
-                        {order.delivery?.mnName || order.delivery?.enName || "N/A"}
+                        {order.delivery?.mnName ||
+                          order.delivery?.enName ||
+                          "N/A"}
                       </div>
 
                       <div>
@@ -191,31 +217,46 @@ export default function AdminOrdersPage() {
                       </div>
 
                       <div>
-                        <strong>ETA:</strong> {order.delivery?.etaDays || "N/A"} days
+                        <strong>ETA:</strong> {order.delivery?.etaDays || "N/A"}{" "}
+                        days
                       </div>
                     </div>
 
                     {/* Customer Details */}
                     <div>
-                      <h3 className="font-semibold text-lg mb-2">Customer Details</h3>
+                      <h3 className="font-semibold text-lg mb-2">
+                        Customer Details
+                      </h3>
                       <div>
                         <strong>Address:</strong>{" "}
                         {order.user?.addresses?.[0]?.fullName || "N/A"}
                       </div>
-                      <div><strong>Email:</strong> {order.user?.email || "N/A"}</div>
-                      <div><strong>Phone:</strong> {order.user?.addresses?.[0]?.phone || "N/A"}</div>
+                      <div>
+                        <strong>Email:</strong> {order.user?.email || "N/A"}
+                      </div>
+                      <div>
+                        <strong>Phone:</strong>{" "}
+                        {order.user?.addresses?.[0]?.phone || "N/A"}
+                      </div>
                     </div>
 
                     {/* Order Items */}
                     <div>
-                      <h3 className="font-semibold text-lg mb-2">Order Items</h3>
+                      <h3 className="font-semibold text-lg mb-2">
+                        Order Items
+                      </h3>
 
                       <ul className="space-y-3">
                         {order.items.map((item: any) => (
-                          <li key={item.id} className="flex items-center space-x-4 border p-2 rounded">
+                          <li
+                            key={item.id}
+                            className="flex items-center space-x-4 border p-2 rounded">
                             <img
                               src={item.productVariant?.image}
-                              alt={item.productVariant?.product?.enName || "Product"}
+                              alt={
+                                item.productVariant?.product?.enName ||
+                                "Product"
+                              }
                               className="w-16 h-16 object-cover rounded"
                             />
 
@@ -231,14 +272,15 @@ export default function AdminOrdersPage() {
 
                               <div className="text-sm text-gray-600">
                                 Subtotal: $
-                                {(item.quantity * item.unitPrice).toLocaleString()}
+                                {(
+                                  item.quantity * item.unitPrice
+                                ).toLocaleString()}
                               </div>
                             </div>
                           </li>
                         ))}
                       </ul>
                     </div>
-
                   </div>
                 )}
               </CardContent>
@@ -249,11 +291,15 @@ export default function AdminOrdersPage() {
 
       {/* Pagination */}
       <div className="flex justify-center mt-8 space-x-4">
-        <Button onClick={() => setPage((p) => Math.max(p - 1, 1))} disabled={page === 1}>
+        <Button
+          onClick={() => setPage((p) => Math.max(p - 1, 1))}
+          disabled={page === 1}>
           <ChevronLeft className="w-4 h-4" /> Previous
         </Button>
 
-        <Button onClick={() => setPage((p) => Math.min(p + 1, totalPages))} disabled={page === totalPages}>
+        <Button
+          onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+          disabled={page === totalPages}>
           Next <ChevronRight className="w-4 h-4" />
         </Button>
       </div>

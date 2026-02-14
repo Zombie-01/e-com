@@ -47,7 +47,7 @@ export default function AdminBrandsPage() {
   useEffect(() => {
     if (
       status === "unauthenticated" ||
-      (session && session.user.role !== "ADMIN")
+      (session && session.user?.role !== "ADMIN")
     ) {
       redirect("/auth/signin");
     }
@@ -75,7 +75,7 @@ export default function AdminBrandsPage() {
   const filteredBrands = brands.filter(
     (brand) =>
       brand.enName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      brand.mnName.toLowerCase().includes(searchTerm.toLowerCase())
+      brand.mnName.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -179,8 +179,8 @@ export default function AdminBrandsPage() {
                     ? t("updating")
                     : t("creating")
                   : form.id
-                  ? t("updateBrand")
-                  : t("createBrand")}
+                    ? t("updateBrand")
+                    : t("createBrand")}
               </Button>
             </DialogFooter>
           </form>

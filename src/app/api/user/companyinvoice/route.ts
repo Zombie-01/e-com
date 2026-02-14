@@ -5,7 +5,7 @@ import { authOptions } from "@/src/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = (await getServerSession(authOptions)) as any;
 
     if (!session?.user?.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     if (!companyName || !companyRegister) {
       return NextResponse.json(
         { message: "Company name and register number are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
     console.error("Company invoice creation error:", error);
     return NextResponse.json(
       { message: "Failed to create company invoice" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

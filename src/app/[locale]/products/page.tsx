@@ -48,12 +48,13 @@ async function getFilterData() {
 }
 
 export default async function ProductsPage({
-  params: { locale },
+  params,
   searchParams,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
   searchParams: any;
 }) {
+  const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "products" });
   const [products, filterData] = await Promise.all([
     getProducts(searchParams),

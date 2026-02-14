@@ -26,13 +26,12 @@ async function getProduct(id: string) {
 }
 
 export default async function ProductPage({
-  params: { locale, id },
+  params,
 }: {
-  params: { locale: string; id: string };
+  params: Promise<{ locale: string; id: string }>;
 }) {
+  const { locale, id } = await params;
   const product = await getProduct(id);
-
-  
 
   return (
     <div className="container mx-auto px-4 py-8">

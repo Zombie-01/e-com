@@ -1,49 +1,29 @@
-# 1️⃣ Install dependencies
-FROM node:20-alpine AS deps
+# 1. Install dependencies
+FROM node:20-bullseye AS deps
 WORKDIR /app
+COPY package.json ./
+RUN npm install --legacy-peer-deps
 
-# Install libc compatibility (important for some packages)
-RUN apk add --no-cache libc6-compat
-
-COPY package.json package-lock.json* ./
-RUN npm ci
-
-
-# 2️⃣ Build the app
-FROM node:20-alpine AS builder
+# 2. Build the app
+FROM node:20-bullseye AS builder
 WORKDIR /app
-
-RUN apk add --no-cache libc6-compat
-
-COPY . .
 COPY --from=deps /app/node_modules ./node_modules
-
-# Generate Prisma client before building
+COPY . .
 RUN npx prisma generate
-
 RUN npm run build
 
-
-# 3️⃣ Production image
-FROM node:20-alpine AS runner
+# 3. Production runner
+FROM node:20-bullseye AS runner
 WORKDIR /app
+ENV NODE_ENV production
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 
-ENV NODE_ENV=production
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
-RUN apk add --no-cache libc6-compat
-
-# Copy built files
-COPY --from=builder --chown=node:node /app/public ./public
-COPY --from=builder --chown=node:node /app/.next ./.next
-COPY --from=builder --chown=node:node /app/node_modules ./node_modules
-COPY --from=builder --chown=node:node /app/package.json ./package.json
-COPY --from=builder --chown=node:node /app/prisma ./prisma
-
-# Create uploads folder
-RUN mkdir -p /app/public/uploads && chown -R node:node /app/public/uploads
-
-USER node
-
+USER nextjs
 EXPOSE 3000
-
 CMD ["npm", "start"]

@@ -29,7 +29,7 @@ export default function AdminOrdersPage() {
   const [perPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [expandedOrderIds, setExpandedOrderIds] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   const t = useTranslations("orders");
@@ -38,7 +38,7 @@ export default function AdminOrdersPage() {
   useEffect(() => {
     if (
       status === "unauthenticated" ||
-      (session && session.user.role !== "ADMIN")
+      (session && session.user?.role !== "ADMIN")
     ) {
       redirect("/auth/signin");
       return;
@@ -53,7 +53,7 @@ export default function AdminOrdersPage() {
     setLoading(true);
     try {
       const res = await fetch(
-        `/api/admin/orders?page=${pageNumber}&perPage=${perPage}`
+        `/api/admin/orders?page=${pageNumber}&perPage=${perPage}`,
       );
       if (res.ok) {
         const { data, pagination } = await res.json();
@@ -113,7 +113,7 @@ export default function AdminOrdersPage() {
 
   const handleStatusChange = async (
     orderId: string,
-    newStatus: OrderStatus
+    newStatus: OrderStatus,
   ) => {
     try {
       const res = await fetch("/api/admin/orders", {
@@ -126,8 +126,8 @@ export default function AdminOrdersPage() {
       }
       setOrders((prev) =>
         prev.map((order) =>
-          order.id === orderId ? { ...order, status: newStatus } : order
-        )
+          order.id === orderId ? { ...order, status: newStatus } : order,
+        ),
       );
     } catch (error) {
       console.error("Error updating status:", error);
@@ -161,14 +161,14 @@ export default function AdminOrdersPage() {
                   </span>
                   <select
                     className={`px-2 py-1 text-xs rounded cursor-pointer ${getStatusBadgeColor(
-                      order.status
+                      order.status,
                     )}`}
                     value={order.status}
                     onClick={(e) => e.stopPropagation()}
                     onChange={(e) =>
                       handleStatusChange(
                         order.id,
-                        e.target.value as OrderStatus
+                        e.target.value as OrderStatus,
                       )
                     }>
                     {Object.values(OrderStatus).map((status) => (

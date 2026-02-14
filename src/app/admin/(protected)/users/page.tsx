@@ -55,7 +55,7 @@ export default function AdminUsersPage() {
   useEffect(() => {
     if (
       status === "unauthenticated" ||
-      (session && session.user.role !== "ADMIN")
+      (session && session.user?.role !== "ADMIN")
     ) {
       redirect("/auth/signin");
       return;
@@ -75,8 +75,8 @@ export default function AdminUsersPage() {
     try {
       const res = await fetch(
         `/api/admin/users?page=${pageNumber}&perPage=${perPage}&search=${encodeURIComponent(
-          search
-        )}`
+          search,
+        )}`,
       );
       if (res.ok) {
         const { data, pagination } = await res.json();
@@ -91,7 +91,7 @@ export default function AdminUsersPage() {
   };
 
   const handleFormChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -203,8 +203,8 @@ export default function AdminUsersPage() {
               {selectedUser
                 ? `Orders for ${selectedUser.name}`
                 : form.id
-                ? "Edit User"
-                : "Add User"}
+                  ? "Edit User"
+                  : "Add User"}
             </DialogTitle>
           </DialogHeader>
 
@@ -284,8 +284,8 @@ export default function AdminUsersPage() {
                       ? "Updating..."
                       : "Creating..."
                     : form.id
-                    ? "Update"
-                    : "Create"}
+                      ? "Update"
+                      : "Create"}
                 </Button>
               </DialogFooter>
             </form>
@@ -324,8 +324,7 @@ export default function AdminUsersPage() {
               </div>
 
               <div>
-                <b>Address:</b>{" "}
-                {selectedOrder.user?.addresses?.[0]?.fullName} —{" "}
+                <b>Address:</b> {selectedOrder.user?.addresses?.[0]?.fullName} —{" "}
                 {selectedOrder.user?.addresses?.[0]?.phone}
               </div>
 
@@ -424,7 +423,9 @@ export default function AdminUsersPage() {
 
           {/* Pagination */}
           <div className="flex justify-center mt-4 space-x-4">
-            <Button onClick={() => setPage((p) => Math.max(p - 1, 1))} disabled={page === 1}>
+            <Button
+              onClick={() => setPage((p) => Math.max(p - 1, 1))}
+              disabled={page === 1}>
               Previous
             </Button>
             <Button

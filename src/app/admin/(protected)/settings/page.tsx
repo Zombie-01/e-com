@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
-  import { Input } from "@/src/components/ui/input";
+import { Input } from "@/src/components/ui/input";
 import {
   Table,
   TableBody,
@@ -37,9 +37,9 @@ export default function SiteSettingsPage() {
   const [colors, setColors] = useState([]);
   const [sizes, setSizes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [modalType, setModalType] = useState<"banner" | "color" | "size" | null>(
-    null
-  );
+  const [modalType, setModalType] = useState<
+    "banner" | "color" | "size" | null
+  >(null);
   const [form, setForm] = useState<any>({});
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -47,7 +47,7 @@ export default function SiteSettingsPage() {
   useEffect(() => {
     if (
       status === "unauthenticated" ||
-      (session && session.user.role !== "ADMIN")
+      (session && session.user?.role !== "ADMIN")
     ) {
       redirect("/auth/signin");
     }
@@ -152,7 +152,7 @@ export default function SiteSettingsPage() {
     title: string,
     type: "banner" | "color" | "size",
     data: any[],
-    keys: string[]
+    keys: string[],
   ) => (
     <Card className="mb-8">
       <CardHeader className="flex justify-between items-center">
@@ -226,9 +226,7 @@ export default function SiteSettingsPage() {
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {form.id ? "Edit Item" : "Create Item"}
-            </DialogTitle>
+            <DialogTitle>{form.id ? "Edit Item" : "Create Item"}</DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -237,18 +235,24 @@ export default function SiteSettingsPage() {
                 <Input
                   placeholder="Mongolian Title"
                   value={form.mnTitle || ""}
-                  onChange={(e) => setForm({ ...form, mnTitle: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, mnTitle: e.target.value })
+                  }
                   required
                 />
                 <Input
                   placeholder="English Title"
                   value={form.enTitle || ""}
-                  onChange={(e) => setForm({ ...form, enTitle: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, enTitle: e.target.value })
+                  }
                   required
                 />
                 <Input
                   type="file"
-                  onChange={(e) => setForm({ ...form, file: e.target.files?.[0] })}
+                  onChange={(e) =>
+                    setForm({ ...form, file: e.target.files?.[0] })
+                  }
                   required={!form.id}
                 />
                 <Input

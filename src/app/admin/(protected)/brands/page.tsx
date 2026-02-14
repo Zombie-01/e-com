@@ -32,7 +32,6 @@ import {
 import { Plus, Search, Edit, Trash2 } from "lucide-react";
 
 export default function AdminBrandsPage() {
-
   const { data: session, status } = useSession();
   const [brands, setBrands] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +44,7 @@ export default function AdminBrandsPage() {
   useEffect(() => {
     if (
       status === "unauthenticated" ||
-      (session && session.user.role !== "ADMIN")
+      (session && session.user?.role !== "ADMIN")
     ) {
       redirect("/admin/auth/signin");
     }
@@ -73,7 +72,7 @@ export default function AdminBrandsPage() {
   const filteredBrands = brands.filter(
     (brand) =>
       brand.enName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      brand.mnName.toLowerCase().includes(searchTerm.toLowerCase())
+      brand.mnName.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,9 +133,7 @@ export default function AdminBrandsPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Гарчиг
-          </h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Гарчиг</h1>
           <p className="text-gray-600">Текст</p>
         </div>
         <Button
@@ -177,9 +174,8 @@ export default function AdminBrandsPage() {
                     ? "updating"
                     : "creating"
                   : form.id
-                  ? "updateBrand"
-                  : "createBrand"
-                  }
+                    ? "updateBrand"
+                    : "createBrand"}
               </Button>
             </DialogFooter>
           </form>
@@ -189,7 +185,7 @@ export default function AdminBrandsPage() {
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>allBrands, ({ brands.length})</CardTitle>
+            <CardTitle>allBrands, ({brands.length})</CardTitle>
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input

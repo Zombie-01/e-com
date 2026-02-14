@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
 import { sendEmail } from "@/src/lib/email";
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = (await getServerSession(authOptions)) as any;
 
   if (!session?.user?.id) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
           message:
             "Invalid data: 'deliveryId' and at least one 'item' are required.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
         {
           message: `Missing or invalid product variants: ${missing.join(", ")}`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -55,10 +55,10 @@ export async function POST(request: NextRequest) {
       if (!variant || typeof item.quantity !== "number" || item.quantity < 1) {
         return NextResponse.json(
           { message: `Invalid quantity or variant: ${item.variantId}` },
-          { status: 400 }
+          { status: 400 },
         );
       }
-      total += variant.product.price * item.quantity;
+      total += variant.product?.price * item.quantity;
     }
 
     for (const item of items) {
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       if (!variant || typeof item.quantity !== "number" || item.quantity < 1) {
         return NextResponse.json(
           { message: `Invalid quantity or variant: ${item.variantId}` },
-          { status: 400 }
+          { status: 400 },
         );
       }
       costPrice += variant.product.costPrice * item.quantity;
@@ -144,13 +144,13 @@ export async function POST(request: NextRequest) {
     console.error("❌ Error creating order:", error);
     return NextResponse.json(
       { message: "Internal server error", error: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
+  const session = (await getServerSession(authOptions)) as any;
 
   if (!session?.user?.email) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });

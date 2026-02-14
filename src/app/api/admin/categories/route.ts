@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
+  const session = (await getServerSession(authOptions)) as any;
+  if (!session || session?.user.role !== "ADMIN") {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -29,8 +29,8 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
+  const session = (await getServerSession(authOptions)) as any;
+  if (!session || session?.user.role !== "ADMIN") {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -50,8 +50,8 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "ADMIN") {
+    const session = (await getServerSession(authOptions)) as any;
+    if (!session || session?.user.role !== "ADMIN") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -61,7 +61,7 @@ export async function DELETE(request: NextRequest) {
     if (!id) {
       return NextResponse.json(
         { message: "Missing category ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -79,7 +79,7 @@ export async function DELETE(request: NextRequest) {
           message:
             "Cannot delete category: there are active products in this category.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -96,7 +96,7 @@ export async function DELETE(request: NextRequest) {
     if (error.code === "P2003") {
       return NextResponse.json(
         { message: "Cannot delete category: it is used by other records." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -104,13 +104,13 @@ export async function DELETE(request: NextRequest) {
       // Record not found
       return NextResponse.json(
         { message: "Category not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     return NextResponse.json(
       { message: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

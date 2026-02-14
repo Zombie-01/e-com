@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
 
 // CREATE a new tag
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
+  const session = (await getServerSession(authOptions)) as any;
+  if (!session || session?.user.role !== "ADMIN") {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -30,15 +30,15 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching tags:", error);
     return NextResponse.json(
       { message: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 // UPDATE a tag (expects ?id= tagId)
 export async function PUT(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
+  const session = (await getServerSession(authOptions)) as any;
+  if (!session || session?.user.role !== "ADMIN") {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -49,7 +49,7 @@ export async function PUT(request: NextRequest) {
   if (!data.id) {
     return NextResponse.json(
       { message: "Tag ID is required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -66,8 +66,8 @@ export async function PUT(request: NextRequest) {
 
 // DELETE a tag (expects ?id= tagId)
 export async function DELETE(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
+  const session = (await getServerSession(authOptions)) as any;
+  if (!session || session?.user.role !== "ADMIN") {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -76,7 +76,7 @@ export async function DELETE(request: NextRequest) {
   if (!id) {
     return NextResponse.json(
       { message: "Tag ID is required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 

@@ -17,11 +17,12 @@ import {
 import { Alert, AlertDescription } from "@/src/components/ui/alert";
 import { Eye, EyeOff, Mail, Lock, FacebookIcon } from "lucide-react";
 
-export default function SignInPage({
-  params: { locale },
+export default async function SignInPage({
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
 import { uploadFileToPublicUploads } from "@/src/lib/upload";
@@ -7,8 +7,8 @@ import { uploadFileToPublicUploads } from "@/src/lib/upload";
 // GET all products
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "ADMIN") {
+    const session = (await getServerSession(authOptions)) as any;
+    if (!session || session?.user.role !== "ADMIN") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     console.error("GET error:", error);
     return NextResponse.json(
       { message: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -42,8 +42,8 @@ export async function GET(request: NextRequest) {
 // POST create a product
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "ADMIN") {
+    const session = (await getServerSession(authOptions)) as any;
+    if (!session || session?.user.role !== "ADMIN") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -91,9 +91,9 @@ export async function POST(request: NextRequest) {
         variantImageUploads.push(
           Promise.all(
             files.map((f) =>
-              uploadFileToPublicUploads(f).then((res) => res.urlPath as string)
-            )
-          )
+              uploadFileToPublicUploads(f).then((res) => res.urlPath as string),
+            ),
+          ),
         );
       } else {
         variantImageUploads.push(Promise.resolve([]));
@@ -142,15 +142,15 @@ export async function POST(request: NextRequest) {
     console.error("POST error:", error);
     return NextResponse.json(
       { message: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "ADMIN") {
+    const session = (await getServerSession(authOptions)) as any;
+    if (!session || session?.user.role !== "ADMIN") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -159,7 +159,7 @@ export async function PUT(request: NextRequest) {
     if (!id) {
       return NextResponse.json(
         { message: "Product ID required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -203,7 +203,7 @@ export async function PUT(request: NextRequest) {
         const fileKey = `variantImage_${i}_${imgIdx}`;
         if (variantImagesMap[fileKey]) {
           const uploadResult = await uploadFileToPublicUploads(
-            variantImagesMap[fileKey]
+            variantImagesMap[fileKey],
           );
           images.push(uploadResult.urlPath as string);
         } else {
@@ -258,15 +258,15 @@ export async function PUT(request: NextRequest) {
     console.error("PUT error:", error);
     return NextResponse.json(
       { message: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "ADMIN") {
+    const session = (await getServerSession(authOptions)) as any;
+    if (!session || session?.user.role !== "ADMIN") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -276,7 +276,7 @@ export async function DELETE(request: NextRequest) {
     } catch {
       return NextResponse.json(
         { message: "Invalid request body" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -284,7 +284,7 @@ export async function DELETE(request: NextRequest) {
     if (!id) {
       return NextResponse.json(
         { message: "Product ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -305,7 +305,7 @@ export async function DELETE(request: NextRequest) {
     console.error("DELETE error:", error);
     return NextResponse.json(
       { message: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
