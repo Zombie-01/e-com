@@ -6,7 +6,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/src/lib/prisma";
 import bcrypt from "bcryptjs";
 
-export const authOptions: any = {
+export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     // Email + Password credentials provider
@@ -60,7 +60,15 @@ export const authOptions: any = {
   },
 
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({
+      user,
+      account,
+      profile,
+    }: {
+      user: any;
+      account: any;
+      profile?: any;
+    }) {
       if (!user.email) return false;
 
       await prisma.user.upsert({
@@ -78,7 +86,7 @@ export const authOptions: any = {
       return true;
     },
 
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: any; user?: any }) {
       // Attach user role on sign in
       if (user) {
         token.role = (user as any).role;
@@ -86,7 +94,7 @@ export const authOptions: any = {
       return token;
     },
 
-    async session({ session, token }) {
+    async session({ session, token }: { token: any; session?: any }) {
       if (token && session.user) {
         session.user.id = token.sub!;
         session.user.role = `${(token as any).role}` || "USER";
@@ -94,7 +102,7 @@ export const authOptions: any = {
       return session;
     },
 
-    async redirect({ url, baseUrl }) {
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
       const clientRedirectUrl = process.env.CLIENT_REDIRECT_URL;
       if (url.startsWith(baseUrl)) return url;
       if (clientRedirectUrl && url.startsWith(clientRedirectUrl)) return url;
