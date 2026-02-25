@@ -82,6 +82,7 @@ export default function AdminProductsPage() {
   const handleEdit = (product: any) => {
     setShowModal(true);
     setEditingProduct(product);
+    setExpandVariants(true);
     setForm({
       mnName: product.mnName,
       enName: product.enName,
@@ -104,6 +105,11 @@ export default function AdminProductsPage() {
       })),
     });
     setVariantImages(product.variants.map(() => null));
+  };
+
+  const handleOpenCreateModal = () => {
+    setShowModal(true);
+    setExpandVariants(true);
   };
 
   useEffect(() => {
@@ -332,13 +338,21 @@ export default function AdminProductsPage() {
           <h1 className="text-3xl font-bold">{t("title")}</h1>
           <p className="text-gray-600">{t("subtitle")}</p>
         </div>
-        <Button onClick={() => setShowModal(true)}>
+        <Button onClick={handleOpenCreateModal}>
           <Plus className="w-4 h-4 mr-2" /> {t("addProduct")}
         </Button>
       </div>
 
       {/* Modal */}
-      <Dialog open={showModal} onOpenChange={setShowModal}>
+      <Dialog
+        open={showModal}
+        onOpenChange={(open) => {
+          setShowModal(open);
+          if (!open) {
+            setExpandVariants(false);
+            setEditingProduct(null);
+          }
+        }}>
         <DialogContent className="max-h-[70vh] overflow-auto">
           <DialogHeader>
             <DialogTitle>
@@ -473,14 +487,12 @@ export default function AdminProductsPage() {
 
             {expandVariants && (
               <div className="space-y-4">
-                {form.variants.map((variant, idx) => (
-                  <div
-                    key={idx}
-                    className="grid grid-cols-2 gap-2 border p-3 rounded">
+                {form.variants[0] && (
+                  <div className="grid grid-cols-2 gap-2 border p-3 rounded">
                     <select
-                      value={variant.colorId}
+                      value={form.variants[0].colorId}
                       onChange={(e) =>
-                        handleVariantChange(idx, "colorId", e.target.value)
+                        handleVariantChange(0, "colorId", e.target.value)
                       }
                       className="border p-2">
                       <option value="">{t("dialog.color")}</option>
@@ -494,9 +506,9 @@ export default function AdminProductsPage() {
                       ))}
                     </select>
                     <select
-                      value={variant.sizeId}
+                      value={form.variants[0].sizeId}
                       onChange={(e) =>
-                        handleVariantChange(idx, "sizeId", e.target.value)
+                        handleVariantChange(0, "sizeId", e.target.value)
                       }
                       className="border p-2">
                       <option value="">{t("dialog.size")}</option>
@@ -508,10 +520,10 @@ export default function AdminProductsPage() {
                     </select>
                     <Input
                       type="number"
-                      value={variant.stock}
+                      value={form.variants[0].stock}
                       onChange={(e) =>
                         handleVariantChange(
-                          idx,
+                          0,
                           "stock",
                           parseInt(e.target.value),
                         )
@@ -524,13 +536,13 @@ export default function AdminProductsPage() {
                       accept="image/*"
                       multiple
                       onChange={(e) => {
-                        handleVariantImageChange(idx, e.target.files);
+                        handleVariantImageChange(0, e.target.files);
                       }}
                       className="border p-2"
                     />
                     {/* Preview and remove images */}
-                    {variantImages[idx] &&
-                      variantImages[idx]!.map((file, imgIdx) => (
+                    {variantImages[0] &&
+                      variantImages[0]!.map((file, imgIdx) => (
                         <div
                           key={imgIdx}
                           className="inline-block mr-2 relative">
@@ -544,16 +556,111 @@ export default function AdminProductsPage() {
                             size="icon"
                             variant="ghost"
                             className="absolute top-0 right-0"
-                            onClick={() =>
-                              handleRemoveVariantImage(idx, imgIdx)
-                            }
+                            onClick={() => handleRemoveVariantImage(0, imgIdx)}
                             title="Remove image">
                             <Trash2 className="w-4 h-4 text-red-500" />
                           </Button>
                         </div>
                       ))}
                   </div>
-                ))}
+                )}
+                {form.variants.length > 1 && (
+                  <div className="space-y-2 border-t pt-4">
+                    <p className="font-semibold text-sm">
+                      {t("dialog.additionalVariants")} (
+                      {form.variants.length - 1})
+                    </p>
+                    {form.variants.slice(1).map((variant, idx) => (
+                      <div
+                        key={idx + 1}
+                        className="grid grid-cols-2 gap-2 border p-3 rounded">
+                        <select
+                          value={variant.colorId}
+                          onChange={(e) =>
+                            handleVariantChange(
+                              idx + 1,
+                              "colorId",
+                              e.target.value,
+                            )
+                          }
+                          className="border p-2">
+                          <option value="">{t("dialog.color")}</option>
+                          {colors.map((c) => (
+                            <option
+                              key={c.id}
+                              value={c.id}
+                              style={{ background: c?.hex }}>
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                        <select
+                          value={variant.sizeId}
+                          onChange={(e) =>
+                            handleVariantChange(
+                              idx + 1,
+                              "sizeId",
+                              e.target.value,
+                            )
+                          }
+                          className="border p-2">
+                          <option value="">{t("dialog.size")}</option>
+                          {sizes.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.name}
+                            </option>
+                          ))}
+                        </select>
+                        <Input
+                          type="number"
+                          value={variant.stock}
+                          onChange={(e) =>
+                            handleVariantChange(
+                              idx + 1,
+                              "stock",
+                              parseInt(e.target.value),
+                            )
+                          }
+                          placeholder={t("dialog.stock")}
+                          min={0}
+                        />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={(e) => {
+                            handleVariantImageChange(idx + 1, e.target.files);
+                          }}
+                          className="border p-2"
+                        />
+                        {/* Preview and remove images */}
+                        {variantImages[idx + 1] &&
+                          variantImages[idx + 1]!.map((file, imgIdx) => (
+                            <div
+                              key={imgIdx}
+                              className="inline-block mr-2 relative">
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt="Preview"
+                                className="w-16 h-16 object-cover rounded"
+                              />
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                className="absolute top-0 right-0"
+                                onClick={() =>
+                                  handleRemoveVariantImage(idx + 1, imgIdx)
+                                }
+                                title="Remove image">
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                              </Button>
+                            </div>
+                          ))}
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <Button
                   type="button"
                   onClick={() =>
