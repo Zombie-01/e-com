@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn, getSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button } from "@/src/components/ui/button";
@@ -17,12 +17,9 @@ import {
 import { Alert, AlertDescription } from "@/src/components/ui/alert";
 import { Eye, EyeOff, Mail, Lock, FacebookIcon } from "lucide-react";
 
-export default async function SignInPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
+export default function SignInPage() {
+  const params = useParams();
+  const locale = (params?.locale as string) || "";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -60,12 +57,6 @@ export default async function SignInPage({
     }
   };
 
-  const signInWithGoogle = async () => {
-    await signIn("google", { callbackUrl: `/${locale}` }).then(() => {
-        router.push(`/${locale}`);
-    })
-  };
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 px-4">
@@ -77,20 +68,6 @@ export default async function SignInPage({
           <p className="text-gray-600">{t("sign_in_to_continue")}</p>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3 mb-6">
-            <Button
-              onClick={signInWithGoogle}
-              className="w-full"
-              variant="outline">
-              Continue with Google
-            </Button>
-            <div className="flex items-center gap-2">
-              <div className="h-px flex-1 bg-gray-200" />
-              <span className="text-xs text-gray-500">or</span>
-              <div className="h-px flex-1 bg-gray-200" />
-            </div>
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <Alert className="border-red-200 bg-red-50">

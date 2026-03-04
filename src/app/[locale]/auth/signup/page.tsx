@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button } from "@/src/components/ui/button";
@@ -16,12 +16,9 @@ import {
 import { Alert, AlertDescription } from "@/src/components/ui/alert";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 
-export default async function SignUpPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
+export default function SignUpPage() {
+  const params = useParams();
+  const locale = (params?.locale as string) || "";
   const [formData, setFormData] = useState({
     name: "",
     email: "",
